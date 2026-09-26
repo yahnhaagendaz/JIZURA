@@ -8,19 +8,19 @@
 'use strict';
 
 J.MOODS = {
-  glitch:    { name: 'グリッチ', fx: { motion: [0.6, 0.9], glitch: [0.75, 1], chroma: [0.75, 1], decor: [0.3, 0.6], density: [0.6, 0.9], texture: [0.5, 0.9], bgSwitch: [0.3, 0.6] },
+  glitch:    { name: 'グリッチ', name_zh: '数字故障', fx: { motion: [0.6, 0.9], glitch: [0.75, 1], chroma: [0.75, 1], decor: [0.3, 0.6], density: [0.6, 0.9], texture: [0.5, 0.9], bgSwitch: [0.3, 0.6] },
     layout: ['center', 'condensed', 'huge', 'tile', 'marquee', 'vcols', 'scatter', 'stack'], enter: ['slice', 'scramble', 'assemble', 'flicker', 'zoom', 'stretch'], exit: ['glitch', 'slice', 'explode', 'fall'], styles: ['noir', 'crimson', 'mint', 'mono', 'hud'] },
-  calm:      { name: 'しっとり', fx: { motion: [0.3, 0.55], glitch: [0.05, 0.25], chroma: [0.2, 0.5], decor: [0.2, 0.5], density: [0.25, 0.45], texture: [0.5, 0.85], bgSwitch: [0.1, 0.3] },
+  calm:      { name: 'しっとり', name_zh: '温润舒缓', fx: { motion: [0.3, 0.55], glitch: [0.05, 0.25], chroma: [0.2, 0.5], decor: [0.2, 0.5], density: [0.25, 0.45], texture: [0.5, 0.85], bgSwitch: [0.1, 0.3] },
     layout: ['center', 'vcols', 'gloss', 'stack', 'circle', 'type', 'mixed'], enter: ['blur', 'type', 'wipe', 'assemble'], exit: ['blur', 'drift', 'wipe', 'shrink'], styles: ['specimen', 'paper', 'hud', 'noir'], noHold: ['glitchtick', 'jitter'] },
-  pop:       { name: 'ポップ', fx: { motion: [0.7, 1], glitch: [0.1, 0.35], chroma: [0.3, 0.6], decor: [0.6, 1], density: [0.5, 0.8], texture: [0.2, 0.5], bgSwitch: [0.4, 0.8] },
+  pop:       { name: 'ポップ', name_zh: '活泼波普', fx: { motion: [0.7, 1], glitch: [0.1, 0.35], chroma: [0.3, 0.6], decor: [0.6, 1], density: [0.5, 0.8], texture: [0.2, 0.5], bgSwitch: [0.4, 0.8] },
     layout: ['mixed', 'scatter', 'wave', 'labels', 'pill', 'ring', 'huge', 'diag', 'center'], enter: ['pop', 'drop', 'spin', 'stretch', 'zoom'], exit: ['scatter', 'shrink', 'stretch', 'blur'], styles: ['magenta', 'caution', 'transit', 'blueprint', 'rouge'] },
-  graphic:   { name: 'グラフィック', fx: { motion: [0.5, 0.8], glitch: [0.2, 0.5], chroma: [0.4, 0.7], decor: [0.7, 1], density: [0.5, 0.8], texture: [0.4, 0.7], bgSwitch: [0.3, 0.7] },
+  graphic:   { name: 'グラフィック', name_zh: '现代平面', fx: { motion: [0.5, 0.8], glitch: [0.2, 0.5], chroma: [0.4, 0.7], decor: [0.7, 1], density: [0.5, 0.8], texture: [0.4, 0.7], bgSwitch: [0.3, 0.7] },
     layout: ['diag', 'labels', 'marquee', 'tile', 'condensed', 'huge', 'circle', 'pill'], enter: ['wipe', 'slice', 'stretch', 'zoom'], exit: ['wipe', 'slice', 'stretch'], styles: ['blueprint', 'caution', 'rouge', 'mint', 'transit'] },
-  editorial: { name: 'エディトリアル', fx: { motion: [0.4, 0.65], glitch: [0.1, 0.3], chroma: [0.2, 0.45], decor: [0.4, 0.7], density: [0.35, 0.6], texture: [0.6, 0.9], bgSwitch: [0.2, 0.4] },
+  editorial: { name: 'エディトリアル', name_zh: '典雅排版', fx: { motion: [0.4, 0.65], glitch: [0.1, 0.3], chroma: [0.2, 0.45], decor: [0.4, 0.7], density: [0.35, 0.6], texture: [0.6, 0.9], bgSwitch: [0.2, 0.4] },
     layout: ['gloss', 'vcols', 'mixed', 'stack', 'type', 'center', 'circle'], enter: ['type', 'blur', 'wipe', 'assemble'], exit: ['blur', 'drift', 'wipe'], styles: ['specimen', 'paper', 'noir', 'mono', 'hud'] },
-  emotional: { name: 'エモーショナル', fx: { motion: [0.55, 0.85], glitch: [0.3, 0.6], chroma: [0.5, 0.85], decor: [0.3, 0.6], density: [0.4, 0.7], texture: [0.6, 1], bgSwitch: [0.2, 0.5] },
+  emotional: { name: 'エモーショナル', name_zh: '抒情感染', fx: { motion: [0.55, 0.85], glitch: [0.3, 0.6], chroma: [0.5, 0.85], decor: [0.3, 0.6], density: [0.4, 0.7], texture: [0.6, 1], bgSwitch: [0.2, 0.5] },
     layout: ['huge', 'center', 'vcols', 'stack', 'condensed', 'mixed', 'circle'], enter: ['assemble', 'blur', 'zoom', 'wipe', 'slice'], exit: ['drift', 'explode', 'fall', 'blur'], styles: ['noir', 'paper', 'hud', 'mono', 'crimson'] },
-  chaos:     { name: '全部入り', fx: { motion: [0.5, 1], glitch: [0.3, 1], chroma: [0.4, 1], decor: [0.4, 1], density: [0.45, 0.9], texture: [0.3, 1], bgSwitch: [0.3, 0.9] },
+  chaos:     { name: '全部入り', name_zh: '全能乱炖', fx: { motion: [0.5, 1], glitch: [0.3, 1], chroma: [0.4, 1], decor: [0.4, 1], density: [0.45, 0.9], texture: [0.3, 1], bgSwitch: [0.3, 0.9] },
     layout: null, enter: null, exit: null, styles: null },
 };
 

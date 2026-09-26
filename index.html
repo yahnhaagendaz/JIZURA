@@ -13,7 +13,7 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@300;500;700;900&family=Noto+Serif+SC:wght@300;500;700;900&family=ZCOOL+KuaiLe&family=ZCOOL+XiaoWei&family=ZCOOL+QingKe+HuangYou&family=Ma+Shan+Zheng&family=Long+Cang&display=swap">
 <style>
 :root {
   color-scheme: dark;
@@ -100,23 +100,38 @@ h3 { font-size: 11px; letter-spacing: 0.14em; color: var(--muted); margin-top: 1
 .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--muted); }
 .field input, .field select { width: 100%; }
-.tapbox { border: 1px solid var(--amber); border-radius: var(--r); padding: 10px; display: grid; gap: 8px; background: rgba(245,165,12,0.06); }
-.tapbox .next { font-size: 15px; }
-button.tap { font: 700 18px/1 var(--mono); letter-spacing: 0.2em; padding: 16px; background: var(--amber); color: #120c00; border-color: var(--amber); }
+/* tap sync panel */
+.tapbox { border: 1px solid var(--amber); border-radius: var(--r); padding: 8px 10px; display: grid; gap: 6px; background: rgba(245,165,12,0.06); }
+.tap-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.tap-badge { background: var(--amber); color: #120c00; font: 700 11px/1 var(--mono); padding: 2px 5px; border-radius: 3px; }
+.tap-speeds { display: flex; gap: 2px; }
+.tap-spd { padding: 1px 5px; font-size: 10px; font-family: var(--mono); }
+.tap-spd.active { background: var(--amber); color: #120c00; font-weight: 700; border-color: var(--amber); }
+.tap-countin-mini { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.tap-body { display: grid; gap: 2px; }
+.tap-line-cur { font-size: 13px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-line-next { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-actions { display: flex; gap: 6px; }
+button.tap { flex: 1; font: 700 13px/1 var(--mono); letter-spacing: 0.08em; padding: 8px 10px; background: var(--amber); color: #120c00; border-color: var(--amber); transition: transform 0.05s; }
+button.tap:active { transform: scale(0.98); }
+button.tap.pulse { animation: tapBeat 0.35s ease-out; }
+@keyframes tapBeat { 0% { background: #fff; color: #000; } 100% { background: var(--amber); color: #120c00; } }
 
 /* line list */
 #lineList { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.ln { display: grid; grid-template-columns: 22px 66px minmax(0, 1fr); gap: 4px 6px; align-items: center; padding: 6px; border: 1px solid transparent; border-radius: var(--r); }
+.ln { display: grid; grid-template-columns: 22px 72px minmax(0, 1fr); gap: 4px 6px; align-items: center; padding: 6px; border: 1px solid transparent; border-radius: var(--r); }
 .ln:hover { background: var(--raised); }
 .ln.cur { border-color: var(--line2); background: var(--raised); }
-.ln .no { font: 500 11px var(--mono); color: var(--faint); text-align: right; }
-.ln .time { width: 100%; padding: 3px 5px; font-size: 12px; }
+.ln.cur-tap { border-color: var(--amber); background: rgba(245,165,12,0.12); box-shadow: 0 0 8px rgba(245,165,12,0.25); }
+.ln .no { font: 500 11px var(--mono); color: var(--faint); text-align: right; cursor: pointer; }
+.ln .no:hover { color: var(--amber); }
+.ln .time { width: 100%; padding: 2px 4px; font-size: 11px; text-align: center; }
 .ln .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
-.ln .meta { grid-column: 2 / 4; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
-.ln .tools { display: flex; gap: 4px; flex: none; }
-.ln .tools select { padding: 2px 4px; font-size: 11px; max-width: 92px; }
-.ln .cuts { display: flex; gap: 4px; flex-wrap: wrap; min-width: 0; }
-.ln .cuts span { font-size: 10px; padding: 1px 6px; border-radius: 2px; border: 1px solid var(--line2); color: var(--muted); cursor: pointer; }
+.ln .meta { grid-column: 2 / 4; display: flex; justify-content: space-between; align-items: center; gap: 6px; min-width: 0; }
+.ln .tools { display: flex; gap: 4px; flex: none; align-items: center; }
+.ln .tools select { padding: 2px 4px; font-size: 11px; max-width: 86px; }
+.ln .cuts { display: flex; gap: 4px; flex-wrap: nowrap; overflow: hidden; min-width: 0; }
+.ln .cuts span { font-size: 10px; padding: 1px 6px; border-radius: 2px; border: 1px solid var(--line2); color: var(--muted); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .ln .cuts span:hover { color: var(--text); border-color: var(--amber); }
 
 /* ---------- stage ---------- */
@@ -255,194 +270,221 @@ button.omakase:disabled { box-shadow: none; }
 <body>
 <div id="app">
   <header class="bar">
-    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA</span><span class="tag">lyric motion engine</span></div>
+    <div class="brand"><span class="mark" aria-hidden="true">字面</span><span class="word">JIZURA</span><span class="tag" data-i18n="brand_tag">文字PV动力学引擎</span></div>
     <div class="proj">
-      <input id="songTitle" type="text" placeholder="曲名（タイトルカード・HUDに表示）" aria-label="曲名">
-      <input id="songArtist" type="text" placeholder="アーティスト" aria-label="アーティスト">
+      <input id="songTitle" type="text" placeholder="歌曲名称（显示于标题卡与HUD）" data-i18n-ph="song_title_ph" aria-label="曲名">
+      <input id="songArtist" type="text" placeholder="歌手 / 创作者" data-i18n-ph="song_artist_ph" aria-label="アーティスト">
     </div>
-    <div class="modes" role="group" aria-label="表示モード">
-      <button id="modeEasy" aria-pressed="false" title="おまかせボタン中心のシンプルな画面">かんたん</button>
-      <button id="modePro" aria-pressed="true" title="すべての設定を表示">詳細</button>
+    <div class="modes lang-switch" role="group" aria-label="语言切换 / 言語切替">
+      <button id="langZh" aria-pressed="true" title="切换到中文界面">中文</button>
+      <button id="langJa" aria-pressed="false" title="日本語に切り替え">日本語</button>
+    </div>
+    <div class="modes" role="group" aria-label="显示模式 / 表示モード">
+      <button id="modeEasy" aria-pressed="false" data-i18n="mode_easy" data-i18n-title="mode_easy_title" title="以一键生成为主的清爽界面">极简</button>
+      <button id="modePro" aria-pressed="true" data-i18n="mode_pro" data-i18n-title="mode_pro_title" title="展开全部详细调节参数">详细</button>
     </div>
     <div class="acts">
-      <label class="file" title="保存したプロジェクト(.json)を開く">開く<input id="fileProject" type="file" accept=".json,application/json"></label>
-      <button id="btnSave" title="プロジェクトを .json で保存">保存</button>
-      <button id="btnAE" title="After Effects パネル用の構成データを書き出す">AE用に書き出し</button>
+      <label class="file" data-i18n-title="btn_open_title" title="读取已保存的工程文件(.json)"><span data-i18n="btn_open">打开</span><input id="fileProject" type="file" accept=".json,application/json"></label>
+      <button id="btnSave" data-i18n="btn_save" data-i18n-title="btn_save_title" title="将当前工程保存为 .json">保存</button>
+      <button id="btnAE" data-i18n="btn_ae" data-i18n-title="btn_ae_title" title="导出供 After Effects 面板还原工程的结构数据">导出AE工程</button>
     </div>
   </header>
 
   <main class="work">
     <!-- ================= left: lyrics & timing ================= -->
-    <section class="col col-left" aria-label="歌詞とタイミング">
+    <section class="col col-left" aria-label="歌词与节奏 / 歌詞とタイミング">
       <div class="sec">
-        <div class="sec-h"><h2>歌詞</h2><button id="btnSyntax" class="ghost small" aria-expanded="false">記法</button></div>
-        <textarea id="lyrics" rows="9" spellcheck="false" aria-label="歌詞（1行 = 1フレーズ）"></textarea>
+        <div class="sec-h">
+          <h2 data-i18n="sec_lyrics">歌词文本</h2>
+          <div class="row" style="gap:4px">
+            <button id="btnSampleZh" class="ghost small" title="填入中文示例歌词" data-i18n="btn_sample_zh">中文示例</button>
+            <button id="btnSampleJa" class="ghost small" title="日本語サンプル歌詞を挿入" data-i18n="btn_sample_ja">日文示例</button>
+            <button id="btnSyntax" class="ghost small" aria-expanded="false" data-i18n="btn_syntax">语法标记</button>
+          </div>
+        </div>
+        <textarea id="lyrics" rows="9" spellcheck="false" data-i18n-ph="lyrics_ph" placeholder="歌词（一行为一个分句/镜头）" aria-label="歌词"></textarea>
         <div id="syntax" class="syntax" hidden>
           <ul>
-            <li>1行が1フレーズ。空行は少し間を空けます</li>
-            <li><code>夜明けの色を/覚えてる</code> … <code>/</code> でカットの切れ目を指定</li>
-            <li><code>*透明*</code> … 強調（大きく・インパクト寄りの演出）</li>
-            <li>行末の <code>!</code> … フラッシュと揺れを入れる</li>
-            <li><code>歌詞|ruby or note</code> … 注釈レイアウトの小さな文字</li>
-            <li><code>[01:23.45]歌詞</code> … LRC のタイムスタンプをそのまま使用</li>
-            <li><code>#</code> で始まる行 … コメント（無視）</li>
+            <li data-i18n="syntax_1">一行为一个分句。空行会自动保留短暂间隔</li>
+            <li data-i18n="syntax_2"><code>夜空中最亮的星/是否听清</code> … <code>/</code> 明确划分镜头切片</li>
+            <li data-i18n="syntax_3"><code>*重点词*</code> … 强调（更大、更强视觉冲击力）</li>
+            <li data-i18n="syntax_4">行末加 <code>!</code> … 触发白闪与震颤冲屏</li>
+            <li data-i18n="syntax_5"><code>歌词|注解小字</code> … 注解布局的小字文本</li>
+            <li data-i18n="syntax_6"><code>[01:23.45]歌词</code> … 兼容标准 LRC 时间戳</li>
+            <li data-i18n="syntax_7"><code>#</code> 开头的行 … 注释（忽略不显示）</li>
           </ul>
         </div>
       </div>
 
       <div class="sec">
-        <div class="sec-h"><h2>曲とタイミング</h2></div>
-        <div id="audioName" class="muted audio-name">曲なし（読み込むと拍を検出してカットを合わせます）</div>
+        <div class="sec-h"><h2 data-i18n="sec_audio">音乐与节奏卡点</h2></div>
+        <div id="audioName" class="muted audio-name" data-i18n="audio_empty">未加载音乐（导入音乐后将自动检测BPM强拍并卡点）</div>
         <div class="row">
-          <label class="file" title="mp3 / wav / m4a など">曲を読み込む<input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
-          <button id="btnTap" title="曲を再生しながら各行の頭でタップ">タップで同期</button>
+          <label class="file" data-i18n-title="btn_load_audio_title" title="支持 mp3 / wav / m4a / ogg / flac 等格式"><span data-i18n="btn_load_audio">导入音频</span><input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
+          <button id="btnTap" data-i18n="btn_tap" data-i18n-title="btn_tap_title" title="播放音乐并随节拍按空格记录各行起点">打点同步</button>
         </div>
         <div class="fields pro-only">
-          <label class="field">BPM<input id="bpm" type="number" min="0" max="300" step="0.1" placeholder="自動"></label>
-          <label class="field">開始(秒)<input id="offset" type="number" min="0" step="0.05"></label>
-          <label class="field">行の長さ<input id="lineScale" type="number" min="0.4" max="3" step="0.05"></label>
+          <label class="field"><span data-i18n="bpm_label">BPM</span><input id="bpm" type="number" min="0" max="300" step="0.1" placeholder="自动" data-i18n-ph="bpm_ph"></label>
+          <label class="field"><span data-i18n="offset_label">起始延时(秒)</span><input id="offset" type="number" min="0" step="0.05"></label>
+          <label class="field"><span data-i18n="line_scale_label">单句时长倍率</span><input id="lineScale" type="number" min="0.4" max="3" step="0.05"></label>
         </div>
         <div class="row pro-only">
-          <label class="row" style="gap:6px"><input id="snap" type="checkbox"> 拍にスナップ</label>
-          <button id="btnResetTimes" class="ghost small">手動タイミングを消す</button>
+          <label class="row" style="gap:6px"><input id="snap" type="checkbox"> <span data-i18n="snap_label">吸附到节拍</span></label>
+          <button id="btnResetTimes" class="ghost small" data-i18n="btn_reset_times">清除手动时间</button>
         </div>
         <div id="tapPanel" class="tapbox" hidden>
-          <div class="hint">曲に合わせて、各行が始まる瞬間に <span class="kbd">Space</span> かボタンを押してください。</div>
-          <div class="next">次: <b id="tapLine">—</b></div>
-          <button id="tapBtn" class="tap">TAP</button>
-          <button id="tapStop" class="ghost">終了する</button>
+          <div class="tap-head">
+            <span class="tap-badge mono" id="tapLineNum">01</span>
+            <div class="tap-speeds">
+              <button class="ghost small tap-spd active" data-spd="1.0">1.0x</button>
+              <button class="ghost small tap-spd" data-spd="0.75">0.75x</button>
+              <button class="ghost small tap-spd" data-spd="0.5">0.5x</button>
+            </div>
+            <label class="tap-countin-mini" title="开始打点时先播放3秒预备节拍"><input id="tapCountIn" type="checkbox" checked> <span data-i18n="tap_countin">预备拍</span></label>
+            <button id="tapStop" class="ghost small icon-btn" title="退出打点 (Esc)">✕</button>
+          </div>
+          <div class="tap-body">
+            <div id="tapLine" class="tap-line-cur">—</div>
+            <div id="tapNextLine" class="tap-line-next muted">—</div>
+          </div>
+          <div class="tap-actions">
+            <button id="tapBtn" class="tap">TAP 敲击打点 (空格)</button>
+            <button id="tapUndo" class="ghost small" title="撤回上一句并倒带音乐 (Backspace)" data-i18n="tap_undo" data-i18n-title="tap_undo_title">↶ 撤回</button>
+          </div>
         </div>
       </div>
 
       <div class="sec">
-        <div class="sec-h"><h2>行とカット</h2><span id="linesInfo" class="muted mono"></span></div>
+        <div class="sec-h"><h2 data-i18n="sec_lines">分句与镜头列表</h2><span id="linesInfo" class="muted mono"></span></div>
         <ol id="lineList"></ol>
       </div>
     </section>
 
     <!-- ================= center: stage ================= -->
-    <section class="col col-stage" aria-label="プレビュー">
+    <section class="col col-stage" aria-label="预览 / プレビュー">
       <div class="viewport" id="viewport"><canvas id="view" width="1280" height="720"></canvas><div id="viewMsg" class="overlay-msg" hidden></div><div id="toast" class="toast" role="status" aria-live="polite" hidden></div></div>
       <div class="transport">
-        <button id="btnPlay" class="play" aria-label="再生">▶</button>
+        <button id="btnPlay" class="play" aria-label="播放">▶</button>
         <span id="timeNow" class="tc">00:00.00</span><span class="tc muted">/</span><span id="timeDur" class="tc muted">00:00.00</span>
-        <input id="scrub" type="range" min="0" max="10000" value="0" aria-label="再生位置">
-        <button id="btnLoop" class="ghost small" aria-pressed="true">ループ</button>
+        <button id="btnStampS" class="ghost small icon-txt mono" title="将当前播放头设为当前句起点 (快捷键 S)">S起点</button>
+        <button id="btnStampE" class="ghost small icon-txt mono" title="将当前播放头设为当前句终点 (快捷键 E)">E终点</button>
+        <input id="scrub" type="range" min="0" max="10000" value="0" aria-label="播放进度">
+        <button id="btnLoop" class="ghost small" aria-pressed="true" data-i18n="btn_loop">循环</button>
         <span class="hist-btns">
-          <button id="btnPrev" class="ghost small icon-txt" title="前の案に戻る" aria-label="前の案">◀</button>
-          <button id="btnNext" class="ghost small icon-txt" title="次の案へ進む" aria-label="次の案">▶</button>
+          <button id="btnPrev" class="ghost small icon-txt" title="上一方案" data-i18n-title="btn_prev_tip" aria-label="上一方案">◀</button>
+          <button id="btnNext" class="ghost small icon-txt" title="下一方案" data-i18n-title="btn_next_tip" aria-label="下一方案">▶</button>
         </span>
-        <button id="btnShuffle" class="accent" title="設定はそのままで構成だけ再抽選（ロックした行は維持）">シャッフル</button>
-        <button id="btnOmakase" class="primary" title="スタイル・雰囲気・演出・配色をまるごとランダムに（キー R）">おまかせ</button>
+        <button id="btnShuffle" class="accent" title="保持当前风格，重新打乱排版与动画组合（锁定的行保持不变）" data-i18n-title="btn_shuffle_title" data-i18n="btn_shuffle">重组镜头</button>
+        <button id="btnOmakase" class="primary" title="全量随机：视觉风格、氛围、运镜与配色（快捷键 R）" data-i18n-title="btn_omakase_title" data-i18n="btn_omakase">一键生成</button>
       </div>
-      <canvas id="timeline" aria-label="タイムライン（クリックで移動）"></canvas>
+      <canvas id="timeline" aria-label="时间轴（点击跳转）"></canvas>
       <div class="cutinfo" id="cutInfo"></div>
     </section>
 
     <!-- ================= right: look & output ================= -->
-    <section class="col col-right" aria-label="スタイルと書き出し">
+    <section class="col col-right" aria-label="视觉与导出 / スタイルと書き出し">
       <div id="easyPanel" class="easy" hidden>
         <div class="easy-hero">
-          <button id="btnOmakaseBig" class="omakase">おまかせで作る</button>
-          <p class="hint">押すたびに、スタイル・雰囲気・動き・配色・構成がまるごと変わります。キーボードの <span class="kbd">R</span> でも実行できます。</p>
+          <button id="btnOmakaseBig" class="omakase" data-i18n="omakase_big">一键生成 (R)</button>
+          <p class="hint" data-i18n="omakase_desc">每次点击，全片风格、氛围、运镜、配色与构图全部重新组合。键盘按 <span class="kbd">R</span> 亦可触发。</p>
           <div class="hist-row">
-            <button id="btnPrev2" class="ghost">◀ 前の案</button>
+            <button id="btnPrev2" class="ghost" data-i18n="btn_prev2">◀ 上一方案</button>
             <span id="histPos" class="muted mono"></span>
-            <button id="btnNext2" class="ghost">次の案 ▶</button>
+            <button id="btnNext2" class="ghost" data-i18n="btn_next2">下一方案 ▶</button>
           </div>
         </div>
         <div class="easy-sec">
-          <h3>いまの案</h3>
+          <h3 data-i18n="easy_now_title">当前配置</h3>
           <div id="easyNow" class="now"></div>
         </div>
         <div class="easy-sec">
-          <h3>ここだけ変える</h3>
+          <h3 data-i18n="easy_tweak_title">局部微调</h3>
           <div class="easy-grid">
-            <button id="eStyle" title="スタイルだけ別のものに">スタイル</button>
-            <button id="ePalette" title="アクセント・ズレ色A/Bをランダムに">配色</button>
-            <button id="eMood" title="動き・グリッチ・使う手法の雰囲気だけ">雰囲気</button>
-            <button id="eCut" title="レイアウトと動きの組み合わせだけ">構成</button>
+            <button id="eStyle" data-i18n="btn_e_style" data-i18n-title="btn_e_style_title" title="仅更换全局视觉风格">换风格</button>
+            <button id="ePalette" data-i18n="btn_e_palette" data-i18n-title="btn_e_palette_title" title="仅随机重掷点缀色与色散色彩">换配色</button>
+            <button id="eMood" data-i18n="btn_e_mood" data-i18n-title="btn_e_mood_title" title="仅更换运动力度、故障率与表现手法">换氛围</button>
+            <button id="eCut" data-i18n="btn_e_cut" data-i18n-title="btn_e_cut_title" title="仅重新编排排版与出入场组合">换构图</button>
           </div>
         </div>
         <div class="easy-sec">
-          <h3>書き出し</h3>
+          <h3 data-i18n="easy_export_title">快速导出</h3>
           <div class="fields">
-            <label class="field">画面比<select id="eAspect"><option value="16:9">16:9</option><option value="9:16">9:16 縦</option><option value="4:3">4:3</option><option value="3:4">3:4 縦</option><option value="1:1">1:1</option><option value="4:5">4:5 縦</option><option value="21:9">21:9</option></select></label>
-            <label class="field">解像度<select id="eRes"><option value="720">720p</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></label>
-            <label class="field">fps<select id="eFps"><option>24</option><option>30</option><option>60</option></select></label>
+            <label class="field"><span data-i18n="aspect_label">画面比例</span><select id="eAspect"><option value="16:9">16:9 横屏</option><option value="9:16">9:16 竖屏</option><option value="4:3">4:3</option><option value="3:4">3:4 竖</option><option value="1:1">1:1 正方</option><option value="4:5">4:5 竖</option><option value="21:9">21:9 宽幅</option></select></label>
+            <label class="field"><span data-i18n="res_label">分辨率</span><select id="eRes"><option value="720">720p</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></label>
+            <label class="field"><span data-i18n="fps_label">帧率 (FPS)</span><select id="eFps"><option>24</option><option>30</option><option>60</option></select></label>
           </div>
-          <div class="outbtns"><button id="eMP4" class="primary">MP4 を書き出す</button></div>
+          <div class="outbtns"><button id="eMP4" class="primary" data-i18n="btn_mp4">导出 MP4 视频</button></div>
           <div class="exp-box" hidden>
             <div class="progress"><i class="exp-bar"></i></div>
-            <div class="row" style="justify-content:space-between;margin-top:6px"><span class="exp-text muted mono">—</span><button class="exp-cancel ghost small">中止</button></div>
+            <div class="row" style="justify-content:space-between;margin-top:6px"><span class="exp-text muted mono">—</span><button class="exp-cancel ghost small" data-i18n="btn_cancel_export">取消</button></div>
           </div>
         </div>
       </div>
       <nav class="tabs" role="tablist">
-        <button role="tab" data-tab="style" aria-selected="true">スタイル</button>
-        <button role="tab" data-tab="fx" aria-selected="false">演出</button>
-        <button role="tab" data-tab="tech" aria-selected="false">手法</button>
-        <button role="tab" data-tab="out" aria-selected="false">書き出し</button>
+        <button role="tab" data-tab="style" aria-selected="true" data-i18n="tab_style">视觉风格</button>
+        <button role="tab" data-tab="fx" aria-selected="false" data-i18n="tab_fx">动效调优</button>
+        <button role="tab" data-tab="tech" aria-selected="false" data-i18n="tab_tech">表现手法</button>
+        <button role="tab" data-tab="out" aria-selected="false" data-i18n="tab_out">渲染导出</button>
       </nav>
 
       <div class="tabpane" data-pane="style">
         <div id="styleGrid" class="style-grid"></div>
-        <h3>フォントの役割</h3>
+        <h3 data-i18n="font_roles_title">核心字体指定</h3>
         <div id="fontRoles"></div>
         <div class="row" style="margin-top:8px">
-          <input id="localFont" type="text" placeholder="PCのフォント名（例: 游明朝）" style="flex:1">
-          <button id="btnAddFont">追加</button>
+          <input id="localFont" type="text" placeholder="本地电脑字体名（如：思源黑体、微软雅黑、站酷快乐体）" data-i18n-ph="local_font_ph" style="flex:1">
+          <button id="btnAddFont" data-i18n="btn_add_font">添加字体</button>
         </div>
-        <div class="row" style="margin-top:8px"><label class="file">フォントファイル（.ttf/.otf）<input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2"></label></div>
-        <h3>アクセント・ズレ色</h3>
-        <label class="check"><input id="accentOn" type="checkbox"><span>自分の色で上書き<small>全シーンに適用。背景に合わせて明るさを自動調整します</small></span></label>
+        <div class="row" style="margin-top:8px"><label class="file"><span data-i18n="btn_load_font_file">上传字体文件 (.ttf / .otf / .woff2)</span><input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2"></label></div>
+        <h3 data-i18n="accent_override_title">自定义点缀色与色散通道</h3>
+        <label class="check"><input id="accentOn" type="checkbox"><span data-i18n="accent_override">自定义色彩覆盖</span><small data-i18n="accent_override_sub">应用于全片分镜，自动根据背景明度矫正高可读性</small></label>
         <div class="color-row" id="colorRowAccent"></div>
         <div class="row" style="margin-top:10px">
-          <button id="btnRandPalette" class="accent">ランダムに配色</button>
+          <button id="btnRandPalette" class="accent" data-i18n="btn_rand_palette">随机互补配色</button>
           <div id="paletteSwatch" class="swatches" aria-hidden="true"></div>
         </div>
-        <h3>背景・文字色</h3>
-        <label class="check"><input id="colorOn" type="checkbox"><span>メインの背景と文字を自分の色にする</span></label>
+        <h3 data-i18n="base_color_override_title">自定义背景底色与文字主色</h3>
+        <label class="check"><input id="colorOn" type="checkbox"><span data-i18n="base_color_override">自定义主背景与文字色</span></label>
         <div class="color-row" id="colorRow"></div>
       </div>
 
       <div class="tabpane" data-pane="fx" hidden>
         <div id="fxSliders"></div>
         <div class="row" style="margin-top:6px">
-          <label class="row" style="gap:6px"><input id="fxFlash" type="checkbox"> フラッシュ</label>
-          <label class="row" style="gap:6px">コマ打ち <select id="fxKoma" title="動きを何枚/秒で描くか（出力fpsとは別）"><option value="0">フル（出力fpsのまま）</option><option value="12">2コマ打ち（12枚/秒）</option><option value="8">3コマ打ち（8枚/秒）</option></select></label>
+          <label class="row" style="gap:6px"><input id="fxFlash" type="checkbox"> <span data-i18n="fx_flash_label">冲击白闪</span></label>
+          <label class="row" style="gap:6px"><span data-i18n="fx_koma_label">手绘抽帧</span> <select id="fxKoma" title="渲染抽帧率（手绘一拍二/一拍三节奏感）"><option value="0">全帧率流畅 (跟随输出FPS)</option><option value="12">一拍二 (12格/秒・日漫定格感)</option><option value="8">一拍三 (8格/秒・强定格感)</option></select></label>
         </div>
         <div class="fields" style="margin-top:12px">
-          <label class="field">HUD<select id="fxHud"><option value="auto">スタイル次第</option><option value="on">常に表示</option><option value="off">表示しない</option></select></label>
-          <label class="field">シード<input id="seed" type="number" step="1"></label>
-          <label class="field">&nbsp;<button id="btnSeed" class="ghost">新しいシード</button></label>
+          <label class="field"><span data-i18n="hud_label">HUD视窗</span><select id="fxHud"><option value="auto">由风格决定</option><option value="on">始终开启</option><option value="off">关闭隐藏</option></select></label>
+          <label class="field"><span data-i18n="seed_label">随机种子</span><input id="seed" type="number" step="1"></label>
+          <label class="field">&nbsp;<button id="btnSeed" class="ghost" data-i18n="btn_new_seed">新种子</button></label>
         </div>
-        <p class="note">同じシードなら同じ構成になります。行ごとの「再抽選」「ロック」は左の行リストから。</p>
+        <p class="note" data-i18n="seed_note">相同种子将保证镜头构图 100% 确定性重现。行级别的重新生成与锁定可在左侧列表配置。</p>
       </div>
 
       <div class="tabpane" data-pane="tech" hidden>
-        <div class="row" style="margin-bottom:10px"><input id="techFilter" type="text" placeholder="手法を名前で絞り込み" style="flex:1" aria-label="手法を名前で絞り込み"><span id="techTotal" class="muted mono"></span></div>
+        <div class="row" style="margin-bottom:10px"><input id="techFilter" type="text" placeholder="按名称搜索过滤表现手法" data-i18n-ph="tech_filter_ph" style="flex:1" aria-label="按名称搜索过滤表现手法"><span id="techTotal" class="muted mono"></span></div>
         <div id="techLists"></div>
       </div>
 
       <div class="tabpane" data-pane="out" hidden>
         <div class="fields">
-          <label class="field">画面比<select id="outAspect"><option value="16:9">16:9</option><option value="9:16">9:16 縦</option><option value="4:3">4:3</option><option value="3:4">3:4 縦</option><option value="1:1">1:1</option><option value="4:5">4:5 縦</option><option value="21:9">21:9</option></select></label>
-          <label class="field">解像度<select id="outRes"><option value="720">720p</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></label>
-          <label class="field">fps<select id="outFps"><option>24</option><option>30</option><option>60</option></select></label>
-          <label class="field">画質<select id="outQuality"><option value="standard">標準</option><option value="high">高</option><option value="max">最高</option></select></label>
+          <label class="field"><span data-i18n="aspect_label">画面比例</span><select id="outAspect"><option value="16:9">16:9 横屏</option><option value="9:16">9:16 竖屏</option><option value="4:3">4:3</option><option value="3:4">3:4 竖</option><option value="1:1">1:1 正方</option><option value="4:5">4:5 竖</option><option value="21:9">21:9 宽幅</option></select></label>
+          <label class="field"><span data-i18n="res_label">分辨率</span><select id="outRes"><option value="720">720p</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></label>
+          <label class="field"><span data-i18n="fps_label">帧率 (FPS)</span><select id="outFps"><option>24</option><option>30</option><option>60</option></select></label>
+          <label class="field"><span data-i18n="quality_label">画质码率</span><select id="outQuality"><option value="standard">标准</option><option value="high">高品质 (推荐)</option><option value="max">超高纯净</option></select></label>
         </div>
-        <label class="row" style="gap:6px;margin-top:10px"><input id="outAudio" type="checkbox" checked> 曲を動画に含める</label>
+        <label class="row" style="gap:6px;margin-top:10px"><input id="outAudio" type="checkbox" checked> <span data-i18n="out_audio_label">将音乐音轨封装进视频</span></label>
         <div class="outbtns">
-          <button id="btnMP4" class="primary">MP4 を書き出す</button>
-          <button id="btnPNG">連番PNG（ZIP）</button>
-          <button id="btnPNGA">透過PNG（ZIP・背景なし）</button>
+          <button id="btnMP4" class="primary" data-i18n="btn_mp4">导出 MP4 视频</button>
+          <button id="btnPNG" data-i18n="btn_png_zip">导出 PNG 序列帧 (ZIP)</button>
+          <button id="btnPNGA" data-i18n="btn_pnga_zip">导出透明通道 PNG 序列帧 (ZIP・用于覆层合成)</button>
         </div>
         <div class="exp-box" hidden style="margin-top:12px">
           <div class="progress"><i class="exp-bar"></i></div>
-          <div class="row" style="justify-content:space-between;margin-top:6px"><span class="exp-text muted mono">—</span><button class="exp-cancel ghost small">中止</button></div>
+          <div class="row" style="justify-content:space-between;margin-top:6px"><span class="exp-text muted mono">—</span><button class="exp-cancel ghost small" data-i18n="btn_cancel_export">取消</button></div>
         </div>
-        <p class="note" id="codecNote">書き出しはこのブラウザの中で行われます（Chrome / Edge 推奨）。</p>
+        <p class="note" id="codecNote" data-i18n="codec_note">基于浏览器内置 WebCodecs 显卡硬件加速直接导出，速度极快（推荐使用 Chrome 或 Edge）。</p>
       </div>
     </section>
   </main>
@@ -457,6 +499,1869 @@ If you want to offset all timestamps of a track such that the first one is zero,
 
 </script>
 <script>
+/* ============================================================
+   JIZURA — i18n: 中日双语国际化词典与语言管理
+   ============================================================ */
+(() => {
+'use strict';
+const J = (window.J = window.J || {});
+
+const DICT = {
+  zh: {
+    // 顶部栏
+    brand_tag: '文字PV动力学引擎',
+    song_title_ph: '歌曲名称（显示于标题卡与HUD）',
+    song_artist_ph: '歌手 / 创作者',
+    mode_easy: '极简',
+    mode_easy_title: '以一键生成为主的清爽界面',
+    mode_pro: '详细',
+    mode_pro_title: '展开全部详细调节参数',
+    btn_open: '打开',
+    btn_open_title: '读取已保存的工程文件 (.json)',
+    btn_save: '保存',
+    btn_save_title: '将当前工程保存为 .json',
+    btn_ae: '导出AE脚本',
+    btn_ae_title: '导出供 After Effects 面板还原工程的结构数据',
+
+    // 左侧：歌词与节奏
+    sec_lyrics: '歌词文本',
+    btn_syntax: '语法标记',
+    btn_sample_zh: '中文示例',
+    btn_sample_ja: '日文示例',
+    lyrics_ph: '歌词（一行为一个分句/镜头）',
+    syntax_1: '一行为一个分句。空行会自动保留短暂间隔',
+    syntax_2: '夜空中最亮的星/是否听清 … 用 / 明确划分镜头切片',
+    syntax_3: '*重点词* … 强调（更大、更强视觉冲击力）',
+    syntax_4: '行末加 ! … 触发白闪与震颤冲屏',
+    syntax_5: '歌词|注解小字 … 注解布局的小字文本',
+    syntax_6: '[01:23.45]歌词 … 兼容标准 LRC 时间戳',
+    syntax_7: '# 开头的行 … 注释（忽略不显示）',
+
+    sec_audio: '音乐与节奏卡点',
+    audio_empty: '未加载音乐（导入音乐后将自动检测BPM强拍并卡点）',
+    btn_load_audio: '导入音频',
+    btn_load_audio_title: '支持 mp3 / wav / m4a / ogg / flac 等格式',
+    btn_tap: '打点同步',
+    btn_tap_title: '播放音乐并随节拍按空格记录各行起点',
+    bpm_label: 'BPM',
+    bpm_ph: '自动检测',
+    offset_label: '起始延时(秒)',
+    line_scale_label: '单句时长倍率',
+    snap_label: '吸附到节拍',
+    btn_reset_times: '清除手动时间',
+    tap_hint: '跟随音乐节奏，在每句歌词开始的瞬间按下 <span class="kbd">空格键 (Space)</span> 或下方 TAP 按钮。',
+    tap_next: '下一句: ',
+    btn_tap_stop: '完成并结束',
+    tap_undo: '↶ 撤销上一句 (Backspace)',
+    tap_undo_title: '退回上一句重新打点并自动回退音频2.5秒',
+    tap_countin: '预备拍',
+    tap_speed_label: '打点倍速:',
+    btn_tap_from: '从该句开始打点',
+    time_start_tip: '开始（秒）',
+    time_end_tip: '结束（秒）·留空自动衔接',
+    time_to: '至',
+    stamp_start_tip: '将当前播放头设为本句起点 (快捷键 S)',
+    stamp_end_tip: '将当前播放头设为本句终点 (快捷键 E)',
+    toast_tap_undone: '已回退到上一句，音乐已就绪，请继续打点',
+    syntax_8: '[00:01.00-00:04.50]歌词 … 指定独立起止区间（支持静止留白）',
+
+    sec_lines: '分句与镜头列表',
+    time_manual_tip: '开始（秒）・手动设定',
+    time_auto_tip: '开始（秒）・自动计算',
+    opt_auto_layout: '自动布局',
+    btn_dice_tip: '重新生成该行',
+    btn_lock_tip: '锁定该行构图与动效',
+
+    // 中间：播放与舞台
+    btn_play: '播放',
+    btn_pause: '暂停',
+    btn_loop: '循环',
+    btn_prev_tip: '返回上一套方案',
+    btn_next_tip: '前进到下一套方案',
+    btn_shuffle: '重组镜头',
+    btn_shuffle_title: '保持当前风格，重新打乱排版与动画组合（锁定的行保持不变）',
+    btn_omakase: '一键生成',
+    btn_omakase_title: '全量随机：视觉风格、氛围、运镜与配色（快捷键 R）',
+    no_cut_at_time: '当前播放时刻暂无镜头',
+    chip_layout: '构图',
+    chip_enter: '入场',
+    chip_hold: '驻留',
+    chip_exit: '退场',
+    chip_decor: '装饰',
+    chip_treat: '质感',
+    chip_bg: '背景',
+    chip_cam: '运镜',
+
+    // 右侧极简模式
+    omakase_big: '一键生成 (R)',
+    omakase_desc: '每次点击，全片风格、氛围、运镜、配色与构图全部重新组合。键盘按 <span class="kbd">R</span> 亦可触发。',
+    btn_prev2: '◀ 上一方案',
+    btn_next2: '下一方案 ▶',
+    easy_now_title: '当前配置',
+    easy_tweak_title: '局部微调',
+    btn_e_style: '换风格',
+    btn_e_style_title: '仅更换全局视觉风格',
+    btn_e_palette: '换配色',
+    btn_e_palette_title: '仅随机重掷点缀色与色散色彩',
+    btn_e_mood: '换氛围',
+    btn_e_mood_title: '仅更换运动力度、故障率与表现手法',
+    btn_e_cut: '换构图',
+    btn_e_cut_title: '仅重新编排排版与出入场组合',
+    easy_export_title: '快速导出',
+    aspect_label: '画面比例',
+    res_label: '分辨率',
+    fps_label: '帧率 (FPS)',
+    btn_mp4: '导出 MP4 视频',
+    btn_cancel_export: '取消导出',
+
+    // 右侧详细标签页
+    tab_style: '视觉风格',
+    tab_fx: '动效调优',
+    tab_tech: '表现手法',
+    tab_out: '渲染导出',
+
+    // 风格选项卡
+    font_roles_title: '核心字体指定',
+    font_role_display: '核心大标题',
+    font_role_serif: '宋体 / 衬线体',
+    font_role_body: '正文与注脚小字',
+    font_opt_default: '跟随风格默认',
+    local_font_ph: '本地电脑字体名（如：思源黑体、微软雅黑、站酷快乐体）',
+    btn_add_font: '添加字体',
+    btn_load_font_file: '上传字体文件 (.ttf / .otf / .woff2)',
+    accent_override_title: '自定义点缀色与色散通道',
+    accent_override: '自定义色彩覆盖',
+    accent_override_sub: '应用于全片分镜，自动根据背景明度矫正高可读性',
+    btn_rand_palette: '随机互补配色',
+    base_color_override_title: '自定义背景底色与文字主色',
+    base_color_override: '自定义主背景与文字色',
+    color_bg: '背景',
+    color_fg: '文字',
+    color_sub: '辅助',
+    color_accent: '主点缀色 (Accent)',
+    color_ghostA: '色散通道A (高光偏色)',
+    color_ghostB: '色散通道B (阴影偏色)',
+
+    // 动效选项卡
+    slider_motion: '运动幅度',
+    slider_glitch: '故障强度',
+    slider_chroma: '色散偏离',
+    slider_decor: '装饰密度',
+    slider_density: '镜头节奏',
+    slider_texture: '胶片/纸质',
+    fx_flash_label: '冲击白闪',
+    fx_koma_label: '手绘抽帧',
+    koma_full: '全帧率流畅 (跟随输出FPS)',
+    koma_12: '一拍二 (12格/秒・日漫定格感)',
+    koma_8: '一拍三 (8格/秒・强定格感)',
+    hud_label: 'HUD信息视窗',
+    hud_auto: '由风格决定',
+    hud_on: '始终开启',
+    hud_off: '关闭隐藏',
+    seed_label: '随机种子',
+    btn_new_seed: '新种子',
+    seed_note: '相同种子将保证镜头构图 100% 确定性重现。行级别的重新生成与锁定可在左侧列表配置。',
+
+    // 手法选项卡 (356)
+    tech_filter_ph: '按名称搜索过滤表现手法',
+    btn_all_on: '全部开启',
+    btn_all_off: '全部关闭',
+    btn_invert: '反选',
+
+    // 导出选项卡
+    quality_label: '画质码率',
+    quality_std: '标准',
+    quality_high: '高品质 (推荐)',
+    quality_max: '超高纯净',
+    out_audio_label: '将音乐音轨封装进视频',
+    btn_png_zip: '导出 PNG 序列帧 (ZIP)',
+    btn_pnga_zip: '导出透明通道 PNG 序列帧 (ZIP・用于覆层合成)',
+    codec_note: '基于浏览器内置 WebCodecs 显卡硬件加速直接导出，速度极快（推荐使用 Chrome 或 Edge）。',
+
+    // 提示信息
+    toast_copied: '已复制到剪贴板',
+    toast_saved: '工程文件已成功下载保存',
+    toast_ae_exported: 'AE 配置文件已成功导出',
+    loading_fonts: '正在预加载字形数据…',
+    encoding_audio: '正在编码封装音频轨道…',
+    export_complete: '导出完毕！',
+    export_cancelled: '已取消导出',
+  },
+
+  ja: {
+    brand_tag: 'lyric motion engine',
+    song_title_ph: '曲名（タイトルカード・HUDに表示）',
+    song_artist_ph: 'アーティスト',
+    mode_easy: 'かんたん',
+    mode_easy_title: 'おまかせボタン中心のシンプルな画面',
+    mode_pro: '詳細',
+    mode_pro_title: 'すべての設定を表示',
+    btn_open: '開く',
+    btn_open_title: '保存したプロジェクト(.json)を開く',
+    btn_save: '保存',
+    btn_save_title: 'プロジェクトを .json で保存',
+    btn_ae: 'AE用に書き出し',
+    btn_ae_title: 'After Effects パネル用の構成データを書き出す',
+
+    sec_lyrics: '歌詞',
+    btn_syntax: '記法',
+    btn_sample_zh: '中国語サンプル',
+    btn_sample_ja: '日本語サンプル',
+    lyrics_ph: '歌詞（1行 = 1フレーズ）',
+    syntax_1: '1行が1フレーズ。空行は少し間を空けます',
+    syntax_2: '夜明けの色を/覚えてる … / でカットの切れ目を指定',
+    syntax_3: '*透明* … 強調（大きく・インパクト寄りの演出）',
+    syntax_4: '行末の ! … フラッシュと揺れを入れる',
+    syntax_5: '歌詞|ruby or note … 注釈レイアウトの小さな文字',
+    syntax_6: '[01:23.45]歌詞 … LRC のタイムスタンプをそのまま使用',
+    syntax_7: '# で始まる行 … コメント（無視）',
+
+    sec_audio: '曲とタイミング',
+    audio_empty: '曲なし（読み込むと拍を検出してカットを合わせます）',
+    btn_load_audio: '曲を読み込む',
+    btn_load_audio_title: 'mp3 / wav / m4a / ogg / flac など',
+    btn_tap: 'タップで同期',
+    btn_tap_title: '曲を再生しながら各行の頭でタップ',
+    bpm_label: 'BPM',
+    bpm_ph: '自動',
+    offset_label: '開始(秒)',
+    line_scale_label: '行の長さ',
+    snap_label: '拍にスナップ',
+    btn_reset_times: '手動タイミングを消す',
+    tap_hint: '曲に合わせて、各行が始まる瞬間に <span class="kbd">Space</span> かボタンを押してください。',
+    tap_next: '次: ',
+    btn_tap_stop: '終了する',
+    tap_undo: '↶ やり直す (Backspace)',
+    tap_undo_title: '前の行に戻って曲を巻き戻す',
+    tap_countin: '予備拍',
+    tap_speed_label: 'タップ速度:',
+    btn_tap_from: 'この行からタップ同期',
+    time_start_tip: '開始（秒）',
+    time_end_tip: '終了（秒）・空欄で自動',
+    time_to: '〜',
+    stamp_start_tip: '現在の再生位置を開始点にする (S)',
+    stamp_end_tip: '現在の再生位置を終了点にする (E)',
+    toast_tap_undone: '前の行に戻りました。タップを続けてください',
+    syntax_8: '[00:01.00-00:04.50]歌詞 … 開始・終了時間を指定（空白区間対応）',
+
+    sec_lines: '行とカット',
+    time_manual_tip: '開始（秒）・手動',
+    time_auto_tip: '開始（秒）・自動',
+    opt_auto_layout: '自動',
+    btn_dice_tip: 'この行を再抽選',
+    btn_lock_tip: 'この行の構成をロック',
+
+    btn_play: '再生',
+    btn_pause: '一時停止',
+    btn_loop: 'ループ',
+    btn_prev_tip: '前の案に戻る',
+    btn_next_tip: '次の案へ進む',
+    btn_shuffle: 'シャッフル',
+    btn_shuffle_title: '設定はそのままで構成だけ再抽選（ロックした行は維持）',
+    btn_omakase: 'おまかせ',
+    btn_omakase_title: 'スタイル・雰囲気・演出・配色をまるごとランダムに（キー R）',
+    no_cut_at_time: 'この位置にカットはありません',
+    chip_layout: 'レイアウト',
+    chip_enter: '登場',
+    chip_hold: '保持',
+    chip_exit: '退場',
+    chip_decor: '装飾',
+    chip_treat: '加工',
+    chip_bg: '背景',
+    chip_cam: 'カメラ',
+
+    omakase_big: 'おまかせで作る',
+    omakase_desc: '押すたびに、スタイル・雰囲気・動き・配色・構成がまるごと変わります。キーボードの <span class="kbd">R</span> でも実行できます。',
+    btn_prev2: '◀ 前の案',
+    btn_next2: '次の案 ▶',
+    easy_now_title: 'いまの案',
+    easy_tweak_title: 'ここだけ変える',
+    btn_e_style: 'スタイル',
+    btn_e_style_title: 'スタイルだけ別のものに',
+    btn_e_palette: '配色',
+    btn_e_palette_title: 'アクセント・ズレ色A/Bをランダムに',
+    btn_e_mood: '雰囲気',
+    btn_e_mood_title: '動き・グリッチ・使う手法の雰囲気だけ',
+    btn_e_cut: '構成',
+    btn_e_cut_title: 'レイアウトと動きの組み合わせだけ',
+    easy_export_title: '書き出し',
+    aspect_label: '画面比',
+    res_label: '解像度',
+    fps_label: 'fps',
+    btn_mp4: 'MP4 を書き出す',
+    btn_cancel_export: '中止',
+
+    tab_style: 'スタイル',
+    tab_fx: '演出',
+    tab_tech: '手法',
+    tab_out: '書き出し',
+
+    font_roles_title: 'フォントの役割',
+    font_role_display: '見出し',
+    font_role_serif: '明朝枠',
+    font_role_body: '小さな文字',
+    font_opt_default: 'スタイルの既定',
+    local_font_ph: 'PCのフォント名（例: 游明朝、Noto Sans SC）',
+    btn_add_font: '追加',
+    btn_load_font_file: 'フォントファイル（.ttf/.otf）',
+    accent_override_title: 'アクセント色の上書き',
+    accent_override: '自分の色で上書き',
+    accent_override_sub: '全シーンに適用。背景に合わせて明るさを自動調整します',
+    btn_rand_palette: 'ランダムに配色',
+    base_color_override_title: 'ベース色の上書き',
+    base_color_override: 'メインの背景と文字を自分の色にする',
+    color_bg: '背景',
+    color_fg: '文字',
+    color_sub: '補助',
+    color_accent: 'アクセント',
+    color_ghostA: 'ズレ色A',
+    color_ghostB: 'ズレ色B',
+
+    slider_motion: '動きの強さ',
+    slider_glitch: 'グリッチ',
+    slider_chroma: '色ズレ',
+    slider_decor: '装飾の量',
+    slider_density: 'カット細かさ',
+    slider_texture: '質感',
+    fx_flash_label: 'フラッシュ',
+    fx_koma_label: 'コマ打ち',
+    koma_full: 'フル（出力fpsのまま）',
+    koma_12: '2コマ打ち（12枚/秒）',
+    koma_8: '3コマ打ち（8枚/秒）',
+    hud_label: 'HUD',
+    hud_auto: 'スタイル次第',
+    hud_on: '常に表示',
+    hud_off: '表示しない',
+    seed_label: 'シード',
+    btn_new_seed: '新しいシード',
+    seed_note: '同じシードなら同じ構成になります。行ごとの「再抽選」「ロック」は左の行リストから。',
+
+    tech_filter_ph: '手法を名前で絞り込み',
+    btn_all_on: 'すべてON',
+    btn_all_off: 'すべてOFF',
+    btn_invert: '反転',
+
+    quality_label: '画質',
+    quality_std: '標準',
+    quality_high: '高',
+    quality_max: '最高',
+    out_audio_label: '曲を動画に含める',
+    btn_png_zip: '連番PNG（ZIP）',
+    btn_pnga_zip: '透過PNG（ZIP・背景なし）',
+    codec_note: '書き出しはこのブラウザの中で行われます（Chrome / Edge 推奨）。',
+
+    toast_copied: 'クリップボードにコピーしました',
+    toast_saved: 'プロジェクトを保存しました',
+    toast_ae_exported: 'AE構成データを書き出しました',
+    loading_fonts: 'フォントを読み込み中…',
+    encoding_audio: '音声をエンコード中…',
+    export_complete: '完了',
+    export_cancelled: 'キャンセルしました',
+  }
+};
+
+let currentLang = 'zh';
+try {
+  const saved = localStorage.getItem('jizura_lang');
+  if (saved === 'ja' || saved === 'zh') currentLang = saved;
+} catch (e) {}
+
+J.getLang = () => currentLang;
+
+J.t = (key, fallback) => {
+  const lang = currentLang;
+  if (DICT[lang] && DICT[lang][key] !== undefined) return DICT[lang][key];
+  if (DICT.zh && DICT.zh[key] !== undefined) return DICT.zh[key];
+  if (DICT.ja && DICT.ja[key] !== undefined) return DICT.ja[key];
+  return fallback !== undefined ? fallback : key;
+};
+
+J.setLang = (lang) => {
+  if (lang !== 'zh' && lang !== 'ja') return;
+  currentLang = lang;
+  try { localStorage.setItem('jizura_lang', lang); } catch (e) {}
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'ja';
+  if (window.dispatchEvent) {
+    window.dispatchEvent(new CustomEvent('jizura:langchange', { detail: { lang } }));
+  }
+};
+
+// 中文示例歌词与日文示例歌词
+J.SAMPLE_LYRICS_ZH = `夜空中最亮的星 / 是否听清
+那仰望的人 / 心底的孤独和叹息
+我祈祷拥有一颗 / *透明*的心灵
+和会流泪的眼睛!`;
+
+J.SAMPLE_LYRICS_JA = `夜明けの色を/覚えてる
+ほどけた声が遠くで鳴った
+ねえ、まだ間に合うかな
+*透明*なままじゃ終われない!`;
+
+
+J.TECH_NAMES = {
+  "layout": {
+    "center": {
+      "zh": "居中排版",
+      "ja": "中央"
+    },
+    "mixed": {
+      "zh": "错落混排",
+      "ja": "大小ミックス"
+    },
+    "vcols": {
+      "zh": "垂直竖排",
+      "ja": "縦書き"
+    },
+    "marquee": {
+      "zh": "跑马灯横幅",
+      "ja": "流れる帯"
+    },
+    "tile": {
+      "zh": "满屏矩阵平铺",
+      "ja": "敷き詰め"
+    },
+    "scatter": {
+      "zh": "随机散落",
+      "ja": "散らし"
+    },
+    "ring": {
+      "zh": "圆周环抱",
+      "ja": "円環"
+    },
+    "wave": {
+      "zh": "正弦波浪轨迹",
+      "ja": "波の軌跡"
+    },
+    "huge": {
+      "zh": "冲屏特写巨字",
+      "ja": "画面突き抜け"
+    },
+    "labels": {
+      "zh": "标签贴纸堆叠",
+      "ja": "ラベル貼り"
+    },
+    "condensed": {
+      "zh": "纵向紧凑压缩",
+      "ja": "縦長圧縮"
+    },
+    "gloss": {
+      "zh": "词条注脚小字",
+      "ja": "注釈"
+    },
+    "type": {
+      "zh": "打字机展开",
+      "ja": "タイプ"
+    },
+    "diag": {
+      "zh": "斜向倾斜横幅",
+      "ja": "斜め帯"
+    },
+    "circle": {
+      "zh": "透视圆窗遮罩",
+      "ja": "円窓"
+    },
+    "stack": {
+      "zh": "动态残影层叠",
+      "ja": "残像スタック"
+    },
+    "pill": {
+      "zh": "胶囊药丸视窗",
+      "ja": "カプセル"
+    },
+    "lowerThird": {
+      "zh": "底部字幕条",
+      "ja": "下部テロップ"
+    },
+    "corners": {
+      "zh": "对角构图",
+      "ja": "対角配置"
+    },
+    "staircase": {
+      "zh": "阶梯拾级",
+      "ja": "階段"
+    },
+    "zigzag": {
+      "zh": "之字错位走位",
+      "ja": "ジグザグ"
+    },
+    "arcTop": {
+      "zh": "彩虹拱弧",
+      "ja": "虹の弧"
+    },
+    "spiral": {
+      "zh": "向心螺旋",
+      "ja": "螺旋"
+    },
+    "gridCells": {
+      "zh": "九宫格阵列",
+      "ja": "升目"
+    },
+    "dropCap": {
+      "zh": "首字巨化强调",
+      "ja": "大きな頭文字"
+    },
+    "justified": {
+      "zh": "齐头齐尾版面",
+      "ja": "版面"
+    },
+    "frameBox": {
+      "zh": "画框封边",
+      "ja": "額縁"
+    },
+    "bubble": {
+      "zh": "对话气泡框",
+      "ja": "吹き出し"
+    },
+    "subtitleBar": {
+      "zh": "经典字幕底栏",
+      "ja": "字幕帯"
+    },
+    "ticker": {
+      "zh": "走字资讯条",
+      "ja": "ティッカー"
+    },
+    "splitScreen": {
+      "zh": "双分屏对比",
+      "ja": "二分割"
+    },
+    "mirror": {
+      "zh": "上下镜像倒影",
+      "ja": "鏡像"
+    },
+    "sideways": {
+      "zh": "90度倒置横排",
+      "ja": "縦倒し"
+    },
+    "edgeFrame": {
+      "zh": "外周全环边框",
+      "ja": "外周"
+    },
+    "perspective": {
+      "zh": "Z轴空间纵深",
+      "ja": "奥行き"
+    },
+    "hanko": {
+      "zh": "朱红印章落款",
+      "ja": "落款"
+    },
+    "genkou": {
+      "zh": "原稿格子稿纸",
+      "ja": "原稿用紙"
+    },
+    "panels": {
+      "zh": "漫画分镜切格",
+      "ja": "コマ割り"
+    },
+    "filmstrip": {
+      "zh": "电影胶卷底片",
+      "ja": "フィルム"
+    },
+    "quote": {
+      "zh": "双引号引用",
+      "ja": "引用"
+    },
+    "ruler": {
+      "zh": "工程尺寸度量线",
+      "ja": "寸法線"
+    },
+    "searchBar": {
+      "zh": "搜索框输入界面",
+      "ja": "検索窓"
+    },
+    "chat": {
+      "zh": "聊天通讯气泡",
+      "ja": "チャット"
+    },
+    "notification": {
+      "zh": "系统通知推送卡片",
+      "ja": "通知"
+    },
+    "ticket": {
+      "zh": "票券打孔副券",
+      "ja": "チケット"
+    },
+    "rain": {
+      "zh": "字符数码雨",
+      "ja": "文字の雨"
+    },
+    "hanging": {
+      "zh": "悬挂垂落吊绳",
+      "ja": "吊り下げ"
+    },
+    "orbit": {
+      "zh": "环形轨道公转",
+      "ja": "周回"
+    },
+    "tunnel": {
+      "zh": "空间透视隧道",
+      "ja": "トンネル"
+    },
+    "wordCloud": {
+      "zh": "多维词云矩阵",
+      "ja": "ワードクラウド"
+    },
+    "bounceLine": {
+      "zh": "弹性折线蹦跳",
+      "ja": "跳ねる"
+    },
+    "elastic": {
+      "zh": "橡胶橡皮筋拉伸",
+      "ja": "ゴム"
+    },
+    "crossBands": {
+      "zh": "十字交叉警戒带",
+      "ja": "交差帯"
+    },
+    "stickerBomb": {
+      "zh": "潮酷贴纸炸弹",
+      "ja": "ステッカー"
+    },
+    "neon": {
+      "zh": "霓虹发光招牌",
+      "ja": "ネオン"
+    },
+    "keycaps": {
+      "zh": "机械键盘键帽",
+      "ja": "キーキャップ"
+    },
+    "bubbles": {
+      "zh": "浮动呼吸气泡",
+      "ja": "泡"
+    },
+    "slotMachine": {
+      "zh": "老虎机轮盘滚动",
+      "ja": "スロット"
+    },
+    "flipBoard": {
+      "zh": "翻页告示牌",
+      "ja": "パタパタ"
+    },
+    "credits": {
+      "zh": "垂直片尾滚屏",
+      "ja": "エンドロール"
+    },
+    "zoomRepeat": {
+      "zh": "逐级同心放大",
+      "ja": "連続拡大"
+    },
+    "splitHalves": {
+      "zh": "上下对半分屏",
+      "ja": "上下割り"
+    },
+    "columnsBig": {
+      "zh": "错落双列竖排",
+      "ja": "大小縦組"
+    },
+    "circleWords": {
+      "zh": "同心圆环词组",
+      "ja": "同心円"
+    },
+    "dotMatrix": {
+      "zh": "点阵LED显示屏",
+      "ja": "ドット表示"
+    },
+    "depthStack": {
+      "zh": "空间层次叠推",
+      "ja": "奥行き重ね"
+    },
+    "typeSpecimen": {
+      "zh": "字体样本排版",
+      "ja": "書体見本"
+    },
+    "kanjiFocus": {
+      "zh": "单字重音突显",
+      "ja": "一字強調"
+    },
+    "halfVertical": {
+      "zh": "横竖交错混排",
+      "ja": "縦横混植"
+    },
+    "curtain": {
+      "zh": "帷幕徐徐拉开",
+      "ja": "幕"
+    },
+    "equalizer": {
+      "zh": "音频频谱律动条",
+      "ja": "イコライザー"
+    },
+    "tape": {
+      "zh": "封箱胶带印贴",
+      "ja": "テープ"
+    }
+  },
+  "enter": {
+    "cut": {
+      "zh": "硬切瞬出",
+      "ja": "カット"
+    },
+    "assemble": {
+      "zh": "碎片聚拢拼合",
+      "ja": "分解→集合"
+    },
+    "slice": {
+      "zh": "错位切片滑入",
+      "ja": "スライス"
+    },
+    "type": {
+      "zh": "逐字打字录入",
+      "ja": "タイプ"
+    },
+    "pop": {
+      "zh": "弹性微缩弹出",
+      "ja": "ポップ"
+    },
+    "drop": {
+      "zh": "重力下坠落定",
+      "ja": "落下"
+    },
+    "stretch": {
+      "zh": "纵向弹性拉伸",
+      "ja": "伸縮"
+    },
+    "wipe": {
+      "zh": "线性擦除显现",
+      "ja": "ワイプ"
+    },
+    "blur": {
+      "zh": "径向虚化聚焦",
+      "ja": "ブラー"
+    },
+    "spin": {
+      "zh": "空间3D旋转进入",
+      "ja": "回転"
+    },
+    "flicker": {
+      "zh": "光效高频闪现",
+      "ja": "点滅"
+    },
+    "scramble": {
+      "zh": "乱码字符解析",
+      "ja": "スクランブル"
+    },
+    "zoom": {
+      "zh": "极速推焦变焦",
+      "ja": "ズーム"
+    },
+    "riseMask": {
+      "zh": "底部遮罩升起",
+      "ja": "下から出現"
+    },
+    "dropMask": {
+      "zh": "顶部遮罩下落",
+      "ja": "上から出現"
+    },
+    "slideL": {
+      "zh": "从左侧平移滑入",
+      "ja": "左からスライド"
+    },
+    "slideR": {
+      "zh": "从右侧平移滑入",
+      "ja": "右からスライド"
+    },
+    "slideWhole": {
+      "zh": "整行整块平移",
+      "ja": "全体スライド"
+    },
+    "flipX": {
+      "zh": "Y轴翻转展开",
+      "ja": "縦軸フリップ"
+    },
+    "flipY": {
+      "zh": "X轴翻板倒下",
+      "ja": "横軸フリップ"
+    },
+    "domino": {
+      "zh": "多米诺顺次翻倒",
+      "ja": "ドミノ"
+    },
+    "fold": {
+      "zh": "纸张折叠展开",
+      "ja": "折り開き"
+    },
+    "unroll": {
+      "zh": "卷轴向外延展",
+      "ja": "巻き開き"
+    },
+    "strokeDraw": {
+      "zh": "线稿笔画填色",
+      "ja": "線画から塗り"
+    },
+    "outlineFill": {
+      "zh": "轮廓绘制成型",
+      "ja": "輪郭→塗り"
+    },
+    "splitJoin": {
+      "zh": "上下两段合体",
+      "ja": "上下合体"
+    },
+    "vSlice": {
+      "zh": "竖条切片交错",
+      "ja": "縦スライス"
+    },
+    "shutter": {
+      "zh": "百叶快门开合",
+      "ja": "シャッター"
+    },
+    "iris": {
+      "zh": "圆形光圈开合",
+      "ja": "アイリス"
+    },
+    "diagWipe": {
+      "zh": "45度斜向擦除",
+      "ja": "斜めワイプ"
+    },
+    "blinds": {
+      "zh": "百叶窗翻转显现",
+      "ja": "ブラインド"
+    },
+    "checker": {
+      "zh": "棋盘方格错落",
+      "ja": "市松"
+    },
+    "randomOrder": {
+      "zh": "字符随机乱序浮现",
+      "ja": "ランダム順"
+    },
+    "bounceBig": {
+      "zh": "重力强力反弹",
+      "ja": "大ジャンプ"
+    },
+    "squashDrop": {
+      "zh": "落地挤压变形",
+      "ja": "潰れて着地"
+    },
+    "rubber": {
+      "zh": "橡皮筋回弹性拉扯",
+      "ja": "ゴム伸び"
+    },
+    "glitchIn": {
+      "zh": "信号故障撕裂入场",
+      "ja": "グリッチ出現"
+    },
+    "echoIn": {
+      "zh": "多重残影向心汇聚",
+      "ja": "残像集束"
+    },
+    "whip": {
+      "zh": "极速横向甩入",
+      "ja": "ホイップ"
+    },
+    "skewIn": {
+      "zh": "斜切剪切滑入",
+      "ja": "スキュー"
+    },
+    "trackIn": {
+      "zh": "字距由散收拢",
+      "ja": "字間収束"
+    },
+    "trackOut": {
+      "zh": "字距由聚推开",
+      "ja": "字間拡張"
+    },
+    "blurStagger": {
+      "zh": "阶梯式逐字失焦",
+      "ja": "ブラー段差"
+    },
+    "fadeStagger": {
+      "zh": "字符时序逐个淡入",
+      "ja": "字ごとフェード"
+    },
+    "waveIn": {
+      "zh": "正弦波浪涌动",
+      "ja": "波立ち"
+    },
+    "spiralIn": {
+      "zh": "向心螺旋汇聚",
+      "ja": "螺旋集合"
+    },
+    "zoomOut": {
+      "zh": "超大特写急退归位",
+      "ja": "巨大→等倍"
+    },
+    "resolve": {
+      "zh": "二进制密文解码",
+      "ja": "解読"
+    },
+    "magnet": {
+      "zh": "强磁极速吸附",
+      "ja": "磁石"
+    },
+    "inkBleed": {
+      "zh": "水墨浸润晕染",
+      "ja": "にじみ"
+    },
+    "neonOn": {
+      "zh": "霓虹发光通电点亮",
+      "ja": "ネオン点灯"
+    },
+    "cursorSweep": {
+      "zh": "雷达光标横扫显影",
+      "ja": "カーソル掃引"
+    },
+    "stamp": {
+      "zh": "印章重力砸落盖章",
+      "ja": "スタンプ"
+    }
+  },
+  "hold": {
+    "still": {
+      "zh": "纯净平稳静止",
+      "ja": "静止"
+    },
+    "jitter": {
+      "zh": "高频微弱抖动",
+      "ja": "ジッター"
+    },
+    "drift": {
+      "zh": "空间微漂漫游",
+      "ja": "ドリフト"
+    },
+    "breathe": {
+      "zh": "柔和起伏呼吸",
+      "ja": "呼吸"
+    },
+    "wave": {
+      "zh": "正弦平滑游走",
+      "ja": "ウェーブ"
+    },
+    "glitchtick": {
+      "zh": "偶发瞬断故障",
+      "ja": "グリッチ"
+    },
+    "float": {
+      "zh": "失重轻盈悬浮",
+      "ja": "ふわふわ"
+    },
+    "sway": {
+      "zh": "微风左右摇曳",
+      "ja": "ゆらぎ"
+    },
+    "pulse": {
+      "zh": "周期性律动脉冲",
+      "ja": "脈動"
+    },
+    "shimmer": {
+      "zh": "微细流光闪烁",
+      "ja": "きらめき"
+    },
+    "colorRun": {
+      "zh": "霓虹炫彩掠过",
+      "ja": "色が走る"
+    },
+    "rotateSlow": {
+      "zh": "恒速平缓自转",
+      "ja": "ゆっくり回転"
+    },
+    "trackBreathe": {
+      "zh": "字距舒缓伸缩",
+      "ja": "字間の呼吸"
+    },
+    "skewWobble": {
+      "zh": "倾斜剪切微颤",
+      "ja": "斜め揺れ"
+    },
+    "beatHop": {
+      "zh": "音乐重拍弹跳",
+      "ja": "拍で跳ねる"
+    },
+    "hWave": {
+      "zh": "水平波纹涟漪",
+      "ja": "横波"
+    },
+    "heartbeat": {
+      "zh": "强劲节奏鼓动",
+      "ja": "鼓動"
+    },
+    "orbitSmall": {
+      "zh": "微小椭圆轨道运转",
+      "ja": "小さな円運動"
+    },
+    "jelly": {
+      "zh": "果冻凝胶弹颤",
+      "ja": "ゼリー"
+    },
+    "scanBand": {
+      "zh": "CRT扫描光带滚掠",
+      "ja": "走査帯"
+    },
+    "noiseDrift": {
+      "zh": "噪波随机漂移",
+      "ja": "ノイズ漂流"
+    },
+    "tilt": {
+      "zh": "跷跷板左右微倾",
+      "ja": "シーソー"
+    },
+    "zoomSlow": {
+      "zh": "镜头极其缓慢推进",
+      "ja": "じわ寄り"
+    },
+    "stretchPulse": {
+      "zh": "横向微幅呼吸张弛",
+      "ja": "横伸び拍"
+    },
+    "glitchJump": {
+      "zh": "突发随机位移跳跃",
+      "ja": "時々ずれる"
+    },
+    "echoTrail": {
+      "zh": "连续拖曳轻微残影",
+      "ja": "残像を引く"
+    }
+  },
+  "exit": {
+    "cut": {
+      "zh": "硬切熄灭",
+      "ja": "カット"
+    },
+    "explode": {
+      "zh": "粒子炸裂迸发",
+      "ja": "爆散"
+    },
+    "fall": {
+      "zh": "结构崩塌坠落",
+      "ja": "崩落"
+    },
+    "drift": {
+      "zh": "化作微风雾散",
+      "ja": "霧散"
+    },
+    "slice": {
+      "zh": "水平切片划离",
+      "ja": "スライス退場"
+    },
+    "wipe": {
+      "zh": "线性擦除收场",
+      "ja": "ワイプ退場"
+    },
+    "shrink": {
+      "zh": "向心收缩消失",
+      "ja": "収縮"
+    },
+    "blur": {
+      "zh": "高速虚化散焦",
+      "ja": "ブラー退場"
+    },
+    "stretch": {
+      "zh": "弹性拉伸穿出",
+      "ja": "伸縮退場"
+    },
+    "scatter": {
+      "zh": "四散飞溅离析",
+      "ja": "飛散"
+    },
+    "glitch": {
+      "zh": "花屏解体解散",
+      "ja": "グリッチ退場"
+    },
+    "sinkMask": {
+      "zh": "水平沉落入地下",
+      "ja": "沈む"
+    },
+    "riseOut": {
+      "zh": "垂直冲顶穿出",
+      "ja": "上へ抜ける"
+    },
+    "slideOutL": {
+      "zh": "向左疾速滑离",
+      "ja": "左へ流れる"
+    },
+    "slideOutR": {
+      "zh": "向右疾速滑离",
+      "ja": "右へ流れる"
+    },
+    "flipOutX": {
+      "zh": "双扉合拢退场",
+      "ja": "扉が閉まる"
+    },
+    "flipOutY": {
+      "zh": "扑地向前倒塌",
+      "ja": "パタン倒れ"
+    },
+    "foldOut": {
+      "zh": "向内折叠闭合",
+      "ja": "折り畳み"
+    },
+    "squash": {
+      "zh": "垂直挤压压扁",
+      "ja": "潰れる"
+    },
+    "trackOutWide": {
+      "zh": "字距无限开阔散开",
+      "ja": "字間が開く"
+    },
+    "collapse": {
+      "zh": "黑洞中心坍缩",
+      "ja": "吸い込み"
+    },
+    "zoomThrough": {
+      "zh": "迎面扑屏冲过",
+      "ja": "手前へ抜ける"
+    },
+    "zoomFar": {
+      "zh": "深处景深隐退",
+      "ja": "奥へ遠ざかる"
+    },
+    "spinOut": {
+      "zh": "旋转离心飞离",
+      "ja": "回って消える"
+    },
+    "twist": {
+      "zh": "轴向旋钮式扭曲",
+      "ja": "ねじれ"
+    },
+    "waveOut": {
+      "zh": "随波浪波散坍塌",
+      "ja": "波で崩れる"
+    },
+    "blurOutStagger": {
+      "zh": "阶梯依次虚化失焦",
+      "ja": "字ごとボケ"
+    },
+    "undraw": {
+      "zh": "倒退缩回线框",
+      "ja": "線に戻る"
+    },
+    "outlineOut": {
+      "zh": "实色抽离留边",
+      "ja": "塗りが抜ける"
+    },
+    "irisClose": {
+      "zh": "光圈收拢封闭",
+      "ja": "アイリス"
+    },
+    "diagWipeOut": {
+      "zh": "斜向收拢收场",
+      "ja": "斜めワイプ"
+    },
+    "blindsClose": {
+      "zh": "百叶折叶闭合",
+      "ja": "ブラインド"
+    },
+    "checkerOut": {
+      "zh": "棋盘方格逐块离场",
+      "ja": "市松"
+    },
+    "splitApart": {
+      "zh": "上下分道扬镳",
+      "ja": "上下に割れる"
+    },
+    "vSliceDrop": {
+      "zh": "竖条错落坠落",
+      "ja": "縦スライス落下"
+    },
+    "melt": {
+      "zh": "熔融液化滴落",
+      "ja": "溶ける"
+    },
+    "dissolve": {
+      "zh": "细腻颗粒解离",
+      "ja": "ほろほろ"
+    },
+    "backspace": {
+      "zh": "退格一字一删",
+      "ja": "バックスペース"
+    },
+    "scrambleOut": {
+      "zh": "退化成乱码符",
+      "ja": "記号化"
+    },
+    "glitchDissolve": {
+      "zh": "像素块状崩解",
+      "ja": "ブロック化"
+    },
+    "echoOut": {
+      "zh": "层层回声回荡",
+      "ja": "残響"
+    },
+    "whipOut": {
+      "zh": "鞭甩横扫带走",
+      "ja": "ホイップ"
+    },
+    "gravity": {
+      "zh": "失重直线坠下",
+      "ja": "重力落下"
+    },
+    "popOut": {
+      "zh": "气泡戳破弹碎",
+      "ja": "弾ける"
+    },
+    "burn": {
+      "zh": "烈火烧尽灰烬",
+      "ja": "焼失"
+    },
+    "sweepCover": {
+      "zh": "黑色横条封挡",
+      "ja": "バーで隠す"
+    },
+    "shatterLite": {
+      "zh": "四片破碎飞离",
+      "ja": "四分割飛散"
+    }
+  },
+  "decor": {
+    "brackets": {
+      "zh": "直角对准框",
+      "ja": "枠マーク"
+    },
+    "rings": {
+      "zh": "空间定位圆环",
+      "ja": "座標の円"
+    },
+    "dots": {
+      "zh": "虚线刻度圆圈",
+      "ja": "ドットの輪"
+    },
+    "arrows": {
+      "zh": "动感指引箭头",
+      "ja": "矢印"
+    },
+    "slash": {
+      "zh": "斜切斩击切线",
+      "ja": "スラッシュ"
+    },
+    "sparks": {
+      "zh": "碰撞四溢火星",
+      "ja": "スパーク"
+    },
+    "leaders": {
+      "zh": "折线数据引线",
+      "ja": "引き出し線"
+    },
+    "waveform": {
+      "zh": "音乐音频声波",
+      "ja": "波形"
+    },
+    "barcode": {
+      "zh": "工业商品条形码",
+      "ja": "バーコード"
+    },
+    "grid": {
+      "zh": "工程视距网格",
+      "ja": "グリッド"
+    },
+    "stripes": {
+      "zh": "斜向警示斑马线",
+      "ja": "ストライプ"
+    },
+    "blobs": {
+      "zh": "潮流油墨污斑",
+      "ja": "インクの染み"
+    },
+    "bars": {
+      "zh": "粗质感色块条",
+      "ja": "荒い帯"
+    },
+    "shapes": {
+      "zh": "基础几何体组合",
+      "ja": "図形"
+    },
+    "counter": {
+      "zh": "动态滚动计数器",
+      "ja": "大きな数字"
+    },
+    "crosshair": {
+      "zh": "精准十字瞄准线",
+      "ja": "照準線"
+    },
+    "cropMarks": {
+      "zh": "印刷对位裁切角标",
+      "ja": "トンボ"
+    },
+    "reticle": {
+      "zh": "科技目标锁定框",
+      "ja": "ロックオン"
+    },
+    "radar": {
+      "zh": "雷达旋转扫描网",
+      "ja": "レーダー"
+    },
+    "progressRing": {
+      "zh": "百分比环形进度条",
+      "ja": "進行リング"
+    },
+    "timecodeBar": {
+      "zh": "电影级时间码条",
+      "ja": "タイムコード"
+    },
+    "rulerEdge": {
+      "zh": "画面外侧刻度标尺",
+      "ja": "端の定規"
+    },
+    "dimension": {
+      "zh": "工程制图尺寸线",
+      "ja": "寸法線"
+    },
+    "indexNum": {
+      "zh": "镜头编号序号码",
+      "ja": "通し番号"
+    },
+    "dateStamp": {
+      "zh": "复古相机日期水印",
+      "ja": "日付写真"
+    },
+    "qrBlock": {
+      "zh": "二维码矩阵图块",
+      "ja": "QR風ブロック"
+    },
+    "glitchRects": {
+      "zh": "数据故障碎片",
+      "ja": "グリッチ片"
+    },
+    "concentricSquares": {
+      "zh": "多重同心正方形",
+      "ja": "同心四角"
+    },
+    "triangleSpin": {
+      "zh": "立体旋转三角",
+      "ja": "回転三角"
+    },
+    "lineBurst": {
+      "zh": "放射性速度爆发线",
+      "ja": "放射線"
+    },
+    "plusGrid": {
+      "zh": "科技感十字十字点阵",
+      "ja": "プラス格子"
+    },
+    "guides": {
+      "zh": "版面辅助对齐虚线",
+      "ja": "ガイド線"
+    },
+    "waveLine": {
+      "zh": "正弦震荡波浪折线",
+      "ja": "波線"
+    },
+    "spiralLine": {
+      "zh": "螺旋回向连线",
+      "ja": "渦巻き"
+    },
+    "halftonePatch": {
+      "zh": "报纸网点印刷色块",
+      "ja": "網点"
+    },
+    "checkerStrip": {
+      "zh": "棋盘格修饰带",
+      "ja": "市松の帯"
+    },
+    "beatRing": {
+      "zh": "音乐重音律动环",
+      "ja": "拍の輪"
+    },
+    "orbitDots": {
+      "zh": "轨道运转公转光点",
+      "ja": "周回する点"
+    },
+    "constellation": {
+      "zh": "星座连线点阵",
+      "ja": "星座"
+    },
+    "confetti": {
+      "zh": "彩带节日纸屑",
+      "ja": "紙吹雪"
+    },
+    "petals": {
+      "zh": "飞舞飘落花瓣",
+      "ja": "花びら"
+    },
+    "rainStreaks": {
+      "zh": "纵向雨丝划痕",
+      "ja": "雨の筋"
+    },
+    "snow": {
+      "zh": "漫天飞雪微粒",
+      "ja": "雪"
+    },
+    "lightLeak": {
+      "zh": "胶片真实边缘漏光",
+      "ja": "光漏れ"
+    },
+    "bokeh": {
+      "zh": "梦幻散焦光斑",
+      "ja": "ボケ玉"
+    },
+    "speedCorner": {
+      "zh": "角落向心速度线",
+      "ja": "集中線"
+    },
+    "risingParticles": {
+      "zh": "空间升腾荧光微粒",
+      "ja": "立ち上る粒"
+    },
+    "twinkle": {
+      "zh": "四角十字闪烁星芒",
+      "ja": "きらめき"
+    },
+    "brushStroke": {
+      "zh": "水墨飞白书法笔触",
+      "ja": "筆の払い"
+    },
+    "tapePieces": {
+      "zh": "和纸遮蔽撕边胶带",
+      "ja": "マスキングテープ"
+    },
+    "scribbleCircle": {
+      "zh": "涂鸦圆圈圈记",
+      "ja": "手描きの囲み"
+    },
+    "scribbleUnder": {
+      "zh": "手绘波浪下划线",
+      "ja": "手描き下線"
+    },
+    "crossOut": {
+      "zh": "手写推敲划线修改",
+      "ja": "推敲の走り書き"
+    },
+    "highlightMark": {
+      "zh": "荧光笔高亮划记",
+      "ja": "蛍光マーカー"
+    },
+    "heartsStars": {
+      "zh": "潮流爱心与星芒徽章",
+      "ja": "ハートと星"
+    },
+    "watermarkKanji": {
+      "zh": "巨幅半透水印汉字",
+      "ja": "透かし大漢字"
+    },
+    "verticalStrip": {
+      "zh": "竖排装饰竖条",
+      "ja": "縦書き帯"
+    },
+    "romajiLine": {
+      "zh": "罗马拼音微型注字",
+      "ja": "ローマ字"
+    },
+    "bracketsJP": {
+      "zh": "六角黑括注符【】",
+      "ja": "隅付き括弧"
+    },
+    "seal": {
+      "zh": "篆刻朱红小印章",
+      "ja": "落款"
+    }
+  },
+  "treat": {
+    "none": {
+      "zh": "纯净原生无加工",
+      "ja": "なし"
+    },
+    "outline": {
+      "zh": "经典镂空描边字",
+      "ja": "袋文字"
+    },
+    "outlineFill": {
+      "zh": "实心填色加描边",
+      "ja": "縁取り"
+    },
+    "doubleOutline": {
+      "zh": "内外双层轮廓",
+      "ja": "二重縁"
+    },
+    "extrude": {
+      "zh": "3D厚度立体挤出",
+      "ja": "立体"
+    },
+    "longShadow": {
+      "zh": "45度极简长阴影",
+      "ja": "長い影"
+    },
+    "hardShadow": {
+      "zh": "硬边错位投下叠影",
+      "ja": "ずらし影"
+    },
+    "softShadow": {
+      "zh": "柔和高斯弥散阴影",
+      "ja": "ぼかし影"
+    },
+    "glow": {
+      "zh": "赛博电光外发光",
+      "ja": "発光"
+    },
+    "marker": {
+      "zh": "马克笔荧光底衬",
+      "ja": "マーカー"
+    },
+    "underline": {
+      "zh": "底部强化横下划线",
+      "ja": "下線"
+    },
+    "strike": {
+      "zh": "居中横穿删除线",
+      "ja": "取り消し線"
+    },
+    "boxed": {
+      "zh": "方框内嵌密封",
+      "ja": "箱組"
+    },
+    "gradientV": {
+      "zh": "垂直线性双色渐变",
+      "ja": "縦グラデ"
+    },
+    "splitColor": {
+      "zh": "上下双色平分切割",
+      "ja": "上下二色"
+    },
+    "halftone": {
+      "zh": "报刊网点半色调",
+      "ja": "網点"
+    },
+    "stripes": {
+      "zh": "斜向斑马斜纹填充",
+      "ja": "ストライプ"
+    },
+    "hatch": {
+      "zh": "细密排线阴影剖面",
+      "ja": "斜線"
+    },
+    "dotted": {
+      "zh": "虚线点阵外边缘",
+      "ja": "点線輪郭"
+    },
+    "alternate": {
+      "zh": "字符奇偶双色交错",
+      "ja": "交互色"
+    },
+    "italic": {
+      "zh": "动感斜体倾斜",
+      "ja": "斜体"
+    },
+    "wide": {
+      "zh": "横向压扁平体",
+      "ja": "平体"
+    },
+    "tall": {
+      "zh": "纵向拔高长体",
+      "ja": "長体"
+    },
+    "echoOutline": {
+      "zh": "回声轮廓外扩延展",
+      "ja": "輪郭の残響"
+    },
+    "emphasisDots": {
+      "zh": "文字着重着重号",
+      "ja": "傍点"
+    }
+  },
+  "bg": {
+    "none": {
+      "zh": "纯色极简单色底",
+      "ja": "無地"
+    },
+    "sunburst": {
+      "zh": "太阳芒射速度线",
+      "ja": "放射"
+    },
+    "concentric": {
+      "zh": "同心多层圆环",
+      "ja": "同心円"
+    },
+    "halftoneFade": {
+      "zh": "网点渐变半色调",
+      "ja": "網点グラデ"
+    },
+    "bigStripes": {
+      "zh": "巨幅斜向粗宽条带",
+      "ja": "大きな斜線"
+    },
+    "splitV": {
+      "zh": "左右垂直对半双色",
+      "ja": "左右二色"
+    },
+    "splitH": {
+      "zh": "上下水平对半双色",
+      "ja": "上下二色"
+    },
+    "splitDiag": {
+      "zh": "45度角对角双色分割",
+      "ja": "斜め二色"
+    },
+    "gradientSweep": {
+      "zh": "扫光平滑渐变",
+      "ja": "グラデ"
+    },
+    "spotlight": {
+      "zh": "聚光灯暗角光束",
+      "ja": "スポットライト"
+    },
+    "tvBars": {
+      "zh": "电视播控测试彩条",
+      "ja": "テレビの帯"
+    },
+    "checker": {
+      "zh": "棋盘格地砖阵列",
+      "ja": "市松"
+    },
+    "bigChar": {
+      "zh": "巨幅半透底纹汉字",
+      "ja": "巨大文字"
+    },
+    "speedLines": {
+      "zh": "热血动漫集中速度线",
+      "ja": "集中線"
+    },
+    "scanBars": {
+      "zh": "光栅电视扫描横条",
+      "ja": "走査線の帯"
+    },
+    "dotGrid": {
+      "zh": "工程点阵十字矩阵",
+      "ja": "ドット格子"
+    },
+    "retroGrid": {
+      "zh": "80s复古透视地网",
+      "ja": "レトロ格子"
+    },
+    "bokehBg": {
+      "zh": "大光圈虚焦漫反射斑",
+      "ja": "ボケ玉"
+    },
+    "particlesBg": {
+      "zh": "漫天浮动上升微粒",
+      "ja": "舞い上がる粒"
+    },
+    "ripples": {
+      "zh": "水波同心涟漪波纹",
+      "ja": "波紋"
+    },
+    "polka": {
+      "zh": "复古波尔卡大圆点",
+      "ja": "水玉"
+    },
+    "eqBars": {
+      "zh": "音频频谱背景柱",
+      "ja": "背景イコライザー"
+    },
+    "borderFrame": {
+      "zh": "四周封闭粗相框",
+      "ja": "太枠"
+    },
+    "letterbox": {
+      "zh": "宽银幕电影遮幅",
+      "ja": "シネスコ帯"
+    },
+    "noiseField": {
+      "zh": "柏林噪波流动场",
+      "ja": "ノイズの揺らぎ"
+    }
+  },
+  "cam": {
+    "push": {
+      "zh": "缓速景深向前推焦",
+      "ja": "ゆっくり寄る"
+    },
+    "pullOut": {
+      "zh": "景深缓缓向外拉远",
+      "ja": "引き"
+    },
+    "panL": {
+      "zh": "镜头向左摇镜头 (Pan Left)",
+      "ja": "左パン"
+    },
+    "panR": {
+      "zh": "镜头向右摇镜头 (Pan Right)",
+      "ja": "右パン"
+    },
+    "tiltUp": {
+      "zh": "仰角向上摇移 (Tilt Up)",
+      "ja": "ティルト"
+    },
+    "dutch": {
+      "zh": "倾斜荷兰角运镜 (Dutch Angle)",
+      "ja": "ダッチ"
+    },
+    "handheld": {
+      "zh": "真实手持微晃动态 (Handheld)",
+      "ja": "手持ち"
+    },
+    "beatPunch": {
+      "zh": "强拍重击急剧冲撞 (Beat Punch)",
+      "ja": "拍でズーム"
+    },
+    "whipIn": {
+      "zh": "极速横甩镜头进焦 (Whip Pan)",
+      "ja": "ホイップイン"
+    },
+    "crashZoom": {
+      "zh": "激进急推特写 (Crash Zoom)",
+      "ja": "クラッシュズーム"
+    },
+    "bounce": {
+      "zh": "垂直轻快弹震 (Bounce)",
+      "ja": "バウンス"
+    },
+    "roll": {
+      "zh": "镜头轴向连续旋转 (Roll)",
+      "ja": "ロール"
+    },
+    "driftDiag": {
+      "zh": "斜向对角漂移运镜",
+      "ja": "斜めドリフト"
+    },
+    "shakeHard": {
+      "zh": "剧烈震颤冲屏 (Shake)",
+      "ja": "強い揺れ"
+    },
+    "dollyIn": {
+      "zh": "平滑轨道推车推镜 (Dolly In)",
+      "ja": "ドリー"
+    },
+    "stepZoom": {
+      "zh": "阶梯式三段顿挫推焦",
+      "ja": "段階ズーム"
+    }
+  },
+  "fx": {
+    "chroma": {
+      "zh": "RGB色像差色散脉冲",
+      "ja": "色ズレの跳ね"
+    },
+    "shake": {
+      "zh": "画面全域剧烈抖动",
+      "ja": "揺れ"
+    },
+    "slice": {
+      "zh": "水平信号切片撕裂",
+      "ja": "スライスグリッチ"
+    },
+    "block": {
+      "zh": "数据块状马赛克故障",
+      "ja": "ブロックグリッチ"
+    },
+    "invert": {
+      "zh": "高能黑白反相闪烁",
+      "ja": "反転"
+    },
+    "flash": {
+      "zh": "击打高能纯白闪屏",
+      "ja": "フラッシュ"
+    },
+    "zoom": {
+      "zh": "径向变焦冲击模糊",
+      "ja": "ズームブラー"
+    },
+    "mosaic": {
+      "zh": "动态马赛克像素化",
+      "ja": "モザイク"
+    },
+    "panelWipe": {
+      "zh": "挡板面板划过转场",
+      "ja": "パネルワイプ"
+    },
+    "irisTrans": {
+      "zh": "镜头光圈圆形收缩",
+      "ja": "アイリス"
+    },
+    "doors": {
+      "zh": "双扇大门对开过渡",
+      "ja": "扉"
+    },
+    "blindsTrans": {
+      "zh": "百叶折叠切场",
+      "ja": "ブラインド"
+    },
+    "rgbSplit": {
+      "zh": "红绿蓝三原色分离",
+      "ja": "RGB分離"
+    },
+    "smear": {
+      "zh": "动态横向涂抹拖影",
+      "ja": "横スミア"
+    },
+    "vhsRoll": {
+      "zh": "老式录像带断带滚屏",
+      "ja": "VHSロール"
+    },
+    "trackingNoise": {
+      "zh": "磁头寻迹雪花噪波",
+      "ja": "トラッキングノイズ"
+    },
+    "mirrorFlash": {
+      "zh": "水平镜像对称爆闪",
+      "ja": "ミラー"
+    },
+    "strobe": {
+      "zh": "高频极速电子频闪",
+      "ja": "ストロボ"
+    },
+    "posterize": {
+      "zh": "色调色阶断层分离",
+      "ja": "ポスタリゼ"
+    },
+    "hueShift": {
+      "zh": "全色相环极速旋转",
+      "ja": "色相シフト"
+    },
+    "tileShift": {
+      "zh": "方块瓦片错位错动",
+      "ja": "タイルずらし"
+    },
+    "filmBurn": {
+      "zh": "老胶片过曝灼烧破损",
+      "ja": "フィルム焼け"
+    },
+    "whipBlur": {
+      "zh": "极速横甩动态模糊",
+      "ja": "ホイップブラー"
+    },
+    "blackFrame": {
+      "zh": "单帧纯黑场呼吸停顿",
+      "ja": "黒コマ"
+    },
+    "whiteFrame": {
+      "zh": "单帧纯白闪高能切点",
+      "ja": "白コマ"
+    },
+    "gridRepeat": {
+      "zh": "四分屏画面阵列镜像",
+      "ja": "画面分割"
+    },
+    "waveWarp": {
+      "zh": "正弦波浪扭曲失真",
+      "ja": "波ゆがみ"
+    },
+    "pixelDrift": {
+      "zh": "像素粒子随机漂移",
+      "ja": "ピクセルずれ"
+    },
+    "zoomPunch": {
+      "zh": "冲击波瞬间放大弹震",
+      "ja": "ズームパンチ"
+    },
+    "lightSweep": {
+      "zh": "变形镜头横向掠光",
+      "ja": "光の筋"
+    },
+    "crtOff": {
+      "zh": "显像管关机瞬间聚成光点",
+      "ja": "ブラウン管オフ"
+    },
+    "splitSlide": {
+      "zh": "上下对半错开平移",
+      "ja": "上下スライド"
+    }
+  }
+};
+
+J.techName = (group, key) => {
+  if (!key) return '';
+  const lang = (J.getLang && J.getLang()) || 'zh';
+  const grp = J.TECH_NAMES && J.TECH_NAMES[group];
+  if (grp && grp[key]) {
+    const val = lang === 'zh' ? grp[key].zh : grp[key].ja;
+    if (val) return val;
+  }
+  if (J.registry) {
+    try {
+      const reg = J.registry(group);
+      if (reg && reg[key] && reg[key].name) return reg[key].name;
+    } catch (e) {}
+  }
+  return key;
+};
+
+})();
+
 /* ============================================================
    JIZURA — util: math, easing, deterministic randomness, colour
    ============================================================ */
@@ -647,9 +2552,12 @@ J.fmtTime = (t, fps) => {
 
 const JP_SANS_FB = '"Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
 const JP_SERIF_FB = '"Noto Serif JP","Noto Serif CJK JP","Hiragino Mincho ProN","Yu Mincho",serif';
+const CN_SANS_FB = '"Noto Sans SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB","SimHei",sans-serif';
+const CN_SERIF_FB = '"Noto Serif SC","Songti SC","SimSun","STSong","FangSong",serif';
 
 /* role catalogue: key -> {label, family, weight, kind} */
 J.FONTS = {
+  // Japanese Fonts
   gothic_black:  { label: 'Noto Sans JP Black',        family: '"Noto Sans JP"', weight: 900, kind: 'gothic', fb: JP_SANS_FB },
   gothic_bold:   { label: 'Noto Sans JP Bold',         family: '"Noto Sans JP"', weight: 700, kind: 'gothic', fb: JP_SANS_FB },
   gothic_med:    { label: 'Noto Sans JP Medium',       family: '"Noto Sans JP"', weight: 500, kind: 'gothic', fb: JP_SANS_FB },
@@ -667,8 +2575,22 @@ J.FONTS = {
   brush:         { label: 'Yuji Syuku',                family: '"Yuji Syuku"', weight: 400, kind: 'brush', fb: JP_SERIF_FB },
   mono:          { label: 'IBM Plex Mono',             family: '"IBM Plex Mono"', weight: 500, kind: 'mono', fb: '"IBM Plex Sans JP",' + JP_SANS_FB },
   sansui:        { label: 'IBM Plex Sans JP',          family: '"IBM Plex Sans JP"', weight: 500, kind: 'gothic', fb: JP_SANS_FB },
+
+  // Chinese Fonts (简体中文 / 常用商用开源字体)
+  sc_gothic_black: { label: '思源黑体 Heavy (SC)',      family: '"Noto Sans SC"', weight: 900, kind: 'gothic', fb: CN_SANS_FB },
+  sc_gothic_bold:  { label: '思源黑体 Bold (SC)',       family: '"Noto Sans SC"', weight: 700, kind: 'gothic', fb: CN_SANS_FB },
+  sc_gothic_med:   { label: '思源黑体 Medium (SC)',     family: '"Noto Sans SC"', weight: 500, kind: 'gothic', fb: CN_SANS_FB },
+  sc_gothic_light: { label: '思源黑体 Light (SC)',      family: '"Noto Sans SC"', weight: 300, kind: 'gothic', fb: CN_SANS_FB },
+  sc_serif_black:  { label: '思源宋体 Black (SC)',      family: '"Noto Serif SC"', weight: 900, kind: 'mincho', fb: CN_SERIF_FB },
+  sc_serif_bold:   { label: '思源宋体 Bold (SC)',       family: '"Noto Serif SC"', weight: 700, kind: 'mincho', fb: CN_SERIF_FB },
+  sc_serif_med:    { label: '思源宋体 Medium (SC)',     family: '"Noto Serif SC"', weight: 500, kind: 'mincho', fb: CN_SERIF_FB },
+  zcool_kuaile:    { label: '站酷快乐体 (SC Display)',  family: '"ZCOOL KuaiLe"', weight: 400, kind: 'display', fb: CN_SANS_FB },
+  zcool_xiaowei:   { label: '站酷小薇体 (SC Serif)',    family: '"ZCOOL XiaoWei"', weight: 400, kind: 'mincho', fb: CN_SERIF_FB },
+  zcool_qingke:    { label: '站酷庆科黄油体 (SC)',      family: '"ZCOOL QingKe HuangYou"', weight: 400, kind: 'display', fb: CN_SANS_FB },
+  mashanzheng:     { label: '马善政毛笔楷书 (SC Brush)',family: '"Ma Shan Zheng"', weight: 400, kind: 'brush', fb: CN_SERIF_FB },
+  longcang:        { label: '龙藏行草体 (SC Brush)',    family: '"Long Cang"', weight: 400, kind: 'brush', fb: CN_SERIF_FB },
 };
-J.GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap';
+J.GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@300;500;700;900&family=Noto+Serif+SC:wght@300;500;700;900&family=ZCOOL+KuaiLe&family=ZCOOL+XiaoWei&family=ZCOOL+QingKe+HuangYou&family=Ma+Shan+Zheng&family=Long+Cang&display=swap';
 
 /* user fonts (local family names or uploaded files) */
 J.addUserFont = (key, label, family, weight = 400, kind = 'custom') => {
@@ -1139,53 +3061,62 @@ J.fitSize = (text, font, maxW, maxH, opt = {}) => {
 J.STYLES = {
   noir: {
     name: 'ノワール・クロマ', desc: '黒地・白文字・シアン/琥珀の色ズレ',
+    name_zh: '暗夜黑白·色散', desc_zh: '黑底白字，青/琥珀光色散',
     schemes: [
       { bg: '#060607', fg: '#F5EEEA', sub: '#BDB6B2', accent: '#F5A50C', accent2: '#16F4D4', ink: '#F5EEEA', dim: '#2A2A2E', ghostA: '#F5A50C', ghostB: '#16F4D4' },
       { bg: '#F2EDE8', fg: '#0B0B0C', sub: '#4A4644', accent: '#E0600C', accent2: '#0FAE98', ink: '#0B0B0C', dim: '#D9D2CC', ghostA: '#F5A50C', ghostB: '#16C4B4', swap: true },
     ],
     fonts: { display: ['gothic_black', 'dela', 'zenkaku'], serif: ['mincho_light', 'mincho'], body: ['gothic_med'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_gothic_black', 'zcool_qingke'], serif: ['sc_serif_bold', 'sc_serif_med'], body: ['sc_gothic_med'], mono: ['mono'] },
     texture: { grain: 0.9, paper: 0, scan: 0 }, ghost: 1.0,
     bias: { layout: { vcols: 2, condensed: 2, marquee: 1.6, tile: 1.4, center: 1.2 }, enter: { assemble: 2.2, slice: 1.8, stretch: 1.4 }, exit: { explode: 1.8, fall: 1.2, drift: 1.4 } },
     decor: { rings: 0.8, hud: 0.4, slash: 0.6 }, hud: false,
   },
   crimson: {
     name: 'クリムゾン・シグナル', desc: '深紅地・白と黒の二段組み・データ破損',
+    name_zh: '猩红信号·故障', desc_zh: '深红底色，黑白双层排版，数据故障',
     schemes: [
       { bg: '#C8103F', fg: '#FFFFFF', sub: '#FFD9E2', accent: '#140509', accent2: '#39F2C8', ink: '#140509', dim: '#B00D37', ghostA: '#FFFFFF', ghostB: '#39F2C8' },
       { bg: '#FF6F98', fg: '#FFFFFF', sub: '#FFE3EB', accent: '#1A0710', accent2: '#39F2C8', ink: '#1A0710', dim: '#F25C87', ghostA: '#FFFFFF', ghostB: '#1A0710' },
       { bg: '#150509', fg: '#FF3D6E', sub: '#FF9DB6', accent: '#FFFFFF', accent2: '#39F2C8', ink: '#FF3D6E', dim: '#2A0B14', ghostA: '#FF3D6E', ghostB: '#39F2C8' },
     ],
     fonts: { display: ['gothic_black', 'zenkaku'], serif: ['mincho'], body: ['gothic_med', 'sansui'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_gothic_black'], serif: ['sc_serif_bold'], body: ['sc_gothic_med'], mono: ['mono'] },
     texture: { grain: 0.6, paper: 0, scan: 0.4 }, ghost: 0.8,
     bias: { layout: { huge: 2, marquee: 1.6, scatter: 1.5, stack: 1.3, type: 1.3 }, enter: { scramble: 1.6, slice: 1.6, type: 1.3 }, exit: { glitch: 2, slice: 1.6 } },
     decor: { hud: 1, arrows: 0.8, rings: 0.8 }, hud: true, glitchBoost: 1.4,
   },
   caution: {
     name: 'コーション', desc: '黄色地・赤と青のアクセント・計器UI',
+    name_zh: '警戒信号·UI', desc_zh: '黄色底色，红蓝点缀，仪表HUD排版',
     schemes: [
       { bg: '#F4D21F', fg: '#141414', sub: '#3A3510', accent: '#E0231C', accent2: '#1F3FD8', ink: '#141414', dim: '#E6C413', ghostA: '#E0231C', ghostB: '#1F3FD8' },
       { bg: '#E0231C', fg: '#F4D21F', sub: '#FFE9A0', accent: '#141414', accent2: '#FFFFFF', ink: '#141414', dim: '#C81E17', ghostA: '#141414', ghostB: '#F4D21F' },
       { bg: '#18181A', fg: '#F4D21F', sub: '#DDD6B0', accent: '#E0231C', accent2: '#FFFFFF', ink: '#F4D21F', dim: '#26262A', ghostA: '#E0231C', ghostB: '#1F3FD8' },
     ],
     fonts: { display: ['mincho_black', 'gothic_black'], serif: ['mincho_black', 'mincho_bold'], body: ['gothic_bold'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_serif_black', 'sc_gothic_black'], serif: ['sc_serif_black', 'sc_serif_bold'], body: ['sc_gothic_bold'], mono: ['mono'] },
     texture: { grain: 0.5, paper: 0.25, scan: 0 }, ghost: 0.55,
     bias: { layout: { ring: 2.2, mixed: 2, circle: 1.4, gloss: 1.2 }, enter: { pop: 1.6, spin: 1.5, wipe: 1.2 }, exit: { scatter: 1.5, shrink: 1.2 } },
     decor: { hud: 1, rings: 1, arrows: 1, counter: 0.8, barcode: 0.8 }, hud: true,
   },
   magenta: {
     name: 'ポップ・マゼンタ', desc: 'ショッキングピンク×白・太丸ゴシック・引き出し線',
+    name_zh: '流行品红·引线', desc_zh: '荧光品红与白，圆润粗黑，引导引线',
     schemes: [
       { bg: '#FF0A8C', fg: '#FFFFFF', sub: '#FFD2EA', accent: '#FFFFFF', accent2: '#2B2BD9', ink: '#FFFFFF', dim: '#F0077F', ghostA: '#FF8CC8', ghostB: '#2B2BD9' },
       { bg: '#FFFFFF', fg: '#FF0A8C', sub: '#FF6DB6', accent: '#2B2BD9', accent2: '#FF0A8C', ink: '#FF0A8C', dim: '#FFE4F2', ghostA: '#2B2BD9', ghostB: '#FF8CC8' },
       { bg: '#2B2BD9', fg: '#FFFFFF', sub: '#C9C9FF', accent: '#FF0A8C', accent2: '#FFFFFF', ink: '#FFFFFF', dim: '#2424C4', ghostA: '#FF0A8C', ghostB: '#FFFFFF' },
     ],
     fonts: { display: ['round', 'pop', 'gothic_black'], serif: ['mincho_bold'], body: ['round', 'gothic_bold'], mono: ['mono'] },
+    fonts_zh: { display: ['zcool_kuaile', 'sc_gothic_black'], serif: ['sc_serif_bold'], body: ['sc_gothic_bold'], mono: ['mono'] },
     texture: { grain: 0.3, paper: 0, scan: 0 }, ghost: 0.35,
     bias: { layout: { wave: 2.2, gloss: 1.6, huge: 1.6, pill: 1.4, scatter: 1.2 }, enter: { pop: 2, drop: 1.6, spin: 1.3, blur: 1.2 }, exit: { scatter: 1.6, shrink: 1.4, blur: 1.2 } },
     decor: { leaders: 1, counter: 1, sparks: 0.8, shapes: 0.6 }, hud: false,
   },
   paper: {
     name: 'ペーパー・インク', desc: '紙の質感・藍とマゼンタ・明朝の残像',
+    name_zh: '宣纸墨染·书法', desc_zh: '宣纸纤维质感，黛蓝与品红，毛笔宋体残影',
     schemes: [
       { bg: '#ECE9E3', fg: '#1B2350', sub: '#4D5270', accent: '#C2185B', accent2: '#111111', ink: '#111111', dim: '#DAD6CE', ghostA: '#C2185B', ghostB: '#1B2350', paper: true },
       { bg: '#151515', fg: '#F0EDE7', sub: '#B8B4AC', accent: '#C2185B', accent2: '#1B2350', ink: '#F0EDE7', dim: '#232323', ghostA: '#C2185B', ghostB: '#3A4690', paper: true },
@@ -1193,86 +3124,101 @@ J.STYLES = {
       { bg: '#1B2350', fg: '#F0EDE7', sub: '#AEB2CC', accent: '#C2185B', accent2: '#FFFFFF', ink: '#F0EDE7', dim: '#1F2858', ghostA: '#C2185B', ghostB: '#FFFFFF', paper: true },
     ],
     fonts: { display: ['mincho_black', 'tokumin'], serif: ['mincho_black', 'mincho_bold'], body: ['mincho'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_serif_black', 'mashanzheng'], serif: ['sc_serif_black', 'sc_serif_bold'], body: ['sc_serif_med'], mono: ['mono'] },
     texture: { grain: 0.7, paper: 1, scan: 0 }, ghost: 0.5,
     bias: { layout: { stack: 2.2, mixed: 1.8, huge: 1.6, vcols: 1.4, circle: 1.2 }, enter: { wipe: 1.6, stretch: 1.4, blur: 1.2, slice: 1.2 }, exit: { drift: 1.6, wipe: 1.4 } },
     decor: { bars: 1, blobs: 0.8, shapes: 0.6, waveform: 0.4 }, hud: false,
   },
   hud: {
     name: 'ダークHUD', desc: '炭色地・細線フレーム・橙の差し色・日食',
+    name_zh: '暗黑HUD·极客', desc_zh: '炭黑底色，细线框体，橙色光斑',
     schemes: [
       { bg: '#131315', fg: '#EFEDEA', sub: '#8E8B88', accent: '#F25A2B', accent2: '#FFFFFF', ink: '#EFEDEA', dim: '#1E1E21', ghostA: '#F25A2B', ghostB: '#7FD7FF' },
       { bg: '#0B0B0C', fg: '#FFFFFF', sub: '#9A9796', accent: '#F25A2B', accent2: '#FFFFFF', ink: '#F25A2B', dim: '#18181A', ghostA: '#F25A2B', ghostB: '#FFFFFF' },
     ],
     fonts: { display: ['gothic_black', 'zenkaku'], serif: ['mincho_bold', 'mincho_light'], body: ['gothic_med'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_gothic_black'], serif: ['sc_serif_bold', 'sc_serif_med'], body: ['sc_gothic_med'], mono: ['mono'] },
     texture: { grain: 1, paper: 0, scan: 0.2 }, ghost: 0.6,
     bias: { layout: { circle: 2, ring: 1.6, vcols: 1.4, center: 1.2, gloss: 1 }, enter: { blur: 1.6, type: 1.4, assemble: 1.3 }, exit: { blur: 1.4, drift: 1.4, explode: 1.2 } },
     decor: { hud: 1, rings: 1, arrows: 1, grid: 0.8, slash: 0.6 }, hud: true, glow: 1.4,
   },
   mint: {
     name: 'ミント・ターミナル', desc: '黒×青緑×ライム・ラベル貼り・スリットスキャン',
+    name_zh: '薄荷终端·标签', desc_zh: '黑底青绿与亮柠，荧光标签条',
     schemes: [
       { bg: '#0A0E0D', fg: '#E6FFF5', sub: '#7FB9A8', accent: '#9CFF3A', accent2: '#2E8C74', ink: '#E6FFF5', dim: '#142420', ghostA: '#FF3B6B', ghostB: '#2EE6C8' },
       { bg: '#3FAE93', fg: '#0A0E0D', sub: '#123A31', accent: '#FFFFFF', accent2: '#9CFF3A', ink: '#0A0E0D', dim: '#39A087', ghostA: '#FFFFFF', ghostB: '#0A0E0D' },
       { bg: '#F2F2EE', fg: '#0A0E0D', sub: '#40504B', accent: '#2E8C74', accent2: '#9CFF3A', ink: '#0A0E0D', dim: '#E2E4DE', ghostA: '#2E8C74', ghostB: '#9CFF3A' },
     ],
     fonts: { display: ['gothic_black', 'dela'], serif: ['mincho'], body: ['gothic_med', 'sansui'], mono: ['mono', 'dot'] },
+    fonts_zh: { display: ['sc_gothic_black', 'zcool_qingke'], serif: ['sc_serif_bold'], body: ['sc_gothic_med'], mono: ['mono'] },
     texture: { grain: 0.8, paper: 0, scan: 0.6 }, ghost: 0.9,
     bias: { layout: { labels: 2.4, tile: 1.6, marquee: 1.4, type: 1.4, diag: 1.2 }, enter: { scramble: 1.8, type: 1.6, flicker: 1.4 }, exit: { glitch: 1.6, slice: 1.4 } },
     decor: { hud: 1, grid: 0.8, barcode: 0.8, sparks: 0.5 }, hud: true,
   },
   specimen: {
     name: 'スペシメン', desc: '墨色地・明朝・辞書の注釈と引き出し線',
+    name_zh: '辞书标本·注释', desc_zh: '墨黑底色，典雅宋体，词典注解与引线',
     schemes: [
       { bg: '#1B1A1C', fg: '#F2F0EC', sub: '#A19E99', accent: '#F2F0EC', accent2: '#C8B98C', ink: '#F2F0EC', dim: '#2A292C', ghostA: '#6E6A66', ghostB: '#C8B98C' },
       { bg: '#F2F0EC', fg: '#1B1A1C', sub: '#5E5B57', accent: '#1B1A1C', accent2: '#8A7A4E', ink: '#1B1A1C', dim: '#E3E0DA', ghostA: '#B9B4AD', ghostB: '#8A7A4E' },
     ],
     fonts: { display: ['mincho_bold', 'mincho_black'], serif: ['mincho', 'mincho_light'], body: ['mincho'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_serif_bold', 'sc_serif_black'], serif: ['sc_serif_med', 'sc_serif_bold'], body: ['sc_serif_med'], mono: ['mono'] },
     texture: { grain: 0.6, paper: 0.3, scan: 0 }, ghost: 0.25,
     bias: { layout: { gloss: 2.6, vcols: 1.8, mixed: 1.4, center: 1.2, tile: 1 }, enter: { type: 1.8, blur: 1.6, wipe: 1.2 }, exit: { blur: 1.6, drift: 1.2, wipe: 1.2 } },
     decor: { leaders: 1, slash: 0.8, rings: 0.4 }, hud: false,
   },
   transit: {
     name: 'トランジット', desc: 'オリーブ×黄色・矢印と標識・網点',
+    name_zh: '交通枢纽·标识', desc_zh: '橄榄绿与明黄，方向箭头与警示网点',
     schemes: [
       { bg: '#5B582B', fg: '#FFFFFF', sub: '#E6E2BC', accent: '#E8C21A', accent2: '#1A1A1A', ink: '#E8C21A', dim: '#67633A', ghostA: '#E8C21A', ghostB: '#1A1A1A' },
       { bg: '#1A1A1A', fg: '#FFFFFF', sub: '#B8B5A0', accent: '#E8C21A', accent2: '#FFFFFF', ink: '#E8C21A', dim: '#242424', ghostA: '#E8C21A', ghostB: '#7C7A55' },
       { bg: '#9C9A94', fg: '#FFFFFF', sub: '#F0EEE6', accent: '#E8C21A', accent2: '#1A1A1A', ink: '#1A1A1A', dim: '#A6A49E', ghostA: '#E8C21A', ghostB: '#1A1A1A' },
     ],
     fonts: { display: ['zenkaku', 'gothic_black'], serif: ['mincho_bold'], body: ['gothic_bold'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_gothic_black'], serif: ['sc_serif_bold'], body: ['sc_gothic_bold'], mono: ['mono'] },
     texture: { grain: 0.8, paper: 0.2, scan: 0 }, ghost: 0.5,
     bias: { layout: { mixed: 2, scatter: 1.6, diag: 1.4, huge: 1.2 }, enter: { spin: 1.6, drop: 1.4, pop: 1.2, stretch: 1.2 }, exit: { scatter: 1.4, stretch: 1.4 } },
     decor: { arrows: 1.4, shapes: 1, counter: 0.8, rings: 0.6 }, hud: false,
   },
   blueprint: {
     name: 'ブループリント', desc: '鮮青×白×黒・図形コラージュ・斜め帯',
+    name_zh: '现代蓝图·拼贴', desc_zh: '纯蓝白黑，几何拼贴与斜切色块',
     schemes: [
       { bg: '#1B1BE8', fg: '#FFFFFF', sub: '#C7C7FF', accent: '#000000', accent2: '#FFFFFF', ink: '#000000', dim: '#2323F0', ghostA: '#000000', ghostB: '#8C8CFF' },
       { bg: '#000000', fg: '#FFFFFF', sub: '#9A9AFF', accent: '#1B1BE8', accent2: '#FFFFFF', ink: '#1B1BE8', dim: '#0A0A30', ghostA: '#1B1BE8', ghostB: '#FFFFFF' },
       { bg: '#FFFFFF', fg: '#1B1BE8', sub: '#5A5AF0', accent: '#000000', accent2: '#1B1BE8', ink: '#1B1BE8', dim: '#EDEDFF', ghostA: '#000000', ghostB: '#8C8CFF' },
     ],
     fonts: { display: ['dela', 'gothic_black'], serif: ['mincho_bold'], body: ['gothic_bold'], mono: ['mono', 'dot'] },
+    fonts_zh: { display: ['zcool_qingke', 'sc_gothic_black'], serif: ['sc_serif_bold'], body: ['sc_gothic_bold'], mono: ['mono'] },
     texture: { grain: 0.4, paper: 0, scan: 0 }, ghost: 0.6,
     bias: { layout: { diag: 2.2, labels: 1.4, huge: 1.4, condensed: 1.2 }, enter: { wipe: 1.6, slice: 1.6, stretch: 1.3 }, exit: { wipe: 1.6, slice: 1.4, glitch: 1.2 } },
     decor: { shapes: 1.4, stripes: 1, slash: 1, grid: 0.6 }, hud: false,
   },
   rouge: {
     name: 'ルージュ・グラデ', desc: '明るいグレー地・赤のグラデーション・カプセル',
+    name_zh: '胭脂渐变·胶囊', desc_zh: '灰调底色，烈焰红渐变，胶囊字块',
     schemes: [
       { bg: '#E4E2E0', fg: '#141414', sub: '#6B6866', accent: '#D40F1C', accent2: '#141414', ink: '#141414', dim: '#D8D6D4', ghostA: '#D40F1C', ghostB: '#6B6866', grad: ['#E3141F', '#4A0005'] },
       { bg: '#140405', fg: '#FFFFFF', sub: '#C98A8E', accent: '#E3141F', accent2: '#FFFFFF', ink: '#E3141F', dim: '#220A0C', ghostA: '#E3141F', ghostB: '#FFFFFF', grad: ['#FF4A52', '#6A0008'] },
     ],
     fonts: { display: ['gothic_black', 'dela'], serif: ['mincho_black'], body: ['gothic_med'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_gothic_black'], serif: ['sc_serif_black'], body: ['sc_gothic_med'], mono: ['mono'] },
     texture: { grain: 0.4, paper: 0, scan: 0 }, ghost: 0.4,
     bias: { layout: { huge: 2.2, pill: 2, mixed: 1.4, labels: 1.2, center: 1.2 }, enter: { zoom: 1.6, wipe: 1.4, pop: 1.2 }, exit: { shrink: 1.6, wipe: 1.2 } },
     decor: { hud: 0.8, leaders: 0.8, stripes: 0.6 }, hud: true, useGrad: true,
   },
   mono: {
     name: 'モノ・RGB', desc: '灰色の空間・白い明朝・強いRGB分離・座標の円',
+    name_zh: '极简灰度·RGB', desc_zh: '沉稳灰色，纯白宋体，强烈RGB重影',
     schemes: [
       { bg: '#3B3D41', fg: '#FFFFFF', sub: '#B9BBBF', accent: '#FFFFFF', accent2: '#FFE34D', ink: '#1A1B1D', dim: '#45474C', ghostA: '#FF2A2A', ghostB: '#2AA8FF' },
       { bg: '#141517', fg: '#FFFFFF', sub: '#9EA0A4', accent: '#FFE34D', accent2: '#FFFFFF', ink: '#FFFFFF', dim: '#1E1F22', ghostA: '#FF2A2A', ghostB: '#2AFF7A' },
     ],
     fonts: { display: ['mincho_black', 'mincho_bold'], serif: ['mincho_bold'], body: ['mincho'], mono: ['mono'] },
+    fonts_zh: { display: ['sc_serif_black', 'sc_serif_bold'], serif: ['sc_serif_bold'], body: ['sc_serif_med'], mono: ['mono'] },
     texture: { grain: 0.9, paper: 0, scan: 0.3 }, ghost: 1.3,
     bias: { layout: { circle: 1.8, ring: 1.6, pill: 1.4, tile: 1.4, vcols: 1.3 }, enter: { assemble: 1.4, blur: 1.4, zoom: 1.3 }, exit: { explode: 1.4, glitch: 1.4, blur: 1.2 } },
     decor: { rings: 1.4, hud: 0.6, dots: 1 }, hud: false,
@@ -1280,10 +3226,28 @@ J.STYLES = {
 };
 J.STYLE_ORDER = ['noir', 'crimson', 'caution', 'magenta', 'paper', 'hud', 'mint', 'specimen', 'transit', 'blueprint', 'rouge', 'mono'];
 
+J.styleName = k => {
+  const st = J.STYLES[k];
+  if (!st) return k;
+  return (J.getLang && J.getLang() === 'zh' && st.name_zh) ? st.name_zh : st.name;
+};
+
+J.styleDesc = k => {
+  const st = J.STYLES[k];
+  if (!st) return '';
+  return (J.getLang && J.getLang() === 'zh' && st.desc_zh) ? st.desc_zh : st.desc;
+};
+
 /* resolve style + user colour/font overrides into an effective style */
 J.resolveStyle = (project) => {
   const base = J.STYLES[project.style] || J.STYLES.noir;
   const st = JSON.parse(JSON.stringify(base));
+  const isZh = (J.getLang && J.getLang() === 'zh') || (project.lang === 'zh') || (J.isChineseText && J.isChineseText(project.lyrics || ''));
+  if (isZh && base.fonts_zh) {
+    for (const role of ['display', 'serif', 'body', 'mono']) {
+      if (base.fonts_zh[role]) st.fonts[role] = base.fonts_zh[role].slice();
+    }
+  }
   const ov = project.colors || {};
   // base colours (background / text) replace the main scheme only
   if (ov.enabled) st.schemes[0] = Object.assign({}, st.schemes[0], pickDefined(ov, ['bg', 'fg', 'sub']));
@@ -1782,6 +3746,9 @@ J.register = (group, key, def, pack) => {
   const reg = J[G[0]], order = J[G[1]];
   if (reg[key] && reg[key].pack !== pack) console.warn(`JIZURA: ${group}.${key} is being replaced`);
   def.pack = pack || def.pack || 'core';
+  if (J.TECH_NAMES && J.TECH_NAMES[group] && J.TECH_NAMES[group][key]) {
+    def.name_zh = J.TECH_NAMES[group][key].zh;
+  }
   reg[key] = def;
   if (!def.special && !order.includes(key)) order.push(key);
   return def;
@@ -2710,21 +4677,18 @@ J.drawHUD = (env, plan) => {
 (() => {
 'use strict';
 
-J.SAMPLE_LYRICS = `夜明けの色を/覚えてる
-ほどけた声が遠くで鳴った
-ねえ、まだ間に合うかな
-*透明*なままじゃ終われない!`;
+J.SAMPLE_LYRICS = (J.getLang && J.getLang() === 'zh') ? J.SAMPLE_LYRICS_ZH : J.SAMPLE_LYRICS_JA;
 
 J.defaultProject = () => ({
   version: 1,
   title: '', artist: '',
-  lyrics: J.SAMPLE_LYRICS,
+  lyrics: (J.getLang && J.getLang() === 'zh') ? (J.SAMPLE_LYRICS_ZH || J.SAMPLE_LYRICS) : (J.SAMPLE_LYRICS_JA || J.SAMPLE_LYRICS),
   style: 'noir', mood: null,
   seed: 20260922,
   aspect: '16:9', res: 1080, fps: 24,
   fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35 },
   enabled: Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, true]))])),
-  timing: { bpm: 0, offset: 0.4, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
+  timing: { bpm: 0, offset: 0.4, snap: true, tail: 0.9, lineTimes: {}, lineEnds: {}, lineScale: 1 },
   overrides: {},
   colors: { enabled: false },
   fonts: {},
@@ -2749,7 +4713,12 @@ J.parseLyrics = (raw) => {
     if (mm) { meta[mm[1].toLowerCase()] = mm[2].trim(); continue; }
     let s = s0; const times = [];
     let m;
-    while ((m = s.match(/^\[(\d+):(\d+(?:[.:]\d+)?)\]/))) { times.push(+m[1] * 60 + parseFloat(m[2].replace(':', '.'))); s = s.slice(m[0].length); }
+    while ((m = s.match(/^\[(\d+):(\d+(?:[.:]\d+)?)(?:\s*[-~至到]\s*(\d+):(\d+(?:[.:]\d+)?))?\]/))) {
+      const st = +m[1] * 60 + parseFloat(m[2].replace(':', '.'));
+      const et = m[3] != null ? (+m[3] * 60 + parseFloat(m[4].replace(':', '.'))) : null;
+      times.push({ start: st, end: et });
+      s = s.slice(m[0].length);
+    }
     s = s.trim();
     let note = null;
     const bar = s.indexOf('|');
@@ -2767,15 +4736,26 @@ J.parseLyrics = (raw) => {
     if (!s) continue;
     const base = { text: s, note, impact, emph, manual, gapBefore: pendingGap };
     pendingGap = false;
-    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t })));
-    else lines.push(Object.assign({}, base, { lrc: null }));
+    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t.start, lrcEnd: t.end })));
+    else lines.push(Object.assign({}, base, { lrc: null, lrcEnd: null }));
   }
   if (lines.some(l => l.lrc != null)) lines.sort((a, b) => (a.lrc ?? 1e9) - (b.lrc ?? 1e9));
   return { lines, meta };
 };
 
-/* ---------------- chunking (bunsetsu-ish) ---------------- */
-const segmenter = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('ja', { granularity: 'word' }) : null;
+/* ---------------- chunking (bunsetsu for JA, rhythmic words for ZH) ---------------- */
+const segmenterJa = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('ja', { granularity: 'word' }) : null;
+const segmenterZh = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('zh', { granularity: 'word' }) : null;
+
+J.isChineseText = (text) => {
+  let hanzi = 0, kana = 0;
+  for (const c of String(text || '')) {
+    if (J.isHira(c) || J.isKata(c)) kana++;
+    else if (J.isKanji(c)) hanzi++;
+  }
+  return hanzi > 0 && kana === 0;
+};
+
 const segType = s => {
   if (/^\s+$/.test(s)) return 'S';
   if ([...s].every(c => J.isPunct(c))) return 'P';
@@ -2785,8 +4765,11 @@ const segType = s => {
   if (/[A-Za-z0-9]/.test(s)) return 'L';
   return 'O';
 };
+
 J.segments = (text) => {
-  if (segmenter) return [...segmenter.segment(text)].map(x => x.segment);
+  const isZh = (J.getLang && J.getLang() === 'zh') || J.isChineseText(text);
+  const seg = isZh ? (segmenterZh || segmenterJa) : (segmenterJa || segmenterZh);
+  if (seg) return [...seg.segment(text)].map(x => x.segment);
   const out = []; let cur = '', ct = '';
   for (const c of text) {
     const t = segType(c);
@@ -2796,7 +4779,33 @@ J.segments = (text) => {
   if (cur) out.push(cur);
   return out;
 };
+
 J.chunkText = (text) => {
+  const isZh = (J.getLang && J.getLang() === 'zh') || J.isChineseText(text);
+  if (isZh && segmenterZh) {
+    // 中文分词与节奏切片逻辑：基于中文词素与2-6字卡点微单元
+    const rawWords = [...segmenterZh.segment(text)].map(x => x.segment).filter(s => !/^\s+$/.test(s));
+    const chunks = [];
+    let cur = '';
+    for (const w of rawWords) {
+      if (J.isPunct(w)) {
+        if (cur) { cur += w; chunks.push(cur); cur = ''; }
+        else if (chunks.length) { chunks[chunks.length - 1] += w; }
+        continue;
+      }
+      if (!cur) { cur = w; continue; }
+      if ([...cur].length + [...w].length <= 5 || '的得了着过在与和及或'.includes(w)) {
+        cur += w;
+      } else {
+        chunks.push(cur);
+        cur = w;
+      }
+    }
+    if (cur) chunks.push(cur);
+    return chunks.length ? chunks : [text];
+  }
+
+  // 日文 Bunsetsu 切片逻辑（保持原版原汁原味）
   const segs = J.segments(text);
   const chunks = []; let cur = null;
   const close = () => { if (cur && cur.s.trim()) chunks.push(cur.s.trim()); cur = null; };
@@ -2853,6 +4862,11 @@ J.computeTiming = (project, parsed, audio) => {
     starts.push(s);
   });
   const ends = starts.map((s, i) => {
+    const l = lines[i];
+    const manEnd = T.lineEnds && T.lineEnds[i] != null ? +T.lineEnds[i] : (l && l.lrcEnd != null ? +l.lrcEnd : null);
+    if (manEnd != null && isFinite(manEnd) && manEnd > s) {
+      return manEnd;
+    }
     if (i < starts.length - 1) return Math.max(s + 0.35, starts[i + 1]);
     const n = [...lines[i].text].length;
     let d = J.clamp(0.8 + n * 0.17, 1.5, 5.2) * (T.lineScale || 1);
@@ -2910,9 +4924,10 @@ J.plan = (project, audio) => {
     const ov = (project.overrides || {})[li] || {};
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
-    const n = [...ln.text.replace(/\s+/g, '')].length;
-    const visEnd = Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
-    const D = visEnd - s;
+    const n = [...ln.text].length;
+    const hasExplicitEnd = (project.timing && project.timing.lineEnds && project.timing.lineEnds[li] != null) || ln.lrcEnd != null;
+    const visEnd = hasExplicitEnd ? e : Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
+    const D = Math.max(0.1, visEnd - s);
     plan.lines.push({ index: li, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
     const chunks = ln.manual || J.chunkText(ln.text);
     plan.lines[li].chunks = chunks;
@@ -2996,9 +5011,10 @@ J.plan = (project, audio) => {
     });
     // interlude in long gaps
     const nextStart = li < parsed.lines.length - 1 ? tm.starts[li + 1] : null;
-    if (nextStart != null && nextStart - visEnd > 1.3) {
+    const gap = nextStart != null ? nextStart - visEnd : 0;
+    if (nextStart != null && gap > 2.5 && !(project.timing && project.timing.noInterlude)) {
       const r2 = J.rng(J.h(lineSeed, 404));
-      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd, end: nextStart, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fx, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
+      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd + 0.08, end: nextStart - 0.04, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fx, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
     }
   });
   plan.cuts.sort((a, b) => a.start - b.start);
@@ -3176,19 +5192,19 @@ J.outputSize = (project) => {
 'use strict';
 
 J.MOODS = {
-  glitch:    { name: 'グリッチ', fx: { motion: [0.6, 0.9], glitch: [0.75, 1], chroma: [0.75, 1], decor: [0.3, 0.6], density: [0.6, 0.9], texture: [0.5, 0.9], bgSwitch: [0.3, 0.6] },
+  glitch:    { name: 'グリッチ', name_zh: '数字故障', fx: { motion: [0.6, 0.9], glitch: [0.75, 1], chroma: [0.75, 1], decor: [0.3, 0.6], density: [0.6, 0.9], texture: [0.5, 0.9], bgSwitch: [0.3, 0.6] },
     layout: ['center', 'condensed', 'huge', 'tile', 'marquee', 'vcols', 'scatter', 'stack'], enter: ['slice', 'scramble', 'assemble', 'flicker', 'zoom', 'stretch'], exit: ['glitch', 'slice', 'explode', 'fall'], styles: ['noir', 'crimson', 'mint', 'mono', 'hud'] },
-  calm:      { name: 'しっとり', fx: { motion: [0.3, 0.55], glitch: [0.05, 0.25], chroma: [0.2, 0.5], decor: [0.2, 0.5], density: [0.25, 0.45], texture: [0.5, 0.85], bgSwitch: [0.1, 0.3] },
+  calm:      { name: 'しっとり', name_zh: '温润舒缓', fx: { motion: [0.3, 0.55], glitch: [0.05, 0.25], chroma: [0.2, 0.5], decor: [0.2, 0.5], density: [0.25, 0.45], texture: [0.5, 0.85], bgSwitch: [0.1, 0.3] },
     layout: ['center', 'vcols', 'gloss', 'stack', 'circle', 'type', 'mixed'], enter: ['blur', 'type', 'wipe', 'assemble'], exit: ['blur', 'drift', 'wipe', 'shrink'], styles: ['specimen', 'paper', 'hud', 'noir'], noHold: ['glitchtick', 'jitter'] },
-  pop:       { name: 'ポップ', fx: { motion: [0.7, 1], glitch: [0.1, 0.35], chroma: [0.3, 0.6], decor: [0.6, 1], density: [0.5, 0.8], texture: [0.2, 0.5], bgSwitch: [0.4, 0.8] },
+  pop:       { name: 'ポップ', name_zh: '活泼波普', fx: { motion: [0.7, 1], glitch: [0.1, 0.35], chroma: [0.3, 0.6], decor: [0.6, 1], density: [0.5, 0.8], texture: [0.2, 0.5], bgSwitch: [0.4, 0.8] },
     layout: ['mixed', 'scatter', 'wave', 'labels', 'pill', 'ring', 'huge', 'diag', 'center'], enter: ['pop', 'drop', 'spin', 'stretch', 'zoom'], exit: ['scatter', 'shrink', 'stretch', 'blur'], styles: ['magenta', 'caution', 'transit', 'blueprint', 'rouge'] },
-  graphic:   { name: 'グラフィック', fx: { motion: [0.5, 0.8], glitch: [0.2, 0.5], chroma: [0.4, 0.7], decor: [0.7, 1], density: [0.5, 0.8], texture: [0.4, 0.7], bgSwitch: [0.3, 0.7] },
+  graphic:   { name: 'グラフィック', name_zh: '现代平面', fx: { motion: [0.5, 0.8], glitch: [0.2, 0.5], chroma: [0.4, 0.7], decor: [0.7, 1], density: [0.5, 0.8], texture: [0.4, 0.7], bgSwitch: [0.3, 0.7] },
     layout: ['diag', 'labels', 'marquee', 'tile', 'condensed', 'huge', 'circle', 'pill'], enter: ['wipe', 'slice', 'stretch', 'zoom'], exit: ['wipe', 'slice', 'stretch'], styles: ['blueprint', 'caution', 'rouge', 'mint', 'transit'] },
-  editorial: { name: 'エディトリアル', fx: { motion: [0.4, 0.65], glitch: [0.1, 0.3], chroma: [0.2, 0.45], decor: [0.4, 0.7], density: [0.35, 0.6], texture: [0.6, 0.9], bgSwitch: [0.2, 0.4] },
+  editorial: { name: 'エディトリアル', name_zh: '典雅排版', fx: { motion: [0.4, 0.65], glitch: [0.1, 0.3], chroma: [0.2, 0.45], decor: [0.4, 0.7], density: [0.35, 0.6], texture: [0.6, 0.9], bgSwitch: [0.2, 0.4] },
     layout: ['gloss', 'vcols', 'mixed', 'stack', 'type', 'center', 'circle'], enter: ['type', 'blur', 'wipe', 'assemble'], exit: ['blur', 'drift', 'wipe'], styles: ['specimen', 'paper', 'noir', 'mono', 'hud'] },
-  emotional: { name: 'エモーショナル', fx: { motion: [0.55, 0.85], glitch: [0.3, 0.6], chroma: [0.5, 0.85], decor: [0.3, 0.6], density: [0.4, 0.7], texture: [0.6, 1], bgSwitch: [0.2, 0.5] },
+  emotional: { name: 'エモーショナル', name_zh: '抒情感染', fx: { motion: [0.55, 0.85], glitch: [0.3, 0.6], chroma: [0.5, 0.85], decor: [0.3, 0.6], density: [0.4, 0.7], texture: [0.6, 1], bgSwitch: [0.2, 0.5] },
     layout: ['huge', 'center', 'vcols', 'stack', 'condensed', 'mixed', 'circle'], enter: ['assemble', 'blur', 'zoom', 'wipe', 'slice'], exit: ['drift', 'explode', 'fall', 'blur'], styles: ['noir', 'paper', 'hud', 'mono', 'crimson'] },
-  chaos:     { name: '全部入り', fx: { motion: [0.5, 1], glitch: [0.3, 1], chroma: [0.4, 1], decor: [0.4, 1], density: [0.45, 0.9], texture: [0.3, 1], bgSwitch: [0.3, 0.9] },
+  chaos:     { name: '全部入り', name_zh: '全能乱炖', fx: { motion: [0.5, 1], glitch: [0.3, 1], chroma: [0.4, 1], decor: [0.4, 1], density: [0.45, 0.9], texture: [0.3, 1], bgSwitch: [0.3, 0.9] },
     layout: null, enter: null, exit: null, styles: null },
 };
 
@@ -3689,6 +5705,25 @@ J.beatGrid = (bpm, offset, duration) => {
   const p = 60 / bpm;
   for (let t = offset; t < duration + 0.01; t += p) if (t >= 0) out.push(+t.toFixed(4));
   return out;
+};
+
+/* metronome click synthesis for count-in and tap feedback */
+J.playTick = (pitch = 1000, dur = 0.035, vol = 0.35) => {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!J._tickCtx) J._tickCtx = new AC();
+    if (J._tickCtx.state === 'suspended') J._tickCtx.resume();
+    const osc = J._tickCtx.createOscillator();
+    const gain = J._tickCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(pitch, J._tickCtx.currentTime);
+    gain.gain.setValueAtTime(vol, J._tickCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, J._tickCtx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(J._tickCtx.destination);
+    osc.start();
+    osc.stop(J._tickCtx.currentTime + dur);
+  } catch (e) {}
 };
 })();
 
@@ -12658,21 +14693,29 @@ const ICON = {
   lock: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>',
 };
 
-const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: true, need: true, exporting: null, tap: null, slow: false, lineEls: [], curLine: -2 };
+const S = { project: null, plan: null, audio: null, renderer: new J.Renderer(), playing: false, t: 0, t0: 0, loop: true, need: true, exporting: null, tap: null, tapRate: 1.0, slow: false, lineEls: [], curLine: -2 };
 
 /* WebAudio player (works inside sandboxed pages where blob media may be blocked) */
 const AP = {
-  ctx: null, src: null, startAt: 0,
-  play(buffer, offset) {
+  ctx: null, src: null, startAt: 0, rate: 1.0, startCtxTime: 0,
+  play(buffer, offset, rate = 1.0) {
     if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (this.ctx.state === 'suspended') this.ctx.resume();
     this.stop();
-    const s = this.ctx.createBufferSource(); s.buffer = buffer; s.connect(this.ctx.destination);
+    this.rate = rate || 1.0;
+    const s = this.ctx.createBufferSource(); s.buffer = buffer;
+    s.playbackRate.value = this.rate;
+    s.connect(this.ctx.destination);
     const off = Math.max(0, Math.min(offset, buffer.duration - 0.01));
-    s.start(0, off); this.src = s; this.startAt = this.ctx.currentTime - off;
+    s.start(0, off); this.src = s;
+    this.startCtxTime = this.ctx.currentTime;
+    this.startAt = off;
   },
   stop() { if (this.src) { try { this.src.stop(); } catch (e) {} try { this.src.disconnect(); } catch (e) {} this.src = null; } },
-  time() { return this.ctx ? this.ctx.currentTime - this.startAt : 0; },
+  time() {
+    if (!this.ctx || !this.src) return this.startAt || 0;
+    return this.startAt + (this.ctx.currentTime - this.startCtxTime) * this.rate;
+  },
 };
 
 /* ---------------- project persistence ---------------- */
@@ -12744,7 +14787,7 @@ async function ensureFonts() {
   const key = txt + '|' + Object.keys(J.FONTS).length;
   if (key === fontKey) return;
   fontKey = key;
-  showMsg('フォントを読み込み中…');
+  showMsg(J.t('loading_fonts', 'フォントを読み込み中…'));
   try { await J.ensureFonts(txt, null); } catch (e) {}
   showMsg(null); S.need = true; drawStyleGrid();
 }
@@ -12776,7 +14819,8 @@ function tick(now) {
   if (S.exporting) return;
   if (S.playing) {
     // rAF timestamps can precede the moment play()/seek() stamped t0 → clamp so t never goes negative
-    let t = Math.max(0, S.audio ? AP.time() : (now - S.t0) / 1000);
+    const curRate = (S.tap && S.tapRate) || 1.0;
+    let t = Math.max(0, S.audio ? AP.time() : (now - S.t0) / 1000 * curRate);
     if (t >= S.plan.duration - 1e-3) {
       if (S.loop && !S.tap) { seek(0); t = 0; }
       else { pause(); t = S.plan.duration - 1e-3; if (S.tap) stopTap(); }
@@ -12791,18 +14835,20 @@ function updateTimeUI() {
   if (!S.scrubbing) $('scrub').value = String(Math.round(S.t / Math.max(0.001, S.plan.duration) * 10000));
 }
 function play() {
-  if (S.audio) AP.play(S.audio.buffer, S.t);
-  else S.t0 = performance.now() - S.t * 1000;
-  S.playing = true; $('btnPlay').textContent = '❚❚'; $('btnPlay').setAttribute('aria-label', '一時停止');
+  const rate = (S.tap && S.tapRate) || 1.0;
+  if (S.audio) AP.play(S.audio.buffer, S.t, rate);
+  else S.t0 = performance.now() - (S.t * 1000) / rate;
+  S.playing = true; $('btnPlay').textContent = '❚❚'; $('btnPlay').setAttribute('aria-label', (J.getLang && J.getLang() === 'zh') ? '暂停' : '一時停止');
 }
 function pause() {
   S.playing = false; AP.stop();
-  $('btnPlay').textContent = '▶'; $('btnPlay').setAttribute('aria-label', '再生'); S.need = true;
+  $('btnPlay').textContent = '▶'; $('btnPlay').setAttribute('aria-label', (J.getLang && J.getLang() === 'zh') ? '播放' : '再生'); S.need = true;
 }
 function seek(t) {
   S.t = J.clamp(t, 0, Math.max(0, S.plan.duration - 1e-3));
-  if (S.audio) { if (S.playing) AP.play(S.audio.buffer, S.t); }
-  else S.t0 = performance.now() - S.t * 1000;
+  const rate = (S.tap && S.tapRate) || 1.0;
+  if (S.audio) { if (S.playing) AP.play(S.audio.buffer, S.t, rate); }
+  else S.t0 = performance.now() - (S.t * 1000) / rate;
   S.need = true;
 }
 
@@ -12822,23 +14868,84 @@ function drawTimeline() {
   const beats = S.plan.beats || [];
   x.fillStyle = '#3a3a44';
   for (const b of beats) { if (b > D) break; x.fillRect(Math.round(X(b)), h - 6 * dpr, 1, 6 * dpr); }
-  const top = h * 0.3, bot = h - 8 * dpr;
+  const trackH = Math.round(h * 0.35);
+  const cutTop = trackH + 2 * dpr, cutBot = h - 8 * dpr;
+  const isZh = J.getLang && J.getLang() === 'zh';
+
+  // 1. Video track lyric blocks & gap indicators
+  const lines = S.plan.lines || [];
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i];
+    const lx0 = Math.round(X(ln.start));
+    const lx1 = Math.round(X(ln.end));
+    const lw = Math.max(3 * dpr, lx1 - lx0);
+    const active = S.t >= ln.start && S.t < ln.end;
+
+    // Line block background
+    x.fillStyle = active ? 'rgba(245,165,12,0.32)' : 'rgba(22,244,212,0.18)';
+    x.fillRect(lx0, 2 * dpr, lw, trackH - 3 * dpr);
+    
+    // Left boundary accent bar
+    x.fillStyle = active ? '#f5a50c' : '#16f4d4';
+    x.fillRect(lx0, 2 * dpr, 2 * dpr, trackH - 3 * dpr);
+
+    // Right boundary accent
+    x.fillStyle = active ? 'rgba(245,165,12,0.8)' : 'rgba(22,244,212,0.5)';
+    x.fillRect(lx0 + lw - dpr, 2 * dpr, dpr, trackH - 3 * dpr);
+
+    // Block text (line number, lyric snippet, range)
+    if (lw > 26 * dpr) {
+      x.save();
+      x.beginPath();
+      x.rect(lx0 + 3 * dpr, 2 * dpr, lw - 5 * dpr, trackH - 3 * dpr);
+      x.clip();
+      x.fillStyle = active ? '#ffffff' : 'rgba(236,231,225,0.9)';
+      x.font = `bold ${9 * dpr}px sans-serif`;
+      const durSec = (ln.end - ln.start).toFixed(1);
+      x.fillText(`${String(i + 1).padStart(2, '0')}. ${ln.text} [${durSec}s]`, lx0 + 4 * dpr, trackH - 5 * dpr);
+      x.restore();
+    }
+
+    // Gap indicator between lines (e.g. 3-5s musical pause / interlude)
+    if (i < lines.length - 1) {
+      const nextStart = lines[i + 1].start;
+      const gapSec = nextStart - ln.end;
+      if (gapSec > 0.35) {
+        const gx0 = lx1, gx1 = Math.round(X(nextStart));
+        const gw = gx1 - gx0;
+        if (gw > 4 * dpr) {
+          x.fillStyle = 'rgba(255,255,255,0.03)';
+          x.fillRect(gx0, 3 * dpr, gw, trackH - 4 * dpr);
+          if (gw > 35 * dpr) {
+            x.save();
+            x.beginPath();
+            x.rect(gx0, 3 * dpr, gw, trackH - 4 * dpr);
+            x.clip();
+            x.fillStyle = 'rgba(160,160,170,0.5)';
+            x.font = `${8 * dpr}px monospace`;
+            x.fillText(isZh ? `留白 ${gapSec.toFixed(1)}s` : `間隔 ${gapSec.toFixed(1)}s`, gx0 + 3 * dpr, trackH - 5 * dpr);
+            x.restore();
+          }
+        }
+      }
+    }
+  }
+
+  // Track divider line
+  x.fillStyle = '#2b2b36';
+  x.fillRect(0, trackH, w, dpr);
+
+  // 2. Cut layouts track
   for (const cut of S.plan.cuts) {
     const x0 = X(cut.start), x1 = X(cut.end);
     const hue = layoutHue(cut.layout);
-    x.fillStyle = `hsla(${hue},70%,58%,0.28)`; x.fillRect(x0, top, Math.max(1, x1 - x0 - 1), bot - top);
-    x.fillStyle = `hsla(${hue},80%,62%,0.95)`; x.fillRect(x0, top, Math.max(1, 2 * dpr), bot - top);
+    x.fillStyle = `hsla(${hue},70%,58%,0.28)`; x.fillRect(x0, cutTop, Math.max(1, x1 - x0 - 1), cutBot - cutTop);
+    x.fillStyle = `hsla(${hue},80%,62%,0.95)`; x.fillRect(x0, cutTop, Math.max(1, 2 * dpr), cutBot - cutTop);
     if (x1 - x0 > 34 * dpr) {
       x.fillStyle = 'rgba(236,231,225,0.85)'; x.font = `${10 * dpr}px ${getComputedStyle(document.body).getPropertyValue('--mono') || 'monospace'}`;
-      x.save(); x.beginPath(); x.rect(x0, top, x1 - x0 - 3, bot - top); x.clip();
-      x.fillText((J.LAYOUTS[cut.layout] || {}).name || cut.layout, x0 + 5 * dpr, top + 13 * dpr); x.restore();
+      x.save(); x.beginPath(); x.rect(x0, cutTop, x1 - x0 - 3, cutBot - cutTop); x.clip();
+      x.fillText(J.techName('layout', cut.layout) || cut.layout, x0 + 5 * dpr, cutTop + 13 * dpr); x.restore();
     }
-  }
-  x.font = `${10 * dpr}px monospace`;
-  for (const ln of S.plan.lines) {
-    const lx = X(ln.start);
-    x.fillStyle = '#5d5a63'; x.fillRect(lx, 0, 1, top);
-    x.fillStyle = '#8e8a94'; x.fillText(String(ln.index + 1).padStart(2, '0'), lx + 3 * dpr, 12 * dpr);
   }
   const px = X(S.t);
   x.fillStyle = '#f5a50c'; x.fillRect(Math.round(px) - dpr, 0, 2 * dpr, h);
@@ -12850,52 +14957,89 @@ function timelineSeek(ev) {
 
 /* ---------------- cut info ---------------- */
 let lastCutIdx = -2;
-function updateCutInfo() {
+function updateCutInfo(force) {
+  if (!S.plan) return;
   const cut = J.cutAt(S.plan, S.t);
   const idx = cut ? cut.index : -1;
   const li = cut ? cut.line : -1;
   if (li !== S.curLine) { S.lineEls.forEach((el, i) => el.classList.toggle('cur', i === li)); S.curLine = li; }
-  if (idx === lastCutIdx) return;
+  if (!force && idx === lastCutIdx) return;
   lastCutIdx = idx;
   const el = $('cutInfo');
-  if (!cut) { el.innerHTML = '<span class="hint">この位置にカットはありません</span>'; return; }
+  if (!cut) { el.innerHTML = `<span class="hint">${J.t('no_cut_at_time', 'この位置にカットはありません')}</span>`; return; }
   const chip = (cls, k, v) => `<span class="chip ${cls}"><b>${k}</b>${v}</span>`;
-  const n = (tbl, k) => (tbl[k] ? tbl[k].name : k);
+  const n = (g, k) => J.techName(g, k);
   el.innerHTML = [
     `<span class="chip mono">#${String(cut.index + 1).padStart(2, '0')}</span>`,
-    chip('l', 'レイアウト', n(J.LAYOUTS, cut.layout)), chip('e', '登場', n(J.ENTER, cut.enter)), chip('h', '保持', n(J.HOLD, cut.hold)), chip('x', '退場', n(J.EXIT, cut.exit)),
-    cut.decor && cut.decor.length ? chip('', '装飾', cut.decor.map(d => n(J.DECOR, d.id)).join('・')) : '',
-    cut.treat && cut.treat !== 'none' ? chip('t', '加工', n(J.TREAT, cut.treat)) : '',
-    cut.bg && cut.bg !== 'none' ? chip('b', '背景', n(J.BG, cut.bg)) : '',
-    cut.cam && cut.cam !== 'push' ? chip('c', 'カメラ', n(J.CAMERA, cut.cam)) : '',
+    chip('l', J.t('chip_layout', 'レイアウト'), n('layout', cut.layout)),
+    chip('e', J.t('chip_enter', '登場'), n('enter', cut.enter)),
+    chip('h', J.t('chip_hold', '保持'), n('hold', cut.hold)),
+    chip('x', J.t('chip_exit', '退場'), n('exit', cut.exit)),
+    cut.decor && cut.decor.length ? chip('', J.t('chip_decor', '装飾'), cut.decor.map(d => n('decor', d.id)).join('・')) : '',
+    cut.treat && cut.treat !== 'none' ? chip('t', J.t('chip_treat', '加工'), n('treat', cut.treat)) : '',
+    cut.bg && cut.bg !== 'none' ? chip('b', J.t('chip_bg', '背景'), n('bg', cut.bg)) : '',
+    cut.cam && cut.cam !== 'push' ? chip('c', J.t('chip_cam', 'カメラ'), n('cam', cut.cam)) : '',
   ].join('');
 }
 
 /* ---------------- line list ---------------- */
 function renderLines() {
   const ol = $('lineList'); ol.innerHTML = ''; S.lineEls = []; S.curLine = -2;
+  if (!S.plan || !S.plan.lines) return;
+  const isZh = J.getLang && J.getLang() === 'zh';
   const ov = S.project.overrides;
-  const layoutOpts = '<option value="">自動</option>' + J.LAYOUT_ORDER.map(k => `<option value="${k}">${J.LAYOUTS[k].name}</option>`).join('');
+  const layoutOpts = `<option value="">${isZh ? '自动' : '自動'}</option>` + J.LAYOUT_ORDER.map(k => `<option value="${k}">${J.techName('layout', k)}</option>`).join('');
   S.plan.lines.forEach((ln, i) => {
     const o = ov[i] || {};
     const li = document.createElement('li'); li.className = 'ln';
-    const manual = S.project.timing.lineTimes && S.project.timing.lineTimes[i] != null;
-    li.innerHTML = `<span class="no">${String(i + 1).padStart(2, '0')}</span>
-      <input class="time mono" type="number" step="0.01" min="0" value="${ln.start.toFixed(2)}" title="開始（秒）${manual ? '・手動' : '・自動'}" aria-label="${i + 1}行目の開始秒" style="${manual ? 'border-color:var(--cyan)' : ''}">
+    const manualStart = S.project.timing.lineTimes && S.project.timing.lineTimes[i] != null;
+    const manualEnd = S.project.timing.lineEnds && S.project.timing.lineEnds[i] != null ? S.project.timing.lineEnds[i] : null;
+    const dur = Math.max(0.1, ln.end - ln.start);
+    const startTitle = isZh ? `开始（秒）${manualStart ? '·手动' : '·自动'}` : `開始（秒）${manualStart ? '・手動' : '・自動'}`;
+    const endTitle = isZh ? `结束（秒）${manualEnd != null ? '·手动' : '·自动'}` : `終了（秒）${manualEnd != null ? '・手動' : '・自動'}`;
+    const toText = isZh ? '至' : '〜';
+    const stampSTitle = isZh ? '将当前播放头设为本句起点 (快捷键 S)' : '現在の再生位置を開始点にする (S)';
+    const stampETitle = isZh ? '将当前播放头设为本句终点 (快捷键 E)' : '現在の再生位置を終了点にする (E)';
+    const tapFromTitle = isZh ? '从本句开始打点同步' : 'この行からタップ同期を開始';
+    const diceTitle = isZh ? '重新生成该行' : 'この行を再抽選';
+    const lockTitle = isZh ? '锁定该行构图' : 'この行の構成をロック';
+    const layoutAria = isZh ? '指定排版' : 'レイアウト指定';
+
+    const timeVal = manualEnd != null ? `${ln.start.toFixed(2)}-${manualEnd.toFixed(2)}` : ln.start.toFixed(2);
+    const timeTitle = isZh ? '开始秒数。支持填 0.5 或范围 0-3（视频轨独立区间）' : '開始秒。0-3などの区間指定も可能';
+    const noTitle = isZh ? '点击从此句开始对齐打点 (预卷2秒)' : 'この行からタップ同期を開始（2秒巻き戻し）';
+
+    li.innerHTML = `<span class="no" title="${noTitle}">${String(i + 1).padStart(2, '0')}</span>
+      <input class="time mono" type="text" value="${timeVal}" title="${timeTitle}" aria-label="${i + 1}行目の時間" style="${manualEnd != null ? 'border-color:var(--amber);color:var(--amber)' : manualStart ? 'border-color:var(--cyan)' : ''}">
       <span class="txt" title="${escapeHtml(ln.text)}">${escapeHtml(ln.text)}</span>
       <div class="meta"><span class="cuts"></span>
       <span class="tools">
-        <select aria-label="レイアウト指定">${layoutOpts}</select>
-        <button class="icon ghost dice" title="この行を再抽選">${ICON.dice}</button>
-        <button class="icon ghost lock" title="この行の構成をロック" aria-pressed="${o.lock ? 'true' : 'false'}">${ICON.lock}</button>
+        <select aria-label="${layoutAria}">${layoutOpts}</select>
+        <button class="icon ghost dice" title="${diceTitle}">${ICON.dice}</button>
+        <button class="icon ghost lock" title="${lockTitle}" aria-pressed="${o.lock ? 'true' : 'false'}">${ICON.lock}</button>
       </span></div>`;
     li.querySelector('select').value = o.layout || '';
     li.querySelector('.time').addEventListener('change', e => {
-      const v = parseFloat(e.target.value);
+      const s = e.target.value.trim();
+      const m = s.match(/^(\d+(?:\.\d+)?)\s*[-~至到,，]\s*(\d+(?:\.\d+)?)$/);
       if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
-      if (isFinite(v)) S.project.timing.lineTimes[i] = Math.max(0, v); else delete S.project.timing.lineTimes[i];
+      if (!S.project.timing.lineEnds) S.project.timing.lineEnds = {};
+      if (m) {
+        const t0 = parseFloat(m[1]), t1 = parseFloat(m[2]);
+        S.project.timing.lineTimes[i] = Math.max(0, t0);
+        S.project.timing.lineEnds[i] = Math.max(t0 + 0.1, t1);
+      } else {
+        const v = parseFloat(s);
+        if (isFinite(v)) {
+          S.project.timing.lineTimes[i] = Math.max(0, v);
+        } else {
+          delete S.project.timing.lineTimes[i];
+        }
+        delete S.project.timing.lineEnds[i];
+      }
       replan();
     });
+    li.querySelector('.no').addEventListener('click', () => startTap(i));
     li.querySelector('.txt').addEventListener('click', () => seek(ln.start + 0.001));
     li.querySelector('select').addEventListener('change', e => { setOv(i, { layout: e.target.value || undefined }); replan(); });
     li.querySelector('.dice').addEventListener('click', () => { const cur = ov[i] || {}; setOv(i, { seed: (cur.seed | 0) + 1, lock: false }); replan(); seek(ln.start + 0.001); });
@@ -12906,15 +15050,22 @@ function renderLines() {
       replan();
     });
     const cutsEl = li.querySelector('.cuts');
+    if (manualEnd != null) {
+      const sp = document.createElement('span');
+      sp.textContent = `${dur.toFixed(1)}s区间`;
+      sp.style.borderColor = 'var(--amber)';
+      sp.style.color = 'var(--amber)';
+      cutsEl.appendChild(sp);
+    }
     S.plan.cuts.filter(c => c.line === i && J.LAYOUTS[c.layout] && !J.LAYOUTS[c.layout].special).forEach(c => {
-      const sp = document.createElement('span'); sp.textContent = J.LAYOUTS[c.layout].name; sp.title = `${c.text}｜${J.ENTER[c.enter].name} → ${J.EXIT[c.exit].name}`;
+      const sp = document.createElement('span'); sp.textContent = J.techName('layout', c.layout); sp.title = `${c.text}｜${J.techName('enter', c.enter)} → ${J.techName('exit', c.exit)}`;
       sp.style.borderColor = `hsla(${layoutHue(c.layout)},70%,58%,0.7)`;
       sp.addEventListener('click', () => seek(c.start + Math.min(c.dur * 0.5, c.inDur + 0.05)));
       cutsEl.appendChild(sp);
     });
     ol.appendChild(li); S.lineEls.push(li);
   });
-  $('linesInfo').textContent = `${S.plan.lines.length}行 / ${S.plan.cuts.length}カット`;
+  $('linesInfo').textContent = isZh ? `${S.plan.lines.length} 行 / ${S.plan.cuts.length} 镜头` : `${S.plan.lines.length}行 / ${S.plan.cuts.length}カット`;
 }
 function setOv(i, patch) {
   const cur = Object.assign({}, S.project.overrides[i] || {}, patch);
@@ -12926,11 +15077,12 @@ function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp
 /* ---------------- style tab ---------------- */
 function drawStyleGrid() {
   const g = $('styleGrid');
+  const isZh = J.getLang && J.getLang() === 'zh';
   if (!g.children.length) {
     J.STYLE_ORDER.forEach(k => {
       const b = document.createElement('button'); b.className = 'stile'; b.dataset.k = k;
-      b.title = J.STYLES[k].desc;
-      b.innerHTML = `<canvas width="192" height="108"></canvas><span>${J.STYLES[k].name}</span>`;
+      b.title = J.styleDesc(k);
+      b.innerHTML = `<canvas width="192" height="108"></canvas><span>${escapeHtml(J.styleName(k))}</span>`;
       b.addEventListener('click', () => { remember(); S.project.style = k; S.project.colors.enabled = false; syncUI(); replan(); commit(); });
       g.appendChild(b);
     });
@@ -12938,31 +15090,42 @@ function drawStyleGrid() {
   [...g.children].forEach(b => {
     const k = b.dataset.k, st = J.STYLES[k], sc = st.schemes[0], cv = b.querySelector('canvas'), x = cv.getContext('2d');
     b.setAttribute('aria-pressed', S.project.style === k ? 'true' : 'false');
+    b.title = J.styleDesc(k);
+    const span = b.querySelector('span');
+    if (span) span.textContent = J.styleName(k);
     x.fillStyle = sc.bg; x.fillRect(0, 0, 192, 108);
     st.schemes.slice(1, 4).forEach((s2, i) => { x.fillStyle = s2.bg; x.fillRect(192 - 14 * (i + 1), 0, 14, 10); });
-    const f = st.fonts.display[0];
+    const f = (isZh && st.fonts_zh && st.fonts_zh.display) ? st.fonts_zh.display[0] : st.fonts.display[0];
     x.font = J.fontCSS(f, 46); x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.fillStyle = sc.ghostB; x.fillText('字面', 96 - 3, 54 - 1);
-    x.fillStyle = sc.ghostA; x.fillText('字面', 96 + 3, 54 + 2);
-    x.fillStyle = sc.fg; x.fillText('字面', 96, 54);
+    const mark = '字面';
+    x.fillStyle = sc.ghostB; x.fillText(mark, 96 - 3, 54 - 1);
+    x.fillStyle = sc.ghostA; x.fillText(mark, 96 + 3, 54 + 2);
+    x.fillStyle = sc.fg; x.fillText(mark, 96, 54);
     x.fillStyle = sc.accent; x.fillRect(12, 90, 30, 4);
     x.font = J.fontCSS('mono', 9); x.textAlign = 'left'; x.fillStyle = sc.sub; x.fillText(k.toUpperCase(), 48, 93);
   });
 }
 function fontSelectOptions(sel) {
-  return '<option value="">スタイルの既定</option>' + Object.entries(J.FONTS).map(([k, f]) => `<option value="${k}" ${sel === k ? 'selected' : ''}>${escapeHtml(f.label)}</option>`).join('');
+  const def = J.t('font_opt_default', 'スタイルの既定');
+  return `<option value="">${def}</option>` + Object.entries(J.FONTS).map(([k, f]) => `<option value="${k}" ${sel === k ? 'selected' : ''}>${escapeHtml(f.label)}</option>`).join('');
 }
 function renderFontRoles() {
   const box = $('fontRoles'); box.innerHTML = '';
-  [['display', '見出し'], ['serif', '明朝枠'], ['body', '小さな文字']].forEach(([role, label]) => {
+  [[ 'display', J.t('font_role_display', '見出し') ],
+   [ 'serif', J.t('font_role_serif', '明朝枠') ],
+   [ 'body', J.t('font_role_body', '小さな文字') ]].forEach(([role, label]) => {
     const row = document.createElement('div'); row.className = 'font-row';
     row.innerHTML = `<span class="muted">${label}</span><select aria-label="${label}のフォント">${fontSelectOptions(S.project.fonts[role])}</select>`;
     row.querySelector('select').addEventListener('change', e => { if (e.target.value) S.project.fonts[role] = e.target.value; else delete S.project.fonts[role]; fontKey = ''; replan(); });
     box.appendChild(row);
   });
 }
-const BASE_KEYS = [['bg', '背景'], ['fg', '文字'], ['sub', '補助']];
-const ACCENT_KEYS = [['accent', 'アクセント'], ['ghostA', 'ズレ色A'], ['ghostB', 'ズレ色B']];
+function getBaseKeys() {
+  return [['bg', J.t('color_bg', '背景')], ['fg', J.t('color_fg', '文字')], ['sub', J.t('color_sub', '補助')]];
+}
+function getAccentKeys() {
+  return [['accent', J.t('color_accent', 'アクセント')], ['ghostA', J.t('color_ghostA', 'ズレ色A')], ['ghostB', J.t('color_ghostB', 'ズレ色B')]];
+}
 function renderColors() {
   const st = J.STYLES[S.project.style] || J.STYLES.noir, sc = st.schemes[0];
   const c = S.project.colors;
@@ -12982,8 +15145,8 @@ function renderColors() {
       row.appendChild(l);
     });
   };
-  fill('colorRow', BASE_KEYS, 'enabled');
-  fill('colorRowAccent', ACCENT_KEYS, 'accentOn');
+  fill('colorRow', getBaseKeys(), 'enabled');
+  fill('colorRowAccent', getAccentKeys(), 'accentOn');
   drawSwatch();
 }
 const toColorInput = v => { const h = String(v || '#000000'); return /^#[0-9a-f]{6}$/i.test(h) ? h.toLowerCase() : J.toHex(...J.hex(h)).toLowerCase(); };
@@ -13001,7 +15164,8 @@ function randomPalette() {
   do { p = J.randomPalette(bg); } while (guard++ < 6 && p.ghostA === c.ghostA && p.ghostB === c.ghostB);
   Object.assign(c, { accent: p.accent, ghostA: p.ghostA, ghostB: p.ghostB, accentOn: true });
   renderColors(); replan(); commit();
-  toast('配色：アクセント・ズレ色A/Bを変更', [p.accent, p.ghostA, p.ghostB]);
+  const isZh = J.getLang && J.getLang() === 'zh';
+  toast(isZh ? '配色：已更换点缀色与色散通道' : '配色：アクセント・ズレ色A/Bを変更', [p.accent, p.ghostA, p.ghostB]);
 }
 
 /* ---------------- history of looks (◀ ▶) ---------------- */
@@ -13027,7 +15191,8 @@ function histGo(d) {
   H.i = j;
   Object.assign(S.project, JSON.parse(H.list[j]));
   fontKey = ''; syncUI(); replan(); updateHist();
-  toast(`${j + 1} / ${H.list.length} 案目`);
+  const isZh = J.getLang && J.getLang() === 'zh';
+  toast(`${j + 1} / ${H.list.length} ${isZh ? '套方案' : '案目'}`);
   restartPreview();
 }
 function updateHist() {
@@ -13045,7 +15210,10 @@ function omakase() {
   const r = J.omakase(S.project);
   Object.assign(S.project, r);
   fontKey = ''; syncUI(); replan(); commit();
-  toast(`おまかせ：${J.STYLES[r.style].name} × ${J.MOODS[r.mood].name}`, r.colors.accentOn ? [r.colors.accent, r.colors.ghostA, r.colors.ghostB] : null);
+  const isZh = J.getLang && J.getLang() === 'zh';
+  const moodObj = J.MOODS[r.mood];
+  const moodName = moodObj ? (isZh ? moodObj.name_zh || moodObj.name : moodObj.name) : r.mood;
+  toast(`${isZh ? '一键生成' : 'おまかせ'}：${J.styleName(r.style)} × ${moodName}`, r.colors.accentOn ? [r.colors.accent, r.colors.ghostA, r.colors.ghostB] : null);
   restartPreview();
 }
 // change just one aspect of the current look
@@ -13053,19 +15221,22 @@ function rerollPart(part) {
   if (S.exporting || S.tap) return;
   remember();
   const P = S.project;
+  const isZh = J.getLang && J.getLang() === 'zh';
   let msg = '';
   if (part === 'style') {
     const pool = J.STYLE_ORDER.filter(k => k !== P.style);
     P.style = pool[Math.floor(Math.random() * pool.length)];
     P.colors.enabled = false;
-    msg = `スタイル：${J.STYLES[P.style].name}`;
+    msg = `${isZh ? '视觉风格' : 'スタイル'}：${J.styleName(P.style)}`;
   } else if (part === 'mood') {
     const r = J.omakase(P);
     Object.assign(P, { mood: r.mood, fx: r.fx, enabled: r.enabled });
-    msg = `雰囲気：${J.MOODS[r.mood].name}`;
+    const moodObj = J.MOODS[r.mood];
+    const moodName = moodObj ? (isZh ? moodObj.name_zh || moodObj.name : moodObj.name) : r.mood;
+    msg = `${isZh ? '情绪氛围' : '雰囲気'}：${moodName}`;
   } else if (part === 'cut') {
     P.seed = (Math.random() * 1e9) | 0;
-    msg = '構成：レイアウトと動きを再抽選';
+    msg = isZh ? '镜头构成：重新编排排版与动效' : '構成：レイアウトと動きを再抽選';
   }
   fontKey = ''; syncUI(); replan(); commit();
   toast(msg);
@@ -13074,18 +15245,19 @@ function rerollPart(part) {
 function showNow() {
   const el = $('easyNow'); if (!el || !S.plan || el.closest('[hidden]')) return;
   const P = S.project, sc = S.plan.style.schemes[0];
-  const moodName = P.mood && J.MOODS[P.mood] ? J.MOODS[P.mood].name : 'カスタム';
+  const isZh = J.getLang && J.getLang() === 'zh';
+  const moodName = P.mood && J.MOODS[P.mood] ? (isZh ? J.MOODS[P.mood].name_zh || J.MOODS[P.mood].name : J.MOODS[P.mood].name) : (isZh ? '自定义' : 'カスタム');
   const fk = S.plan.style.fonts.display[0];
   const fontName = J.FONTS[fk] ? J.FONTS[fk].label : fk;
   const cuts = S.plan.cuts.filter(c => c.line >= 0 && c.layout !== 'interlude');
   const kinds = new Set(cuts.map(c => c.layout)).size;
   const row = (k, v) => `<div class="now-row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-  el.innerHTML = row('スタイル', `<b>${escapeHtml(J.STYLES[P.style].name)}</b>`)
-    + row('雰囲気', escapeHtml(moodName))
-    + row('配色', `<span class="swatches">${swatchHTML([sc.bg, sc.fg, sc.accent, sc.ghostA, sc.ghostB])}</span>${P.colors.accentOn ? '<span class="tagl">ランダム</span>' : ''}`)
-    + row('見出し書体', escapeHtml(fontName))
-    + row('構成', `${cuts.length} カット・レイアウト ${kinds} 種`)
-    + row('演出', `加工 ${cuts.filter(c => c.treat && c.treat !== 'none').length}・背景 ${new Set(cuts.map(c => c.bg).filter(b => b && b !== 'none')).size}種・カメラ ${cuts.filter(c => c.cam && c.cam !== 'push').length}`);
+  el.innerHTML = row(isZh ? '视觉风格' : 'スタイル', `<b>${escapeHtml(J.styleName(P.style))}</b>`)
+    + row(isZh ? '情绪氛围' : '雰囲気', escapeHtml(moodName))
+    + row(isZh ? '色彩搭配' : '配色', `<span class="swatches">${swatchHTML([sc.bg, sc.fg, sc.accent, sc.ghostA, sc.ghostB])}</span>${P.colors.accentOn ? `<span class="tagl">${isZh ? '随机' : 'ランダム'}</span>` : ''}`)
+    + row(isZh ? '标题字体' : '見出し書体', escapeHtml(fontName))
+    + row(isZh ? '镜头构成' : '構成', isZh ? `${cuts.length} 个镜头 · ${kinds} 种排版` : `${cuts.length} カット・レイアウト ${kinds} 種`)
+    + row(isZh ? '动态表现' : '演出', isZh ? `质感 ${cuts.filter(c => c.treat && c.treat !== 'none').length} · 背景 ${new Set(cuts.map(c => c.bg).filter(b => b && b !== 'none')).size} 种 · 运镜 ${cuts.filter(c => c.cam && c.cam !== 'push').length}` : `加工 ${cuts.filter(c => c.treat && c.treat !== 'none').length}・背景 ${new Set(cuts.map(c => c.bg).filter(b => b && b !== 'none')).size}種・カメラ ${cuts.filter(c => c.cam && c.cam !== 'push').length}`);
 }
 let toastTimer = 0;
 function toast(m, cols) {
@@ -13110,10 +15282,21 @@ function setMode(m) {
 }
 
 /* ---------------- fx tab ---------------- */
-const FX = [['motion', '動きの強さ'], ['glitch', 'グリッチ'], ['chroma', '色ズレ'], ['decor', '装飾の量'], ['density', 'カットの細かさ'], ['texture', '質感'], ['bgSwitch', '背景の切替']];
+function getFxList() {
+  const isZh = J.getLang && J.getLang() === 'zh';
+  return [
+    ['motion', J.t('slider_motion', '動きの強さ')],
+    ['glitch', J.t('slider_glitch', 'グリッチ')],
+    ['chroma', J.t('slider_chroma', '色ズレ')],
+    ['decor', J.t('slider_decor', '装飾の量')],
+    ['density', J.t('slider_density', 'カットの細かさ')],
+    ['texture', J.t('slider_texture', '質感')],
+    ['bgSwitch', isZh ? '背景交替频率' : '背景の切替']
+  ];
+}
 function renderFx() {
   const box = $('fxSliders'); box.innerHTML = '';
-  FX.forEach(([k, label]) => {
+  getFxList().forEach(([k, label]) => {
     const row = document.createElement('div'); row.className = 'slider';
     const v = S.project.fx[k] ?? 0.5;
     row.innerHTML = `<label for="fx_${k}">${label}</label><input id="fx_${k}" type="range" min="0" max="1" step="0.01" value="${v}"><output>${Math.round(v * 100)}</output>`;
@@ -13128,28 +15311,40 @@ function renderFx() {
 }
 
 /* ---------------- technique tab ---------------- */
-const GROUPS = [['layout', 'レイアウト'], ['enter', '登場'], ['hold', '保持'], ['exit', '退場'], ['decor', '装飾'], ['treat', '文字の加工'], ['bg', '背景'], ['cam', 'カメラ'], ['fx', '画面効果']];
+const GROUPS_DEF = [
+  ['layout', '排版构图', 'レイアウト'],
+  ['enter', '登场动效', '登場'],
+  ['hold', '驻留状态', '保持'],
+  ['exit', '退场动效', '退場'],
+  ['decor', '装饰元素', '装飾'],
+  ['treat', '文字质感', '文字の加工'],
+  ['bg', '背景图形', '背景'],
+  ['cam', '动态运镜', 'カメラ'],
+  ['fx', '画面特效', '画面効果']
+];
 const openGroups = new Set();
 function techItems(g) { return J.order(g).filter(k => J.registry(g)[k] && !J.registry(g)[k].special); }
 function renderTech() {
   const box = $('techLists'); box.innerHTML = '';
   const q = ($('techFilter').value || '').trim().toLowerCase();
+  const isZh = J.getLang && J.getLang() === 'zh';
   let total = 0, onAll = 0;
-  GROUPS.forEach(([g, label]) => {
+  GROUPS_DEF.forEach(([g, zhLabel, jaLabel]) => {
+    const label = isZh ? zhLabel : jaLabel;
     const tbl = J.registry(g), items = techItems(g), en = S.project.enabled[g] || (S.project.enabled[g] = {});
-    const shown = q ? items.filter(k => (tbl[k].name + ' ' + k).toLowerCase().includes(q)) : items;
+    const shown = q ? items.filter(k => (J.techName(g, k) + ' ' + tbl[k].name + ' ' + k).toLowerCase().includes(q)) : items;
     const onN = items.filter(k => en[k] !== false).length;
     total += items.length; onAll += onN;
     if (q && !shown.length) return;
     const d = document.createElement('details'); d.className = 'tgroup';
     d.open = !!q || openGroups.has(g);
     d.addEventListener('toggle', () => { if (d.open) openGroups.add(g); else openGroups.delete(g); });
-    d.innerHTML = `<summary><span class="tg-name">${label}</span><span class="tg-cnt mono">${onN}/${items.length}</span></summary><div class="tg-tools"><button class="ghost small" data-a="on">すべてON</button><button class="ghost small" data-a="off">すべてOFF</button><button class="ghost small" data-a="flip">反転</button></div>`;
+    d.innerHTML = `<summary><span class="tg-name">${label}</span><span class="tg-cnt mono">${onN}/${items.length}</span></summary><div class="tg-tools"><button class="ghost small" data-a="on">${J.t('btn_all_on', 'すべてON')}</button><button class="ghost small" data-a="off">${J.t('btn_all_off', 'すべてOFF')}</button><button class="ghost small" data-a="flip">${J.t('btn_invert', '反転')}</button></div>`;
     const list = document.createElement('div'); list.className = 'checks';
     shown.forEach(k => {
       const l = document.createElement('label');
-      l.title = k + (tbl[k].tags && tbl[k].tags.length ? '（' + tbl[k].tags.map(t => (J.MOODS[t] ? J.MOODS[t].name : t)).join('・') + '）' : '');
-      l.innerHTML = `<input type="checkbox" ${en[k] !== false ? 'checked' : ''}> ${escapeHtml(tbl[k].name)}`;
+      l.title = k + (tbl[k].tags && tbl[k].tags.length ? '（' + tbl[k].tags.map(t => (J.MOODS[t] ? (isZh ? J.MOODS[t].name_zh || J.MOODS[t].name : J.MOODS[t].name) : t)).join('・') + '）' : '');
+      l.innerHTML = `<input type="checkbox" ${en[k] !== false ? 'checked' : ''}> ${escapeHtml(J.techName(g, k))}`;
       l.querySelector('input').addEventListener('change', e => { en[k] = e.target.checked; S.project.mood = null; d.querySelector('.tg-cnt').textContent = `${items.filter(x => en[x] !== false).length}/${items.length}`; replanSoon(60); });
       list.appendChild(l);
     });
@@ -13177,21 +15372,25 @@ function syncOut() {
 async function codecNote() {
   const [w, h] = J.outputSize(S.project);
   const vc = await J.pickVideoCodec(w, h, S.project.fps, 12e6);
-  $('codecNote').textContent = vc ? `このブラウザでは ${vc.label} で書き出します（${w}×${h} / ${S.project.fps}fps）。書き出し中はタブを開いたままにしてください。` : 'このブラウザは動画エンコード（WebCodecs）に対応していません。Chrome / Edge の最新版で開くか、連番PNGを使ってください。';
+  const isZh = J.getLang && J.getLang() === 'zh';
+  $('codecNote').textContent = vc
+    ? (isZh ? `当前浏览器将采用 ${vc.label} 硬件加速导出（${w}×${h} / ${S.project.fps}fps）。导出期间请保持此标签页处于激活状态。` : `このブラウザでは ${vc.label} で書き出します（${w}×${h} / ${S.project.fps}fps）。書き出し中はタブを開いたままにしてください。`)
+    : (isZh ? '当前浏览器不支持硬件视频编码（WebCodecs）。请使用最新版 Chrome 或 Edge，或导出序列帧 PNG。' : 'このブラウザは動画エンコード（WebCodecs）に対応していません。Chrome / Edge の最新版で開くか、連番PNGを使ってください。');
   $('btnMP4').disabled = !vc; $('eMP4').disabled = !vc;
-  if (!vc) $('eMP4').title = 'このブラウザは MP4 書き出しに対応していません（Chrome / Edge 推奨）';
+  if (!vc) $('eMP4').title = isZh ? '当前浏览器不支持 MP4 导出（推荐 Chrome / Edge）' : 'このブラウザは MP4 書き出しに対応していません（Chrome / Edge 推奨）';
 }
 const EXP_BTNS = ['btnMP4', 'btnPNG', 'btnPNGA', 'eMP4'];
 function baseName() { return ((S.project.title || 'jizura').replace(/[\\/:*?"<>|]+/g, '_').slice(0, 60) || 'jizura'); }
 async function runExport(kind) {
   if (S.exporting) return;
   pause();
+  const isZh = J.getLang && J.getLang() === 'zh';
   const ac = new AbortController(); S.exporting = ac;
   const boxes = [...document.querySelectorAll('.exp-box')];
   const setText = m => boxes.forEach(b => { b.querySelector('.exp-text').textContent = m; });
   const txt = { set textContent(m) { setText(m); }, get textContent() { return boxes[0].querySelector('.exp-text').textContent; } };
   boxes.forEach(b => { b.hidden = false; b.querySelector('.exp-bar').style.width = '0%'; });
-  setText('準備中…');
+  setText(isZh ? '正在准备渲染…' : '準備中…');
   EXP_BTNS.forEach(id => { $(id).disabled = true; });
   const onProgress = (p, m) => { boxes.forEach(b => { b.querySelector('.exp-bar').style.width = (p * 100).toFixed(1) + '%'; }); setText(m); };
   const t0 = performance.now();
@@ -13199,16 +15398,16 @@ async function runExport(kind) {
     await J.ensureFonts(S.project.lyrics + (S.project.title || '') + (S.project.artist || '') + HUD_CHARS, null);
     if (kind === 'mp4') {
       const r = await J.exportMP4({ plan: S.plan, project: S.project, audio: S.project.includeAudio !== false ? S.audio : null, quality: S.project.quality || 'high', onProgress, signal: ac.signal });
-      txt.textContent = `完成 ${(r.blob.size / 1048576).toFixed(1)}MB・${r.codec}${r.audio ? ' + ' + r.audio.toUpperCase() : ''}・${((performance.now() - t0) / 1000).toFixed(0)}秒`;
+      txt.textContent = `${isZh ? '完成' : '完了'} ${(r.blob.size / 1048576).toFixed(1)}MB · ${r.codec}${r.audio ? ' + ' + r.audio.toUpperCase() : ''} · ${((performance.now() - t0) / 1000).toFixed(0)} ${isZh ? '秒' : '秒'}`;
       const res = await J.saveFile(baseName() + '.mp4', r.blob);
-      if (res === 'declined') txt.textContent += '（保存はキャンセルされました）';
+      if (res === 'declined') txt.textContent += isZh ? '（已取消保存）' : '（保存はキャンセルされました）';
     } else {
       const blob = await J.exportPNGZip({ plan: S.plan, project: S.project, transparent: kind === 'pnga', onProgress, signal: ac.signal });
-      txt.textContent = `完成 ${(blob.size / 1048576).toFixed(1)}MB`;
+      txt.textContent = `${isZh ? '完成' : '完了'} ${(blob.size / 1048576).toFixed(1)}MB`;
       await J.saveFile(baseName() + (kind === 'pnga' ? '_alpha' : '') + '_png.zip', blob);
     }
   } catch (e) {
-    txt.textContent = 'エラー: ' + (e && e.message ? e.message : e);
+    txt.textContent = (isZh ? '错误: ' : 'エラー: ') + (e && e.message ? e.message : e);
     console.error(e);
   } finally {
     S.exporting = null; S.need = true;
@@ -13217,31 +15416,216 @@ async function runExport(kind) {
   }
 }
 
-/* ---------------- tap sync ---------------- */
-function startTap() {
-  if (!S.plan.lines.length) return;
-  S.tap = { i: 0 };
+/* ---------------- tap sync & time stamps ---------------- */
+let countInTimer = null;
+function runCountIn(onReady) {
+  clearTimeout(countInTimer);
+  const tapBtn = $('tapBtn');
+  if (!tapBtn) { onReady(); return; }
+  if (S.tap) S.tap.counting = true;
+  const isZh = J.getLang && J.getLang() === 'zh';
+  const steps = [
+    { text: isZh ? '预备 3...' : 'カウント 3...', pitch: 440 },
+    { text: isZh ? '预备 2...' : 'カウント 2...', pitch: 440 },
+    { text: isZh ? '预备 1...' : 'カウント 1...', pitch: 440 },
+    { text: isZh ? 'GO! (按空格打点)' : 'GO! (スペースで記録)', pitch: 880 }
+  ];
+  let step = 0;
+  function nextStep() {
+    if (!S.tap) return;
+    if (step < steps.length) {
+      const s = steps[step];
+      tapBtn.textContent = s.text;
+      tapBtn.classList.remove('pulse');
+      void tapBtn.offsetWidth;
+      tapBtn.classList.add('pulse');
+      J.playTick(s.pitch, step === 3 ? 0.15 : 0.08, step === 3 ? 0.35 : 0.25);
+      step++;
+      countInTimer = setTimeout(nextStep, 680);
+    } else {
+      if (S.tap) {
+        S.tap.counting = false;
+        tapBtn.textContent = isZh ? 'TAP 敲击打点 (空格)' : 'TAP 打点 (Space)';
+        onReady();
+      }
+    }
+  }
+  nextStep();
+}
+
+function startTap(startIndex = 0) {
+  if (!S.plan || !S.plan.lines || !S.plan.lines.length) return;
+  pause();
   if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
-  $('tapPanel').hidden = false; $('btnTap').setAttribute('aria-pressed', 'true');
-  seek(0); play(); updateTap();
-  $('tapBtn').focus();
+  if (!S.project.timing.lineEnds) S.project.timing.lineEnds = {};
+  const n = S.plan.lines.length;
+  const idx = Math.max(0, Math.min(startIndex, n - 1));
+  S.tap = { i: idx, history: [], counting: false };
+  $('tapPanel').hidden = false;
+  $('btnTap').setAttribute('aria-pressed', 'true');
+
+  let targetT = 0;
+  if (idx > 0) {
+    const curStart = (S.project.timing.lineTimes[idx] != null) ? S.project.timing.lineTimes[idx] : S.plan.lines[idx].start;
+    targetT = Math.max(0, curStart - 2.0);
+  }
+  seek(targetT);
+  updateTap();
+
+  const countInCheck = $('tapCountIn');
+  const doCountIn = countInCheck ? countInCheck.checked : true;
+  if (doCountIn) {
+    runCountIn(() => {
+      seek(targetT);
+      play();
+      updateTap();
+      $('tapBtn').focus();
+    });
+  } else {
+    seek(targetT);
+    play();
+    updateTap();
+    $('tapBtn').focus();
+  }
 }
+
 function tapNow() {
-  if (!S.tap) return;
-  S.project.timing.lineTimes[S.tap.i] = +S.t.toFixed(3);
+  if (!S.tap || S.tap.counting) return;
+  const curT = +S.t.toFixed(3);
+  J.playTick(620, 0.05, 0.2);
+  const idx = S.tap.i;
+  S.tap.history.push({
+    i: idx,
+    prevStart: S.project.timing.lineTimes[idx],
+    prevEnd: S.project.timing.lineEnds ? S.project.timing.lineEnds[idx] : undefined,
+  });
+  S.project.timing.lineTimes[idx] = curT;
   S.tap.i++;
-  replan();
-  if (S.tap.i >= S.plan.lines.length) stopTap(); else updateTap();
+  if (S.tap.i >= S.plan.lines.length) {
+    replan();
+    toast((J.getLang && J.getLang() === 'zh') ? '所有歌词打点已完成！' : '全行のタイミング合わせが完了しました！');
+    stopTap();
+  } else {
+    replan();
+    updateTap();
+    if (S.lineEls[S.tap.i]) S.lineEls[S.tap.i].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
 }
-function stopTap() { S.tap = null; $('tapPanel').hidden = true; $('btnTap').setAttribute('aria-pressed', 'false'); replan(); }
-function updateTap() { const ln = S.plan.lines[S.tap.i]; $('tapLine').textContent = ln ? `${S.tap.i + 1}. ${ln.text}` : '—'; }
+
+function tapUndo() {
+  if (!S.tap) return;
+  clearTimeout(countInTimer);
+  const isZh = J.getLang && J.getLang() === 'zh';
+
+  if (S.tap.history.length > 0) {
+    const h = S.tap.history.pop();
+    S.tap.i = h.i;
+    if (h.prevStart !== undefined) S.project.timing.lineTimes[h.i] = h.prevStart;
+    else delete S.project.timing.lineTimes[h.i];
+    if (h.prevEnd !== undefined) S.project.timing.lineEnds[h.i] = h.prevEnd;
+    else if (S.project.timing.lineEnds) delete S.project.timing.lineEnds[h.i];
+
+    const rewindT = Math.max(0, (S.project.timing.lineTimes[h.i] != null ? S.project.timing.lineTimes[h.i] : S.t) - 2.0);
+    seek(rewindT);
+    J.playTick(320, 0.08, 0.25);
+    replan();
+    updateTap();
+    toast(isZh ? `已撤回至第 ${h.i + 1} 句，音乐已回退` : `第 ${h.i + 1} 行に戻しました`);
+  } else if (S.tap.i > 0) {
+    S.tap.i--;
+    delete S.project.timing.lineTimes[S.tap.i];
+    const rewindT = Math.max(0, (S.project.timing.lineTimes[S.tap.i] || S.t) - 2.0);
+    seek(rewindT);
+    J.playTick(320, 0.08, 0.25);
+    replan();
+    updateTap();
+    toast(isZh ? `已回退至第 ${S.tap.i + 1} 句` : `第 ${S.tap.i + 1} 行に戻しました`);
+  }
+}
+
+function stopTap() {
+  clearTimeout(countInTimer);
+  S.tap = null;
+  $('tapPanel').hidden = true;
+  $('btnTap').setAttribute('aria-pressed', 'false');
+  const isZh = J.getLang && J.getLang() === 'zh';
+  const tapBtn = $('tapBtn');
+  if (tapBtn) tapBtn.textContent = isZh ? 'TAP 敲击打点 (空格)' : 'TAP 打点 (Space)';
+  if (S.tapRate !== 1.0) setTapRate(1.0);
+  replan();
+}
+
+function updateTap() {
+  if (!S.tap) return;
+  const n = S.plan.lines.length;
+  const i = S.tap.i;
+  const curLn = i < n ? S.plan.lines[i] : null;
+  const nextLn = i + 1 < n ? S.plan.lines[i + 1] : null;
+  const isZh = J.getLang && J.getLang() === 'zh';
+
+  const numEl = $('tapLineNum');
+  if (numEl) numEl.textContent = `${String(i + 1).padStart(2, '0')}/${String(n).padStart(2, '0')}`;
+  const curEl = $('tapLine');
+  if (curEl) curEl.textContent = curLn ? curLn.text : (isZh ? '所有歌词已对齐完毕！' : '全行の同期が完了しました！');
+  const nextEl = $('tapNextLine');
+  if (nextEl) nextEl.textContent = nextLn ? `${isZh ? '下句' : '次'}: ${nextLn.text}` : '';
+
+  S.lineEls.forEach((el, idx) => el.classList.toggle('cur-tap', idx === i));
+}
+
+function setTapRate(r) {
+  S.tapRate = r;
+  document.querySelectorAll('.tap-spd').forEach(b => {
+    b.classList.toggle('active', Math.abs(parseFloat(b.dataset.spd) - r) < 0.01);
+  });
+  if (S.playing) {
+    const cur = S.t;
+    if (S.audio) AP.play(S.audio.buffer, cur, r);
+    else S.t0 = performance.now() - (cur * 1000) / r;
+  }
+}
+
+function stampCurrentLine(type) {
+  const cut = J.cutAt(S.plan, S.t);
+  const idx = cut && cut.line >= 0 ? cut.line : (S.tap ? S.tap.i : -1);
+  if (idx < 0) return;
+  const isZh = J.getLang && J.getLang() === 'zh';
+  if (type === 'start') {
+    if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
+    S.project.timing.lineTimes[idx] = +S.t.toFixed(2);
+    toast(isZh ? `已将第 ${idx + 1} 句起点设为 ${S.t.toFixed(2)}s (S)` : `${idx + 1}行目の開始点を ${S.t.toFixed(2)}s に設定 (S)`);
+  } else {
+    if (!S.project.timing.lineEnds) S.project.timing.lineEnds = {};
+    const curStart = (S.project.timing.lineTimes && S.project.timing.lineTimes[idx] != null) ? S.project.timing.lineTimes[idx] : S.plan.lines[idx].start;
+    S.project.timing.lineEnds[idx] = Math.max(curStart + 0.1, +S.t.toFixed(2));
+    toast(isZh ? `已将第 ${idx + 1} 句终点设为 ${S.t.toFixed(2)}s (E)` : `${idx + 1}行目の終了点を ${S.t.toFixed(2)}s に設定 (E)`);
+  }
+  replan();
+}
+
+function nudgeCurrentLine(delta) {
+  const cut = J.cutAt(S.plan, S.t);
+  const idx = cut && cut.line >= 0 ? cut.line : -1;
+  if (idx < 0) return;
+  if (!S.project.timing.lineTimes) S.project.timing.lineTimes = {};
+  const curStart = (S.project.timing.lineTimes[idx] != null) ? S.project.timing.lineTimes[idx] : S.plan.lines[idx].start;
+  const nextStart = Math.max(0, +(curStart + delta).toFixed(2));
+  S.project.timing.lineTimes[idx] = nextStart;
+  if (S.project.timing.lineEnds && S.project.timing.lineEnds[idx] != null) {
+    S.project.timing.lineEnds[idx] = Math.max(nextStart + 0.1, +(S.project.timing.lineEnds[idx] + delta).toFixed(2));
+  }
+  const isZh = J.getLang && J.getLang() === 'zh';
+  toast(isZh ? `第 ${idx + 1} 句微调: ${delta > 0 ? '+' : ''}${delta.toFixed(2)}s → ${nextStart}s` : `第 ${idx + 1} 行を微調整: ${delta > 0 ? '+' : ''}${delta.toFixed(2)}s`);
+  replan();
+}
 
 /* ---------------- sync all inputs from project ---------------- */
 function syncUI() {
   $('songTitle').value = S.project.title || ''; $('songArtist').value = S.project.artist || '';
   $('lyrics').value = S.project.lyrics;
   $('bpm').value = S.project.timing.bpm > 0 ? S.project.timing.bpm : '';
-  $('bpm').placeholder = S.audio ? `自動 ${S.audio.bpm}` : 'なし';
+  const isZh = J.getLang && J.getLang() === 'zh';
+  $('bpm').placeholder = S.audio ? (isZh ? `自动 ${S.audio.bpm}` : `自動 ${S.audio.bpm}`) : (isZh ? '无' : 'なし');
   $('offset').value = S.project.timing.offset ?? 0.4;
   $('lineScale').value = S.project.timing.lineScale ?? 1;
   $('snap').checked = !!S.project.timing.snap;
@@ -13261,19 +15645,24 @@ function bind() {
   $('btnResetTimes').addEventListener('click', () => { S.project.timing.lineTimes = {}; replan(); });
   $('audioFile').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    $('audioName').textContent = '解析中…';
+    const isZh = J.getLang && J.getLang() === 'zh';
+    $('audioName').textContent = isZh ? '正在解析音乐节奏…' : '解析中…';
     try {
       pause();
       S.audio = await J.analyzeAudio(f);
-      $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)}・約${S.audio.bpm}BPM）`;
+      $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)} · ${isZh ? '约' : '約'}${S.audio.bpm}BPM）`;
       S.project.timing.snap = true;
       syncUI(); replan();
-    } catch (err) { $('audioName').textContent = '読み込めませんでした: ' + err.message; S.audio = null; }
+    } catch (err) { $('audioName').textContent = (isZh ? '无法读取音频: ' : '読み込めませんでした: ') + err.message; S.audio = null; }
   });
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
   $('tapBtn').addEventListener('click', tapNow);
+  if ($('tapUndo')) $('tapUndo').addEventListener('click', tapUndo);
   $('tapStop').addEventListener('click', () => { pause(); stopTap(); });
+  document.querySelectorAll('.tap-spd').forEach(b => b.addEventListener('click', () => setTapRate(parseFloat(b.dataset.spd))));
   $('btnPlay').addEventListener('click', () => (S.playing ? pause() : play()));
+  if ($('btnStampS')) $('btnStampS').addEventListener('click', () => stampCurrentLine('start'));
+  if ($('btnStampE')) $('btnStampE').addEventListener('click', () => stampCurrentLine('end'));
   $('btnLoop').addEventListener('click', e => { S.loop = !S.loop; e.target.setAttribute('aria-pressed', String(S.loop)); });
   $('btnShuffle').addEventListener('click', () => { remember(); S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); commit(); });
   const sc = $('scrub');
@@ -13295,14 +15684,18 @@ function bind() {
   $('fxHud').addEventListener('change', e => { S.project.fx.hud = e.target.value; replan(); });
   $('seed').addEventListener('change', e => { S.project.seed = parseInt(e.target.value, 10) || 0; replan(); });
   $('btnSeed').addEventListener('click', () => { S.project.seed = (Math.random() * 1e9) | 0; $('seed').value = S.project.seed; replan(); });
-  const colorToggle = (flag, keys) => e => {
+  const colorToggle = (flag, getKeysFn) => e => {
     remember();
     const c = S.project.colors; c[flag] = e.target.checked;
-    if (c[flag]) { const sc0 = J.STYLES[S.project.style].schemes[0]; keys.forEach(([k]) => { if (!c[k]) c[k] = sc0[k]; }); }
+    if (c[flag]) {
+      const sc0 = J.STYLES[S.project.style].schemes[0];
+      const keys = typeof getKeysFn === 'function' ? getKeysFn() : getKeysFn;
+      keys.forEach(([k]) => { if (!c[k]) c[k] = sc0[k]; });
+    }
     renderColors(); replan(); commit();
   };
-  $('colorOn').addEventListener('change', colorToggle('enabled', BASE_KEYS));
-  $('accentOn').addEventListener('change', colorToggle('accentOn', ACCENT_KEYS));
+  $('colorOn').addEventListener('change', colorToggle('enabled', getBaseKeys));
+  $('accentOn').addEventListener('change', colorToggle('accentOn', getAccentKeys));
   $('btnRandPalette').addEventListener('click', randomPalette);
   $('btnAddFont').addEventListener('click', () => {
     const name = $('localFont').value.trim(); if (!name) return;
@@ -13316,8 +15709,26 @@ function bind() {
   $('fontFile').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
     try { const key = await J.loadFontFile(f); S.project.fonts.display = key; fontKey = ''; renderFontRoles(); replan(); }
-    catch (err) { showMsg('フォントを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
+    catch (err) { showMsg((J.getLang && J.getLang() === 'zh') ? '无法读取字体文件' : 'フォントを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
   });
+  // 语言切换与示例歌词按钮
+  if ($('langZh')) $('langZh').addEventListener('click', () => { J.setLang('zh'); updateUILanguage(); replan(); });
+  if ($('langJa')) $('langJa').addEventListener('click', () => { J.setLang('ja'); updateUILanguage(); replan(); });
+  if ($('btnSampleZh')) $('btnSampleZh').addEventListener('click', () => {
+    remember();
+    S.project.lyrics = J.SAMPLE_LYRICS_ZH;
+    $('lyrics').value = S.project.lyrics;
+    replan(); commit();
+    toast(J.getLang() === 'zh' ? '已填入中文示例歌词' : '中国語サンプル歌詞を挿入しました');
+  });
+  if ($('btnSampleJa')) $('btnSampleJa').addEventListener('click', () => {
+    remember();
+    S.project.lyrics = J.SAMPLE_LYRICS_JA;
+    $('lyrics').value = S.project.lyrics;
+    replan(); commit();
+    toast(J.getLang() === 'zh' ? '已填入日文示例歌词' : '日本語サンプル歌詞を挿入しました');
+  });
+
   ['outAspect', 'eAspect'].forEach(id => $(id).addEventListener('change', e => { S.project.aspect = e.target.value; syncOut(); replan(); codecNote(); }));
   ['outRes', 'eRes'].forEach(id => $(id).addEventListener('change', e => { S.project.res = +e.target.value; syncOut(); autosave(); codecNote(); }));
   ['outFps', 'eFps'].forEach(id => $(id).addEventListener('change', e => { S.project.fps = +e.target.value; syncOut(); replan(); codecNote(); }));
@@ -13344,32 +15755,106 @@ function bind() {
   $('fileProject').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
     try { S.project = mergeProject(JSON.parse(await f.text())); syncUI(); replan(); }
-    catch (err) { showMsg('プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
+    catch (err) { showMsg((J.getLang && J.getLang() === 'zh') ? '无法读取工程文件' : 'プロジェクトを読み込めませんでした'); setTimeout(() => showMsg(null), 2500); }
     e.target.value = '';
   });
   document.addEventListener('keydown', e => {
     const tag = (e.target && e.target.tagName) || '';
     const typing = /INPUT|TEXTAREA|SELECT/.test(tag) && e.target.type !== 'range' && e.target.type !== 'checkbox';
-    if (S.tap && (e.code === 'Space' || e.code === 'Enter') && !typing) { e.preventDefault(); tapNow(); return; }
-    if (S.tap && e.code === 'Escape') { pause(); stopTap(); return; }
+    if (S.tap) {
+      if ((e.code === 'Space' || e.code === 'Enter') && !typing) { e.preventDefault(); tapNow(); return; }
+      if ((e.code === 'Backspace' || ((e.ctrlKey || e.metaKey) && e.code === 'KeyZ')) && !typing) { e.preventDefault(); tapUndo(); return; }
+      if (e.code === 'Escape') { e.preventDefault(); pause(); stopTap(); return; }
+    }
     if (typing) return;
     if (e.code === 'Space') { e.preventDefault(); S.playing ? pause() : play(); }
     else if (e.code === 'ArrowRight') seek(S.t + (e.shiftKey ? 1 : 1 / S.plan.fps));
     else if (e.code === 'ArrowLeft') seek(S.t - (e.shiftKey ? 1 : 1 / S.plan.fps));
+    else if (e.code === 'KeyS' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); stampCurrentLine('start'); }
+    else if (e.code === 'KeyE' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); stampCurrentLine('end'); }
+    else if (e.code === 'BracketLeft') { e.preventDefault(); nudgeCurrentLine(-0.05); }
+    else if (e.code === 'BracketRight') { e.preventDefault(); nudgeCurrentLine(0.05); }
+    else if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.code === 'KeyZ') { e.preventDefault(); histGo(-1); }
+    else if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyY' || (e.shiftKey && e.code === 'KeyZ'))) { e.preventDefault(); histGo(1); }
     else if (e.code === 'KeyR' && !e.metaKey && !e.ctrlKey && !e.altKey && !S.exporting) { e.preventDefault(); omakase(); }
   });
   window.addEventListener('resize', () => { sizeViewport(); drawTimeline(); });
   if (window.ResizeObserver) new ResizeObserver(() => { sizeViewport(); drawTimeline(); }).observe($('viewport'));
 }
 
+/* ---------------- i18n DOM update ---------------- */
+function updateSelectOptions(isZh) {
+  const aspectLabels = isZh ? {
+    '16:9': '16:9 横屏', '9:16': '9:16 竖屏', '4:3': '4:3', '3:4': '3:4 竖',
+    '1:1': '1:1 正方', '4:5': '4:5 竖', '21:9': '21:9 宽幅'
+  } : {
+    '16:9': '16:9 横', '9:16': '9:16 縦', '4:3': '4:3', '3:4': '3:4 縦',
+    '1:1': '1:1 正方形', '4:5': '4:5 縦', '21:9': '21:9 シネスコ'
+  };
+  ['eAspect', 'outAspect'].forEach(id => {
+    const el = $(id); if (!el) return;
+    [...el.options].forEach(opt => { if (aspectLabels[opt.value]) opt.textContent = aspectLabels[opt.value]; });
+  });
+  const komaLabels = isZh ? {
+    '0': '全帧率流畅 (跟随输出FPS)', '12': '一拍二 (12格/秒・日漫定格感)', '8': '一拍三 (8格/秒・强定格感)'
+  } : {
+    '0': 'フル（出力fpsのまま）', '12': '2コマ打ち（12枚/秒）', '8': '3コマ打ち（8枚/秒）'
+  };
+  const komaEl = $('fxKoma');
+  if (komaEl) [...komaEl.options].forEach(opt => { if (komaLabels[opt.value]) opt.textContent = komaLabels[opt.value]; });
+  const hudLabels = isZh ? {
+    'auto': '由风格决定', 'on': '始终开启', 'off': '关闭隐藏'
+  } : {
+    'auto': 'スタイル任せ', 'on': '常に表示', 'off': '非表示'
+  };
+  const hudEl = $('fxHud');
+  if (hudEl) [...hudEl.options].forEach(opt => { if (hudLabels[opt.value]) opt.textContent = hudLabels[opt.value]; });
+  const qLabels = isZh ? {
+    'standard': '标准', 'high': '高品质 (推荐)', 'max': '超高纯净'
+  } : {
+    'standard': '標準', 'high': '高品質（おすすめ）', 'max': '最高品質'
+  };
+  const qEl = $('outQuality');
+  if (qEl) [...qEl.options].forEach(opt => { if (qLabels[opt.value]) opt.textContent = qLabels[opt.value]; });
+}
+
+function updateUILanguage() {
+  const lang = J.getLang();
+  const isZh = lang === 'zh';
+  if ($('langZh')) $('langZh').setAttribute('aria-pressed', String(isZh));
+  if ($('langJa')) $('langJa').setAttribute('aria-pressed', String(!isZh));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (k) el.innerHTML = J.t(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const k = el.dataset.i18nPh;
+    if (k) el.placeholder = J.t(k);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const k = el.dataset.i18nTitle;
+    if (k) el.title = J.t(k);
+  });
+  updateSelectOptions(isZh);
+  renderFontRoles();
+  renderColors();
+  renderFx();
+  renderTech();
+  drawStyleGrid();
+  showNow();
+  updateCutInfo(true);
+  codecNote();
+  renderLines();
+}
+
 /* ---------------- boot ---------------- */
 function boot() {
   S.project = loadLocal();
-  bind(); syncUI(); replan();
+  bind(); syncUI(); replan(); updateUILanguage();
   let mode = 'easy'; try { mode = localStorage.getItem('jizura.mode') || 'easy'; } catch (e) {}
   setMode(mode); commit();
   // open on a representative frame (end of the first cut's entrance)
-  const c0 = S.plan.cuts.find(c => c.line >= 0);
+  const c0 = (S.plan && S.plan.cuts) ? S.plan.cuts.find(c => c.line >= 0) : null;
   if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
   requestAnimationFrame(tick);
 }

@@ -58,6 +58,9 @@ J.register = (group, key, def, pack) => {
   const reg = J[G[0]], order = J[G[1]];
   if (reg[key] && reg[key].pack !== pack) console.warn(`JIZURA: ${group}.${key} is being replaced`);
   def.pack = pack || def.pack || 'core';
+  if (J.TECH_NAMES && J.TECH_NAMES[group] && J.TECH_NAMES[group][key]) {
+    def.name_zh = J.TECH_NAMES[group][key].zh;
+  }
   reg[key] = def;
   if (!def.special && !order.includes(key)) order.push(key);
   return def;

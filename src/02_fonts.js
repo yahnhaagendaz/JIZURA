@@ -6,9 +6,12 @@
 
 const JP_SANS_FB = '"Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
 const JP_SERIF_FB = '"Noto Serif JP","Noto Serif CJK JP","Hiragino Mincho ProN","Yu Mincho",serif';
+const CN_SANS_FB = '"Noto Sans SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB","SimHei",sans-serif';
+const CN_SERIF_FB = '"Noto Serif SC","Songti SC","SimSun","STSong","FangSong",serif';
 
 /* role catalogue: key -> {label, family, weight, kind} */
 J.FONTS = {
+  // Japanese Fonts
   gothic_black:  { label: 'Noto Sans JP Black',        family: '"Noto Sans JP"', weight: 900, kind: 'gothic', fb: JP_SANS_FB },
   gothic_bold:   { label: 'Noto Sans JP Bold',         family: '"Noto Sans JP"', weight: 700, kind: 'gothic', fb: JP_SANS_FB },
   gothic_med:    { label: 'Noto Sans JP Medium',       family: '"Noto Sans JP"', weight: 500, kind: 'gothic', fb: JP_SANS_FB },
@@ -26,8 +29,22 @@ J.FONTS = {
   brush:         { label: 'Yuji Syuku',                family: '"Yuji Syuku"', weight: 400, kind: 'brush', fb: JP_SERIF_FB },
   mono:          { label: 'IBM Plex Mono',             family: '"IBM Plex Mono"', weight: 500, kind: 'mono', fb: '"IBM Plex Sans JP",' + JP_SANS_FB },
   sansui:        { label: 'IBM Plex Sans JP',          family: '"IBM Plex Sans JP"', weight: 500, kind: 'gothic', fb: JP_SANS_FB },
+
+  // Chinese Fonts (简体中文 / 常用商用开源字体)
+  sc_gothic_black: { label: '思源黑体 Heavy (SC)',      family: '"Noto Sans SC"', weight: 900, kind: 'gothic', fb: CN_SANS_FB },
+  sc_gothic_bold:  { label: '思源黑体 Bold (SC)',       family: '"Noto Sans SC"', weight: 700, kind: 'gothic', fb: CN_SANS_FB },
+  sc_gothic_med:   { label: '思源黑体 Medium (SC)',     family: '"Noto Sans SC"', weight: 500, kind: 'gothic', fb: CN_SANS_FB },
+  sc_gothic_light: { label: '思源黑体 Light (SC)',      family: '"Noto Sans SC"', weight: 300, kind: 'gothic', fb: CN_SANS_FB },
+  sc_serif_black:  { label: '思源宋体 Black (SC)',      family: '"Noto Serif SC"', weight: 900, kind: 'mincho', fb: CN_SERIF_FB },
+  sc_serif_bold:   { label: '思源宋体 Bold (SC)',       family: '"Noto Serif SC"', weight: 700, kind: 'mincho', fb: CN_SERIF_FB },
+  sc_serif_med:    { label: '思源宋体 Medium (SC)',     family: '"Noto Serif SC"', weight: 500, kind: 'mincho', fb: CN_SERIF_FB },
+  zcool_kuaile:    { label: '站酷快乐体 (SC Display)',  family: '"ZCOOL KuaiLe"', weight: 400, kind: 'display', fb: CN_SANS_FB },
+  zcool_xiaowei:   { label: '站酷小薇体 (SC Serif)',    family: '"ZCOOL XiaoWei"', weight: 400, kind: 'mincho', fb: CN_SERIF_FB },
+  zcool_qingke:    { label: '站酷庆科黄油体 (SC)',      family: '"ZCOOL QingKe HuangYou"', weight: 400, kind: 'display', fb: CN_SANS_FB },
+  mashanzheng:     { label: '马善政毛笔楷书 (SC Brush)',family: '"Ma Shan Zheng"', weight: 400, kind: 'brush', fb: CN_SERIF_FB },
+  longcang:        { label: '龙藏行草体 (SC Brush)',    family: '"Long Cang"', weight: 400, kind: 'brush', fb: CN_SERIF_FB },
 };
-J.GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap';
+J.GOOGLE_FONTS_URL = 'https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;500;700;900&family=Noto+Serif+JP:wght@300;500;700&family=Zen+Kaku+Gothic+New:wght@900&family=Zen+Old+Mincho:wght@900&family=Kaisei+Tokumin:wght@800&family=M+PLUS+Rounded+1c:wght@800&family=Mochiy+Pop+One&family=DotGothic16&family=Yuji+Syuku&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Noto+Sans+SC:wght@300;500;700;900&family=Noto+Serif+SC:wght@300;500;700;900&family=ZCOOL+KuaiLe&family=ZCOOL+XiaoWei&family=ZCOOL+QingKe+HuangYou&family=Ma+Shan+Zheng&family=Long+Cang&display=swap';
 
 /* user fonts (local family names or uploaded files) */
 J.addUserFont = (key, label, family, weight = 400, kind = 'custom') => {

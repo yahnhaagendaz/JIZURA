@@ -78,4 +78,23 @@ J.beatGrid = (bpm, offset, duration) => {
   for (let t = offset; t < duration + 0.01; t += p) if (t >= 0) out.push(+t.toFixed(4));
   return out;
 };
+
+/* metronome click synthesis for count-in and tap feedback */
+J.playTick = (pitch = 1000, dur = 0.035, vol = 0.35) => {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!J._tickCtx) J._tickCtx = new AC();
+    if (J._tickCtx.state === 'suspended') J._tickCtx.resume();
+    const osc = J._tickCtx.createOscillator();
+    const gain = J._tickCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(pitch, J._tickCtx.currentTime);
+    gain.gain.setValueAtTime(vol, J._tickCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, J._tickCtx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(J._tickCtx.destination);
+    osc.start();
+    osc.stop(J._tickCtx.currentTime + dur);
+  } catch (e) {}
+};
 })();

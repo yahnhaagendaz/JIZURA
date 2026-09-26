@@ -83,23 +83,38 @@ h3 { font-size: 11px; letter-spacing: 0.14em; color: var(--muted); margin-top: 1
 .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--muted); }
 .field input, .field select { width: 100%; }
-.tapbox { border: 1px solid var(--amber); border-radius: var(--r); padding: 10px; display: grid; gap: 8px; background: rgba(245,165,12,0.06); }
-.tapbox .next { font-size: 15px; }
-button.tap { font: 700 18px/1 var(--mono); letter-spacing: 0.2em; padding: 16px; background: var(--amber); color: #120c00; border-color: var(--amber); }
+/* tap sync panel */
+.tapbox { border: 1px solid var(--amber); border-radius: var(--r); padding: 8px 10px; display: grid; gap: 6px; background: rgba(245,165,12,0.06); }
+.tap-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.tap-badge { background: var(--amber); color: #120c00; font: 700 11px/1 var(--mono); padding: 2px 5px; border-radius: 3px; }
+.tap-speeds { display: flex; gap: 2px; }
+.tap-spd { padding: 1px 5px; font-size: 10px; font-family: var(--mono); }
+.tap-spd.active { background: var(--amber); color: #120c00; font-weight: 700; border-color: var(--amber); }
+.tap-countin-mini { font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.tap-body { display: grid; gap: 2px; }
+.tap-line-cur { font-size: 13px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-line-next { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-actions { display: flex; gap: 6px; }
+button.tap { flex: 1; font: 700 13px/1 var(--mono); letter-spacing: 0.08em; padding: 8px 10px; background: var(--amber); color: #120c00; border-color: var(--amber); transition: transform 0.05s; }
+button.tap:active { transform: scale(0.98); }
+button.tap.pulse { animation: tapBeat 0.35s ease-out; }
+@keyframes tapBeat { 0% { background: #fff; color: #000; } 100% { background: var(--amber); color: #120c00; } }
 
 /* line list */
 #lineList { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.ln { display: grid; grid-template-columns: 22px 66px minmax(0, 1fr); gap: 4px 6px; align-items: center; padding: 6px; border: 1px solid transparent; border-radius: var(--r); }
+.ln { display: grid; grid-template-columns: 22px 72px minmax(0, 1fr); gap: 4px 6px; align-items: center; padding: 6px; border: 1px solid transparent; border-radius: var(--r); }
 .ln:hover { background: var(--raised); }
 .ln.cur { border-color: var(--line2); background: var(--raised); }
-.ln .no { font: 500 11px var(--mono); color: var(--faint); text-align: right; }
-.ln .time { width: 100%; padding: 3px 5px; font-size: 12px; }
+.ln.cur-tap { border-color: var(--amber); background: rgba(245,165,12,0.12); box-shadow: 0 0 8px rgba(245,165,12,0.25); }
+.ln .no { font: 500 11px var(--mono); color: var(--faint); text-align: right; cursor: pointer; }
+.ln .no:hover { color: var(--amber); }
+.ln .time { width: 100%; padding: 2px 4px; font-size: 11px; text-align: center; }
 .ln .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
-.ln .meta { grid-column: 2 / 4; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
-.ln .tools { display: flex; gap: 4px; flex: none; }
-.ln .tools select { padding: 2px 4px; font-size: 11px; max-width: 92px; }
-.ln .cuts { display: flex; gap: 4px; flex-wrap: wrap; min-width: 0; }
-.ln .cuts span { font-size: 10px; padding: 1px 6px; border-radius: 2px; border: 1px solid var(--line2); color: var(--muted); cursor: pointer; }
+.ln .meta { grid-column: 2 / 4; display: flex; justify-content: space-between; align-items: center; gap: 6px; min-width: 0; }
+.ln .tools { display: flex; gap: 4px; flex: none; align-items: center; }
+.ln .tools select { padding: 2px 4px; font-size: 11px; max-width: 86px; }
+.ln .cuts { display: flex; gap: 4px; flex-wrap: nowrap; overflow: hidden; min-width: 0; }
+.ln .cuts span { font-size: 10px; padding: 1px 6px; border-radius: 2px; border: 1px solid var(--line2); color: var(--muted); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .ln .cuts span:hover { color: var(--text); border-color: var(--amber); }
 
 /* ---------- stage ---------- */

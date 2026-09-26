@@ -1,0 +1,9 @@
+# Temporary development & scratch assets
+scratch_screenshot*.png
+clip.mp3
+mousou.mp3
+*.log
+
+# OS generated
+.DS_Store
+Thumbs.db

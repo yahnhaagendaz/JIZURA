@@ -4,21 +4,18 @@
 (() => {
 'use strict';
 
-J.SAMPLE_LYRICS = `夜明けの色を/覚えてる
-ほどけた声が遠くで鳴った
-ねえ、まだ間に合うかな
-*透明*なままじゃ終われない!`;
+J.SAMPLE_LYRICS = (J.getLang && J.getLang() === 'zh') ? J.SAMPLE_LYRICS_ZH : J.SAMPLE_LYRICS_JA;
 
 J.defaultProject = () => ({
   version: 1,
   title: '', artist: '',
-  lyrics: J.SAMPLE_LYRICS,
+  lyrics: (J.getLang && J.getLang() === 'zh') ? (J.SAMPLE_LYRICS_ZH || J.SAMPLE_LYRICS) : (J.SAMPLE_LYRICS_JA || J.SAMPLE_LYRICS),
   style: 'noir', mood: null,
   seed: 20260922,
   aspect: '16:9', res: 1080, fps: 24,
   fx: { motion: 0.7, glitch: 0.55, chroma: 0.7, decor: 0.5, density: 0.55, texture: 0.6, flash: true, onTwos: true, koma: 12, hud: 'auto', bgSwitch: 0.35 },
   enabled: Object.fromEntries(J.GROUP_KEYS.map(g => [g, Object.fromEntries(J.order(g).map(k => [k, true]))])),
-  timing: { bpm: 0, offset: 0.4, snap: true, tail: 0.9, lineTimes: {}, lineScale: 1 },
+  timing: { bpm: 0, offset: 0.4, snap: true, tail: 0.9, lineTimes: {}, lineEnds: {}, lineScale: 1 },
   overrides: {},
   colors: { enabled: false },
   fonts: {},
@@ -43,7 +40,12 @@ J.parseLyrics = (raw) => {
     if (mm) { meta[mm[1].toLowerCase()] = mm[2].trim(); continue; }
     let s = s0; const times = [];
     let m;
-    while ((m = s.match(/^\[(\d+):(\d+(?:[.:]\d+)?)\]/))) { times.push(+m[1] * 60 + parseFloat(m[2].replace(':', '.'))); s = s.slice(m[0].length); }
+    while ((m = s.match(/^\[(\d+):(\d+(?:[.:]\d+)?)(?:\s*[-~至到]\s*(\d+):(\d+(?:[.:]\d+)?))?\]/))) {
+      const st = +m[1] * 60 + parseFloat(m[2].replace(':', '.'));
+      const et = m[3] != null ? (+m[3] * 60 + parseFloat(m[4].replace(':', '.'))) : null;
+      times.push({ start: st, end: et });
+      s = s.slice(m[0].length);
+    }
     s = s.trim();
     let note = null;
     const bar = s.indexOf('|');
@@ -61,15 +63,26 @@ J.parseLyrics = (raw) => {
     if (!s) continue;
     const base = { text: s, note, impact, emph, manual, gapBefore: pendingGap };
     pendingGap = false;
-    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t })));
-    else lines.push(Object.assign({}, base, { lrc: null }));
+    if (times.length) times.forEach(t => lines.push(Object.assign({}, base, { lrc: t.start, lrcEnd: t.end })));
+    else lines.push(Object.assign({}, base, { lrc: null, lrcEnd: null }));
   }
   if (lines.some(l => l.lrc != null)) lines.sort((a, b) => (a.lrc ?? 1e9) - (b.lrc ?? 1e9));
   return { lines, meta };
 };
 
-/* ---------------- chunking (bunsetsu-ish) ---------------- */
-const segmenter = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('ja', { granularity: 'word' }) : null;
+/* ---------------- chunking (bunsetsu for JA, rhythmic words for ZH) ---------------- */
+const segmenterJa = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('ja', { granularity: 'word' }) : null;
+const segmenterZh = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('zh', { granularity: 'word' }) : null;
+
+J.isChineseText = (text) => {
+  let hanzi = 0, kana = 0;
+  for (const c of String(text || '')) {
+    if (J.isHira(c) || J.isKata(c)) kana++;
+    else if (J.isKanji(c)) hanzi++;
+  }
+  return hanzi > 0 && kana === 0;
+};
+
 const segType = s => {
   if (/^\s+$/.test(s)) return 'S';
   if ([...s].every(c => J.isPunct(c))) return 'P';
@@ -79,8 +92,11 @@ const segType = s => {
   if (/[A-Za-z0-9]/.test(s)) return 'L';
   return 'O';
 };
+
 J.segments = (text) => {
-  if (segmenter) return [...segmenter.segment(text)].map(x => x.segment);
+  const isZh = (J.getLang && J.getLang() === 'zh') || J.isChineseText(text);
+  const seg = isZh ? (segmenterZh || segmenterJa) : (segmenterJa || segmenterZh);
+  if (seg) return [...seg.segment(text)].map(x => x.segment);
   const out = []; let cur = '', ct = '';
   for (const c of text) {
     const t = segType(c);
@@ -90,7 +106,33 @@ J.segments = (text) => {
   if (cur) out.push(cur);
   return out;
 };
+
 J.chunkText = (text) => {
+  const isZh = (J.getLang && J.getLang() === 'zh') || J.isChineseText(text);
+  if (isZh && segmenterZh) {
+    // 中文分词与节奏切片逻辑：基于中文词素与2-6字卡点微单元
+    const rawWords = [...segmenterZh.segment(text)].map(x => x.segment).filter(s => !/^\s+$/.test(s));
+    const chunks = [];
+    let cur = '';
+    for (const w of rawWords) {
+      if (J.isPunct(w)) {
+        if (cur) { cur += w; chunks.push(cur); cur = ''; }
+        else if (chunks.length) { chunks[chunks.length - 1] += w; }
+        continue;
+      }
+      if (!cur) { cur = w; continue; }
+      if ([...cur].length + [...w].length <= 5 || '的得了着过在与和及或'.includes(w)) {
+        cur += w;
+      } else {
+        chunks.push(cur);
+        cur = w;
+      }
+    }
+    if (cur) chunks.push(cur);
+    return chunks.length ? chunks : [text];
+  }
+
+  // 日文 Bunsetsu 切片逻辑（保持原版原汁原味）
   const segs = J.segments(text);
   const chunks = []; let cur = null;
   const close = () => { if (cur && cur.s.trim()) chunks.push(cur.s.trim()); cur = null; };
@@ -147,6 +189,11 @@ J.computeTiming = (project, parsed, audio) => {
     starts.push(s);
   });
   const ends = starts.map((s, i) => {
+    const l = lines[i];
+    const manEnd = T.lineEnds && T.lineEnds[i] != null ? +T.lineEnds[i] : (l && l.lrcEnd != null ? +l.lrcEnd : null);
+    if (manEnd != null && isFinite(manEnd) && manEnd > s) {
+      return manEnd;
+    }
     if (i < starts.length - 1) return Math.max(s + 0.35, starts[i + 1]);
     const n = [...lines[i].text].length;
     let d = J.clamp(0.8 + n * 0.17, 1.5, 5.2) * (T.lineScale || 1);
@@ -204,9 +251,10 @@ J.plan = (project, audio) => {
     const ov = (project.overrides || {})[li] || {};
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
-    const n = [...ln.text.replace(/\s+/g, '')].length;
-    const visEnd = Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
-    const D = visEnd - s;
+    const n = [...ln.text].length;
+    const hasExplicitEnd = (project.timing && project.timing.lineEnds && project.timing.lineEnds[li] != null) || ln.lrcEnd != null;
+    const visEnd = hasExplicitEnd ? e : Math.min(e, s + Math.max(3.6, n * 0.5 + 1.2));
+    const D = Math.max(0.1, visEnd - s);
     plan.lines.push({ index: li, text: ln.text, start: s, end: e, visEnd, note: ln.note, impact: ln.impact, emph: ln.emph, chunks: null, seed: lineSeed });
     const chunks = ln.manual || J.chunkText(ln.text);
     plan.lines[li].chunks = chunks;
@@ -290,9 +338,10 @@ J.plan = (project, audio) => {
     });
     // interlude in long gaps
     const nextStart = li < parsed.lines.length - 1 ? tm.starts[li + 1] : null;
-    if (nextStart != null && nextStart - visEnd > 1.3) {
+    const gap = nextStart != null ? nextStart - visEnd : 0;
+    if (nextStart != null && gap > 2.5 && !(project.timing && project.timing.noInterlude)) {
       const r2 = J.rng(J.h(lineSeed, 404));
-      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd, end: nextStart, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fx, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
+      plan.cuts.push(makeCut({ text: title || '', lineText: '', line: li, start: visEnd + 0.08, end: nextStart - 0.04, layout: 'interlude', enter: 'blur', exit: 'blur', hold: 'still', inDur: 0.3, outDur: 0.3, params: J.LAYOUTS.interlude.plan(r2), decor: pickDecor(r2, st, en, Object.assign({}, fx, { decor: 1 }), 'interlude'), scheme: schemeIdx, seed: J.h(lineSeed, 405) }));
     }
   });
   plan.cuts.sort((a, b) => a.start - b.start);
