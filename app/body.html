@@ -54,6 +54,25 @@
       <div class="sec">
         <div class="sec-h"><h2 data-i18n="sec_audio">音乐与节奏卡点</h2></div>
         <div id="audioName" class="muted audio-name" data-i18n="audio_empty">未加载音乐（导入音乐后将自动检测BPM强拍并卡点）</div>
+        <!-- 素材缺失警告与重新链接框 (类似 AE 素材缺失提醒) -->
+        <div id="mediaMissingBox" class="media-missing-card" style="display:none;background:#251212;border:1px solid #ff4444;border-radius:6px;padding:10px 12px;margin:8px 0;">
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <span style="font-size:18px;">⚠️</span>
+            <div style="flex:1;">
+              <div style="font-weight:700;color:#ff6b6b;font-size:13px;" id="missingTitle">音频素材未就绪 / 缺失</div>
+              <div style="font-size:11px;color:#ddd;margin-top:2px;" id="missingDesc">当前工程缺少绑定的物理音频文件。</div>
+              <div style="font-size:11px;color:#aaa;margin-top:4px;background:rgba(0,0,0,0.3);padding:4px 6px;border-radius:3px;" id="missingExpected">
+                预期: 未记录
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end;">
+            <label class="file small" style="background:#ff4444;color:#fff;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;">
+              <span>🔗 重新链接并修复</span>
+              <input id="audioRelinkFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac" style="display:none;">
+            </label>
+          </div>
+        </div>
         <div class="row">
           <label class="file" data-i18n-title="btn_load_audio_title" title="支持 mp3 / wav / m4a / ogg / flac 等格式"><span data-i18n="btn_load_audio">导入音频</span><input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
           <button id="btnTap" data-i18n="btn_tap" data-i18n-title="btn_tap_title" title="播放音乐并随节拍按空格记录各行起点">打点同步</button>
@@ -223,4 +242,24 @@
       </div>
     </section>
   </main>
+
+  <!-- 防呆素材比对确认弹窗 (类似 AE 重新链接校验) -->
+  <dialog id="mediaMismatchDialog" style="background:#181822;color:#eee;border:1px solid #ffaa00;border-radius:8px;padding:18px 22px;max-width:460px;box-shadow:0 16px 48px rgba(0,0,0,0.85);z-index:9999;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <span style="font-size:22px;">⚠️</span>
+      <h3 style="margin:0;font-size:15px;color:#ffcc00;font-weight:700;">音频指纹不匹配 (素材防呆校验)</h3>
+    </div>
+    <div style="font-size:12px;line-height:1.6;color:#ccc;">
+      <p style="margin:0 0 8px 0;">您所选的音频文件特征与原工程记录存在明显偏差：</p>
+      <div style="background:rgba(0,0,0,0.4);padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:11px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="color:#aaa;">原工程预期: <b id="mismatchExp" style="color:#fff;">—</b></div>
+        <div style="color:#ffaa00;margin-top:6px;">当前所选文件: <b id="mismatchAct" style="color:#ffcc00;">—</b></div>
+      </div>
+      <p style="margin:0 0 6px 0;color:#ff9999;font-size:11px;">⚠️ 提示：时长或节奏偏差过大可能导致现有的分镜与歌词卡点错位。若这是您的备用版本或重新剪辑版本，可继续强制链接。</p>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+      <button id="btnCancelRelink" style="background:rgba(255,255,255,0.1);color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;">取消重选</button>
+      <button id="btnConfirmRelink" style="background:#ffaa00;color:#111;font-weight:700;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;">强制使用并持久化保存</button>
+    </div>
+  </dialog>
 </div>

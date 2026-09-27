@@ -51,6 +51,7 @@ function mergeProject(p) {
   o.fonts = (p && p.fonts) || {};
   o.userFonts = (p && p.userFonts) || [];
   for (const uf of o.userFonts) if (!J.FONTS[uf.key]) J.addUserFont(uf.key, uf.label, uf.family, uf.weight || 400);
+  o.audioMeta = (p && p.audioMeta) || null;
   return o;
 }
 function loadLocal() { try { const s = localStorage.getItem(LS_KEY); if (s) return mergeProject(JSON.parse(s)); } catch (e) {} return mergeProject(null); }
@@ -964,15 +965,7 @@ function bind() {
   $('btnResetTimes').addEventListener('click', () => { S.project.timing.lineTimes = {}; replan(); });
   $('audioFile').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    const isZh = J.getLang && J.getLang() === 'zh';
-    $('audioName').textContent = isZh ? '正在解析音乐节奏…' : '解析中…';
-    try {
-      pause();
-      S.audio = await J.analyzeAudio(f);
-      $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)} · ${isZh ? '约' : '約'}${S.audio.bpm}BPM）`;
-      S.project.timing.snap = true;
-      syncUI(); replan();
-    } catch (err) { $('audioName').textContent = (isZh ? '无法读取音频: ' : '読み込めませんでした: ') + err.message; S.audio = null; }
+    handleAudioRelink(f, false);
   });
   $('btnTap').addEventListener('click', () => (S.tap ? stopTap() : startTap()));
   $('tapBtn').addEventListener('click', tapNow);
@@ -1168,40 +1161,191 @@ function updateUILanguage() {
 
 /* ---------------- project persistence & manager ---------------- */
 let currentProjectId = 'rettou_full';
+let audioLoadToken = 0;
+
+function showMissingMediaAlert() {
+  const box = $('mediaMissingBox');
+  if (!box) return;
+  const isZh = J.getLang && J.getLang() === 'zh';
+  const meta = S.project.audioMeta || {};
+  const expName = meta.name || meta.file || (isZh ? '未指定文件' : '未設定');
+  const expDur = meta.duration ? J.fmtTime(meta.duration) : (S.plan && S.plan.duration ? J.fmtTime(S.plan.duration) : '未知');
+  const expBpm = meta.bpm || (S.project.timing && S.project.timing.bpm) || 0;
+
+  if ($('missingTitle')) $('missingTitle').textContent = isZh ? '⚠️ 音频素材缺失 / 未找到' : '⚠️ 音声ファイルが見つかりません';
+  if ($('missingDesc')) $('missingDesc').textContent = isZh ? `当前工程 [${currentProjectId}] 缺少绑定的物理音频文件。` : `音声ファイルがリンクされていません。`;
+  if ($('missingExpected')) {
+    $('missingExpected').innerHTML = `${isZh ? '原工程预期' : '想定'}: <b style="color:#fff;">${expName}</b> | 时长约: <b style="color:#ffcc00;">${expDur}</b> | 节奏: <b style="color:#00F0FF;">${expBpm ? expBpm + ' BPM' : '未知'}</b>`;
+  }
+  box.style.display = 'block';
+}
 
 async function autoLoadProjectAudio(pid) {
+  const token = ++audioLoadToken;
   const isZh = J.getLang && J.getLang() === 'zh';
   const audioUri = pid ? `/api/audio?id=${encodeURIComponent(pid)}` : '/api/audio';
   try {
     if ($('audioName')) $('audioName').textContent = isZh ? '正在载入工程音频…' : '音楽を読み込み中…';
     const resp = await fetch(audioUri);
+    if (token !== audioLoadToken) return;
+
     if (!resp.ok) {
-      if ($('audioName')) $('audioName').textContent = isZh ? '未绑定音频（可手动上传）' : '未設定';
+      S.audio = null;
+      if ($('audioName')) $('audioName').textContent = isZh ? '❌ 关联音频文件缺失 (404 Not Found)' : '❌ 音楽ファイルが見つかりません';
+      showMissingMediaAlert();
+      syncUI();
+      replan();
       return;
     }
     const blob = await resp.blob();
-    if (blob.size < 1000) return;
+    if (token !== audioLoadToken) return;
+
+    if (blob.size < 1000) {
+      S.audio = null;
+      showMissingMediaAlert();
+      syncUI();
+      replan();
+      return;
+    }
     const f = new File([blob], (S.project.title || 'project') + '.mp3', { type: 'audio/mpeg' });
-    S.audio = await J.analyzeAudio(f);
+    const analyzed = await J.analyzeAudio(f);
+    if (token !== audioLoadToken) return;
+
+    S.audio = analyzed;
     if ($('audioName')) {
       $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)} · ${isZh ? '约' : '約'}${S.audio.bpm}BPM）`;
+    }
+    if ($('mediaMissingBox')) $('mediaMissingBox').style.display = 'none';
+    if (!S.project.audioMeta) {
+      S.project.audioMeta = {
+        file: 'audio.mp3',
+        name: f.name,
+        duration: S.audio.duration,
+        bpm: S.audio.bpm,
+        size: blob.size
+      };
     }
     syncUI();
     replan();
   } catch (e) {
-    console.warn('[JIZURA] 音频自动加载跳过:', e);
-    if ($('audioName')) $('audioName').textContent = isZh ? '未绑定音频（可手动上传）' : '未設定';
+    if (token !== audioLoadToken) return;
+    console.warn('[JIZURA] 音频自动加载失败:', e);
+    S.audio = null;
+    showMissingMediaAlert();
+    syncUI();
+    replan();
   }
+}
+
+async function handleAudioRelink(file, isManualRelink = false) {
+  if (!file) return;
+  const isZh = J.getLang && J.getLang() === 'zh';
+  pause();
+
+  showMsg(isZh ? '正在解析并比对音频指纹…' : '音楽ファイルを解析中…');
+  let newAudio = null;
+  try {
+    newAudio = await J.analyzeAudio(file);
+  } catch (err) {
+    showMsg(null);
+    alert((isZh ? '音频文件解析失败: ' : '解析エラー: ') + err.message);
+    return;
+  }
+  showMsg(null);
+
+  const meta = S.project.audioMeta || {};
+  const expDur = meta.duration || (S.plan && S.plan.duration) || 0;
+  const expBpm = meta.bpm || (S.project.timing && S.project.timing.bpm) || 0;
+  const durDiff = expDur > 0 ? Math.abs(newAudio.duration - expDur) : 0;
+  const bpmDiff = expBpm > 0 ? Math.abs(newAudio.bpm - expBpm) : 0;
+
+  // 防呆判定：如果原工程有记录预期，且时长偏差大于 3.0 秒，或 BPM 偏差大于 12
+  const isMismatch = (expDur > 0 && durDiff > 3.0) || (expBpm > 0 && bpmDiff > 12);
+
+  const applyAudio = async () => {
+    S.audio = newAudio;
+    $('audioName').textContent = `${file.name}（${J.fmtTime(S.audio.duration)} · ${isZh ? '约' : '約'}${S.audio.bpm}BPM）`;
+    if ($('mediaMissingBox')) $('mediaMissingBox').style.display = 'none';
+
+    S.project.audioMeta = {
+      file: 'audio.mp3',
+      name: file.name,
+      duration: S.audio.duration,
+      bpm: S.audio.bpm,
+      size: file.size,
+      updated_at: new Date().toISOString()
+    };
+    if (!S.project.timing.bpm && S.audio.bpm) S.project.timing.bpm = S.audio.bpm;
+
+    syncUI();
+    replan();
+
+    try {
+      showMsg(isZh ? '正在上传音频并持久化保存至工程…' : 'サーバーに保存中…');
+      const arrayBuf = await file.arrayBuffer();
+      await fetch(`/api/upload_audio?id=${encodeURIComponent(currentProjectId)}`, {
+        method: 'POST',
+        body: arrayBuf
+      });
+      await fetch(`/api/project?id=${encodeURIComponent(currentProjectId)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(S.project, null, 2)
+      });
+      showMsg(null);
+      console.log('[JIZURA] 音频已成功上传并与工程永久绑定');
+    } catch (e) {
+      showMsg(null);
+      console.warn('[JIZURA] 音频上传至服务端时出错 (本地预览仍生效):', e);
+    }
+  };
+
+  if (isMismatch) {
+    const dlg = $('mediaMismatchDialog');
+    if (dlg) {
+      $('mismatchExp').textContent = `${meta.name || '原始工程设定'} (${expDur ? J.fmtTime(expDur) : '未知'} · ${expBpm || 0} BPM)`;
+      $('mismatchAct').textContent = `${file.name} (${J.fmtTime(newAudio.duration)} · 约${newAudio.bpm} BPM · 时长偏差 ${durDiff.toFixed(1)}秒)`;
+
+      const onConfirm = () => {
+        dlg.close();
+        cleanup();
+        applyAudio();
+      };
+      const onCancel = () => {
+        dlg.close();
+        cleanup();
+        if ($('audioRelinkFile')) $('audioRelinkFile').value = '';
+        if ($('audioFile')) $('audioFile').value = '';
+      };
+      const cleanup = () => {
+        $('btnConfirmRelink').removeEventListener('click', onConfirm);
+        $('btnCancelRelink').removeEventListener('click', onCancel);
+      };
+      $('btnConfirmRelink').addEventListener('click', onConfirm);
+      $('btnCancelRelink').addEventListener('click', onCancel);
+      if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+      return;
+    }
+  }
+
+  await applyAudio();
 }
 
 async function loadServerProject(pid, autoAudio = true) {
   try {
+    ++audioLoadToken;
+    S.audio = null;
+    pause();
     const apiUri = pid ? `/api/project?id=${encodeURIComponent(pid)}` : '/api/project';
+    console.log('[DEBUG] loadServerProject fetching:', apiUri);
     const res = await fetch(apiUri);
     if (res.ok) {
       const serverProj = await res.json();
+      console.log('[DEBUG] loadServerProject got project:', serverProj.title, 'id:', serverProj.id);
       if (serverProj && (serverProj.title || serverProj.lyrics)) {
-        currentProjectId = pid || 'rettou_full';
+        currentProjectId = serverProj.id || pid || 'rettou_full';
+        const sel = $('projectSelect');
+        if (sel) sel.value = currentProjectId;
         S.project = mergeProject(serverProj);
         syncUI();
         replan();
@@ -1243,21 +1387,23 @@ async function initProjectManager() {
     }
   } catch (e) {}
 
-  if (sel) {
+  if (sel && !sel._hasBoundChange) {
+    sel._hasBoundChange = true;
     sel.addEventListener('change', async e => {
       const newId = e.target.value;
-      if (!newId || newId === currentProjectId) return;
+      console.log('[DEBUG] projectSelect change event fired! newId:', newId);
+      if (!newId) return;
       try {
         await fetch(`/api/active?id=${encodeURIComponent(newId)}`, { method: 'POST' });
         await loadServerProject(newId, true);
-        currentProjectId = newId;
       } catch (err) {
         console.error('切换工程失败:', err);
       }
     });
   }
 
-  if (btnSave) {
+  if (btnSave && !btnSave._hasBoundClick) {
+    btnSave._hasBoundClick = true;
     btnSave.addEventListener('click', async () => {
       const isZh = J.getLang && J.getLang() === 'zh';
       const origText = btnSave.textContent;
@@ -1282,6 +1428,15 @@ async function initProjectManager() {
       }
     });
   }
+
+  const relinkInput = $('audioRelinkFile');
+  if (relinkInput && !relinkInput._hasBoundChange) {
+    relinkInput._hasBoundChange = true;
+    relinkInput.addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0];
+      if (f) handleAudioRelink(f, true);
+    });
+  }
 }
 
 /* ---------------- boot ---------------- */
@@ -1292,11 +1447,13 @@ async function boot() {
   setMode(mode); commit();
   requestAnimationFrame(tick);
 
+  // 优先立即加载工程列表并绑定切换事件
+  await initProjectManager();
+
   const urlParams = new URLSearchParams(window.location.search);
-  const targetPid = urlParams.get('project') || null;
+  const targetPid = urlParams.get('project') || currentProjectId || null;
 
   const loaded = await loadServerProject(targetPid, true);
-  await initProjectManager();
 
   if (!loaded) {
     const c0 = (S.plan && S.plan.cuts) ? S.plan.cuts.find(c => c.line >= 0) : null;
@@ -1305,4 +1462,12 @@ async function boot() {
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;
+J.ui.loadServerProject = loadServerProject;
+J.ui.autoLoadProjectAudio = autoLoadProjectAudio;
+J.ui.handleAudioRelink = handleAudioRelink;
+J.ui.showMissingMediaAlert = showMissingMediaAlert;
+window.loadServerProject = loadServerProject;
+window.handleAudioRelink = handleAudioRelink;
+window.autoLoadProjectAudio = autoLoadProjectAudio;
+window.showMissingMediaAlert = showMissingMediaAlert;
 })();

@@ -136,10 +136,7 @@ class JizuraRequestHandler(http.server.SimpleHTTPRequestHandler):
             audio_path = os.path.join(PROJECTS_DIR, pid, 'audio.mp3')
             if os.path.exists(audio_path):
                 return audio_path
-            # fallback to clip.mp3 in ROOT
-            fallback = os.path.join(ROOT, 'clip.mp3')
-            if os.path.exists(fallback):
-                return fallback
+            return os.path.join(ROOT, '__missing_audio__')
         return super().translate_path(path)
 
     def do_GET(self):
@@ -180,14 +177,25 @@ class JizuraRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b'{"error": "Project not found"}')
                 return
-            with open(proj_file, 'rb') as f:
-                content = f.read()
+            with open(proj_file, 'r', encoding='utf-8') as f:
+                proj_data = json.load(f)
+            proj_data['id'] = pid
+            content = json.dumps(proj_data, ensure_ascii=False, indent=2).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(content)))
             self.end_headers()
             self.wfile.write(content)
             return
+        elif clean_path == '/api/audio':
+            pid = qs.get('id', [get_active_project_id()])[0]
+            audio_path = os.path.join(PROJECTS_DIR, pid, 'audio.mp3')
+            if not os.path.exists(audio_path):
+                self.send_response(404)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Audio file missing', 'projectId': pid}).encode('utf-8'))
+                return
 
         return super().do_GET()
 
@@ -228,6 +236,25 @@ class JizuraRequestHandler(http.server.SimpleHTTPRequestHandler):
                 with open(proj_file, 'wb') as f:
                     f.write(body)
                 resp = json.dumps({'ok': True, 'id': pid, 'size': len(body)}).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(resp)))
+                self.end_headers()
+                self.wfile.write(resp)
+                return
+            self.send_response(400)
+            self.end_headers()
+            return
+
+        elif clean_path == '/api/upload_audio':
+            pid = qs.get('id', [get_active_project_id()])[0]
+            if body and len(body) > 100:
+                proj_dir = os.path.join(PROJECTS_DIR, pid)
+                os.makedirs(proj_dir, exist_ok=True)
+                audio_path = os.path.join(proj_dir, 'audio.mp3')
+                with open(audio_path, 'wb') as f:
+                    f.write(body)
+                resp = json.dumps({'ok': True, 'projectId': pid, 'size': len(body)}).encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.send_header('Content-Length', str(len(resp)))
