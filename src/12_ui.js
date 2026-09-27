@@ -1166,16 +1166,142 @@ function updateUILanguage() {
   renderLines();
 }
 
+/* ---------------- project persistence & manager ---------------- */
+let currentProjectId = 'rettou_full';
+
+async function autoLoadProjectAudio(pid) {
+  const isZh = J.getLang && J.getLang() === 'zh';
+  const audioUri = pid ? `/api/audio?id=${encodeURIComponent(pid)}` : '/api/audio';
+  try {
+    if ($('audioName')) $('audioName').textContent = isZh ? '正在载入工程音频…' : '音楽を読み込み中…';
+    const resp = await fetch(audioUri);
+    if (!resp.ok) {
+      if ($('audioName')) $('audioName').textContent = isZh ? '未绑定音频（可手动上传）' : '未設定';
+      return;
+    }
+    const blob = await resp.blob();
+    if (blob.size < 1000) return;
+    const f = new File([blob], (S.project.title || 'project') + '.mp3', { type: 'audio/mpeg' });
+    S.audio = await J.analyzeAudio(f);
+    if ($('audioName')) {
+      $('audioName').textContent = `${f.name}（${J.fmtTime(S.audio.duration)} · ${isZh ? '约' : '約'}${S.audio.bpm}BPM）`;
+    }
+    syncUI();
+    replan();
+  } catch (e) {
+    console.warn('[JIZURA] 音频自动加载跳过:', e);
+    if ($('audioName')) $('audioName').textContent = isZh ? '未绑定音频（可手动上传）' : '未設定';
+  }
+}
+
+async function loadServerProject(pid, autoAudio = true) {
+  try {
+    const apiUri = pid ? `/api/project?id=${encodeURIComponent(pid)}` : '/api/project';
+    const res = await fetch(apiUri);
+    if (res.ok) {
+      const serverProj = await res.json();
+      if (serverProj && (serverProj.title || serverProj.lyrics)) {
+        currentProjectId = pid || 'rettou_full';
+        S.project = mergeProject(serverProj);
+        syncUI();
+        replan();
+        if (autoAudio) await autoLoadProjectAudio(currentProjectId);
+        const c0 = (S.plan && S.plan.cuts) ? S.plan.cuts.find(c => c.line >= 0) : null;
+        if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn('[JIZURA] 未能从服务端加载工程:', err);
+  }
+  return false;
+}
+
+async function initProjectManager() {
+  const sel = $('projectSelect');
+  const btnSave = $('btnSaveDisk');
+
+  try {
+    const r = await fetch('/api/projects');
+    if (r.ok) {
+      const list = await r.json();
+      if (Array.isArray(list) && list.length && sel) {
+        sel.innerHTML = '';
+        list.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.title} (${p.id})`;
+          if (p.active) {
+            opt.selected = true;
+            currentProjectId = p.id;
+          }
+          sel.appendChild(opt);
+        });
+        const box = $('projectBox');
+        if (box) box.style.display = 'inline-flex';
+      }
+    }
+  } catch (e) {}
+
+  if (sel) {
+    sel.addEventListener('change', async e => {
+      const newId = e.target.value;
+      if (!newId || newId === currentProjectId) return;
+      try {
+        await fetch(`/api/active?id=${encodeURIComponent(newId)}`, { method: 'POST' });
+        await loadServerProject(newId, true);
+        currentProjectId = newId;
+      } catch (err) {
+        console.error('切换工程失败:', err);
+      }
+    });
+  }
+
+  if (btnSave) {
+    btnSave.addEventListener('click', async () => {
+      const isZh = J.getLang && J.getLang() === 'zh';
+      const origText = btnSave.textContent;
+      btnSave.textContent = isZh ? '💾 保存中…' : '保存中…';
+      try {
+        const body = JSON.stringify(S.project, null, 2);
+        const r = await fetch(`/api/project?id=${encodeURIComponent(currentProjectId)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body
+        });
+        if (r.ok) {
+          btnSave.textContent = isZh ? '✅ 已保存!' : '保存完了!';
+          setTimeout(() => { btnSave.textContent = origText; }, 1500);
+        } else {
+          btnSave.textContent = isZh ? '❌ 保存失败' : '失敗';
+          setTimeout(() => { btnSave.textContent = origText; }, 1500);
+        }
+      } catch (err) {
+        btnSave.textContent = isZh ? '❌ 出错' : 'エラー';
+        setTimeout(() => { btnSave.textContent = origText; }, 1500);
+      }
+    });
+  }
+}
+
 /* ---------------- boot ---------------- */
-function boot() {
+async function boot() {
   S.project = loadLocal();
   bind(); syncUI(); replan(); updateUILanguage();
   let mode = 'easy'; try { mode = localStorage.getItem('jizura.mode') || 'easy'; } catch (e) {}
   setMode(mode); commit();
-  // open on a representative frame (end of the first cut's entrance)
-  const c0 = (S.plan && S.plan.cuts) ? S.plan.cuts.find(c => c.line >= 0) : null;
-  if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
   requestAnimationFrame(tick);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetPid = urlParams.get('project') || null;
+
+  const loaded = await loadServerProject(targetPid, true);
+  await initProjectManager();
+
+  if (!loaded) {
+    const c0 = (S.plan && S.plan.cuts) ? S.plan.cuts.find(c => c.line >= 0) : null;
+    if (c0) seek(c0.start + Math.min(c0.dur * 0.6, c0.inDur + 0.25));
+  }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 J.ui = S;

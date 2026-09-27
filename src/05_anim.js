@@ -93,6 +93,24 @@ J.ENTER = {
     },
   },
 
+  syllableBounce: {
+    name: '咬字弹跳',
+    apply(env, it, p) {
+      const seed = it.seed | 0;
+      it.charFns.push((i, g, n) => {
+        const d = n > 1 ? (i / (n - 1)) * 0.65 : 0;
+        const q = J.clamp((p - d) / 0.35);
+        if (q <= 0) return { hide: true };
+        const pulse = (q > 0.05 && q < 0.95) ? Math.sin(q * Math.PI) * 0.32 : 0;
+        return {
+          s: E.outBack(q, 2.7) + pulse,
+          rot: (1 - E.outCubic(q)) * J.rs(seed, i, 9) * 22,
+          color: pulse > 0.12 ? '#FFE600' : null
+        };
+      });
+    },
+  },
+
   drop: {
     name: '落下',
     apply(env, it, p) {

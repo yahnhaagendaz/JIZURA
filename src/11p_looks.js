@@ -839,6 +839,65 @@ bgReg('noiseField', { name: 'ノイズの揺らぎ', tags: ['glitch', 'emotional
     ctx.fillStyle = tintC(sc, 0.3); ctx.fill(acc);
   } });
 
+bgReg('rettouStreetDecor', {
+  name: '劣等街头警示装饰',
+  tags: ['street', 'cyber', 'hazard', 'glitch'],
+  subtle: false,
+  w: 1.0,
+  plan: () => ({}),
+  draw(env, P, ctx) {
+    const { W, H, sc } = env;
+    const line = env.cut && env.cut.line != null ? env.cut.line : -1;
+
+    // 1. 顶部与底部 45° 黄黑斜切警戒条
+    const stripeH = Math.max(16, H * 0.025);
+    const drawHazardTape = (y) => {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, y, W, stripeH);
+      ctx.clip();
+      ctx.fillStyle = '#08080C';
+      ctx.fillRect(0, y, W, stripeH);
+
+      const unit = stripeH * 1.2;
+      const shift = (env.t * 30) % (unit * 2);
+      ctx.fillStyle = '#FFE600';
+      for (let x = -unit * 4; x < W + unit * 4; x += unit * 2) {
+        ctx.beginPath();
+        ctx.moveTo(x + shift, y);
+        ctx.lineTo(x + unit + shift, y);
+        ctx.lineTo(x + unit - stripeH + shift, y + stripeH);
+        ctx.lineTo(x - stripeH + shift, y + stripeH);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    };
+
+    drawHazardTape(0);
+    drawHazardTape(H - stripeH);
+
+    // 2. 808 踢鼓重击时的瞬时镜头冲击
+    const punchLines = [4, 6, 11, 19, 21, 24, 34, 40, 42, 51, 53, 54, 59, 62];
+    if (punchLines.includes(line)) {
+      if (env.lt < 0.25) {
+        const flashAlpha = (1 - env.lt / 0.25) * 0.35;
+        ctx.fillStyle = `rgba(255, 230, 0, ${flashAlpha})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    // 3. 屏幕角标 HUD 与条形码元素
+    ctx.save();
+    ctx.font = '700 13px "IBM Plex Mono", monospace';
+    ctx.fillStyle = 'rgba(0, 240, 255, 0.45)';
+    ctx.fillText('[RETTOU_FULL // 130_BPM]', 36, 42);
+    ctx.fillText('STATUS: FULL VOCAL ALIGNED', W - 240, 42);
+    ctx.restore();
+  }
+});
+
+
 /* ================= CAMERA ================= */
 const KM = env => clamp((env.fx.motion ?? 0.7) * 1.25, 0, 1.25);
 const cuOf = env => clamp(env.lt / Math.max(0.3, env.cut.dur));

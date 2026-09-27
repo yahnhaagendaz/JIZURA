@@ -1,8 +1,15 @@
 # Temporary development & scratch assets
 scratch_screenshot*.png
-clip.mp3
-mousou.mp3
+*.mp3
+*.mp4
+*.wav
 *.log
+
+# Personal projects & local data
+projects/
+preview_*/
+_archive_*/
+*.json.bak
 
 # Python
 __pycache__/
