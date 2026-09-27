@@ -4,6 +4,10 @@ clip.mp3
 mousou.mp3
 *.log
 
+# Python
+__pycache__/
+*.py[cod]
+
 # OS generated
 .DS_Store
 Thumbs.db

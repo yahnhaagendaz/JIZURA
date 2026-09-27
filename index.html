@@ -3059,6 +3059,21 @@ J.fitSize = (text, font, maxW, maxH, opt = {}) => {
 
 /* scheme: bg, fg, sub, accent, accent2, ink (sticker/box colour), dim (bg text), ghostA, ghostB, grad */
 J.STYLES = {
+  rettou: {
+    name: 'レットウ・パンク', desc: '警告イエロー×マゼンタ・原宿ストリート・大判ゴシック',
+    name_zh: '劣等朋克·街头警示', desc_zh: '荧光警示黄×电光品红×赛博青，大字报哥特黑体与故障色散',
+    schemes: [
+      { bg: '#08080C', fg: '#FFE600', sub: '#FFFFFF', accent: '#FF007F', accent2: '#00F0FF', ink: '#FFE600', dim: '#1E1E28', ghostA: '#FF007F', ghostB: '#00F0FF' },
+      { bg: '#FFE600', fg: '#08080C', sub: '#262200', accent: '#FF007F', accent2: '#00F0FF', ink: '#08080C', dim: '#E0CA00', ghostA: '#FF007F', ghostB: '#00F0FF' },
+      { bg: '#FF007F', fg: '#FFFFFF', sub: '#FFD9EC', accent: '#FFE600', accent2: '#00F0FF', ink: '#FFFFFF', dim: '#C40062', ghostA: '#FFE600', ghostB: '#00F0FF' },
+      { bg: '#00F0FF', fg: '#08080C', sub: '#004048', accent: '#FFE600', accent2: '#FF007F', ink: '#08080C', dim: '#00CAD8', ghostA: '#FFE600', ghostB: '#FF007F' },
+    ],
+    fonts: { display: ['dela', 'gothic_black', 'zenkaku'], serif: ['mincho_black', 'brush'], body: ['gothic_bold'], mono: ['mono'] },
+    fonts_zh: { display: ['dela', 'sc_gothic_black', 'zcool_qingke'], serif: ['sc_serif_black', 'mashanzheng'], body: ['sc_gothic_bold'], mono: ['mono'] },
+    texture: { grain: 0.65, paper: 0, scan: 0.5 }, ghost: 1.1,
+    bias: { layout: { huge: 2.4, marquee: 2.0, scatter: 1.6, stack: 1.5, vcols: 1.3 }, enter: { scramble: 2.0, slice: 2.0, pop: 1.6 }, exit: { glitch: 2.5, slice: 2.0 } },
+    decor: { hud: 1, rings: 1, arrows: 1, counter: 1, barcode: 1 }, hud: true, glitchBoost: 1.8,
+  },
   noir: {
     name: 'ノワール・クロマ', desc: '黒地・白文字・シアン/琥珀の色ズレ',
     name_zh: '暗夜黑白·色散', desc_zh: '黑底白字，青/琥珀光色散',
@@ -3224,7 +3239,7 @@ J.STYLES = {
     decor: { rings: 1.4, hud: 0.6, dots: 1 }, hud: false,
   },
 };
-J.STYLE_ORDER = ['noir', 'crimson', 'caution', 'magenta', 'paper', 'hud', 'mint', 'specimen', 'transit', 'blueprint', 'rouge', 'mono'];
+J.STYLE_ORDER = ['rettou', 'noir', 'crimson', 'caution', 'magenta', 'paper', 'hud', 'mint', 'specimen', 'transit', 'blueprint', 'rouge', 'mono'];
 
 J.styleName = k => {
   const st = J.STYLES[k];
