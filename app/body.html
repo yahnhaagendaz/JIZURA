@@ -5,7 +5,11 @@
       <div id="projectBox" class="project-box" style="display:none;align-items:center;gap:6px;background:rgba(255,255,255,0.06);padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.12)">
         <span style="font-size:11px;color:rgba(255,255,255,0.6);white-space:nowrap;">📁 工程</span>
         <select id="projectSelect" style="background:#141419;border:1px solid #333;color:#FFE600;font-weight:700;font-size:12px;outline:none;cursor:pointer;border-radius:3px;padding:2px 4px;"></select>
-        <button id="btnSaveDisk" title="保存修改回服务端工程文件" style="background:#FFE600;color:#08080C;border:none;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;">💾 保存</button>
+        <button id="btnNewProject" title="新建全新文字PV工程" style="background:#1b3320;color:#4ade80;border:1px solid #285430;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;">➕ 新建</button>
+        <button id="btnSaveDisk" title="保存修改回服务端工程文件 (Ctrl+S)" style="background:#FFE600;color:#08080C;border:none;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;">💾 保存</button>
+        <button id="btnSaveAsDisk" title="另存为新工程版本 (创建独立副本)" style="background:#262836;color:#E0E4FF;border:1px solid #3F4259;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;">📑 另存为</button>
+        <span id="saveStatusBadge" class="save-status-badge" style="font-size:10px;padding:2px 6px;border-radius:3px;background:rgba(30,200,100,0.15);color:#2bd67b;border:1px solid rgba(30,200,100,0.3);white-space:nowrap;" title="与服务端磁盘工程文件的同步状态">✓ 已同步磁盘</span>
+        <label id="lblAutoSave" style="font-size:11px;color:#aaa;display:flex;align-items:center;gap:3px;cursor:pointer;white-space:nowrap;user-select:none;margin-left:2px;" title="编辑后 1.5 秒自动同步回服务端磁盘工程文件"><input id="chkAutoSave" type="checkbox" checked> 自动存盘</label>
       </div>
       <input id="songTitle" type="text" placeholder="歌曲名称（显示于标题卡与HUD）" data-i18n-ph="song_title_ph" aria-label="曲名">
       <input id="songArtist" type="text" placeholder="歌手 / 创作者" data-i18n-ph="song_artist_ph" aria-label="アーティスト">
@@ -32,6 +36,7 @@
         <div class="sec-h">
           <h2 data-i18n="sec_lyrics">歌词文本</h2>
           <div class="row" style="gap:4px">
+            <button id="btnSmartPhrases" class="ghost small" title="根据已加载音频的节拍强拍与能量，智能生成或对齐歌词分句模版" style="color:var(--cyan);font-weight:600;">✨ 智能节拍分句</button>
             <button id="btnSampleZh" class="ghost small" title="填入中文示例歌词" data-i18n="btn_sample_zh">中文示例</button>
             <button id="btnSampleJa" class="ghost small" title="日本語サンプル歌詞を挿入" data-i18n="btn_sample_ja">日文示例</button>
             <button id="btnSyntax" class="ghost small" aria-expanded="false" data-i18n="btn_syntax">语法标记</button>
@@ -69,13 +74,16 @@
           <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end;">
             <label class="file small" style="background:#ff4444;color:#fff;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;">
               <span>🔗 重新链接并修复</span>
-              <input id="audioRelinkFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac" style="display:none;">
+              <input id="audioRelinkFile" type="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.flac,.mp4,.mov,.webm" style="display:none;">
             </label>
           </div>
         </div>
-        <div class="row">
-          <label class="file" data-i18n-title="btn_load_audio_title" title="支持 mp3 / wav / m4a / ogg / flac 等格式"><span data-i18n="btn_load_audio">导入音频</span><input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"></label>
-          <button id="btnTap" data-i18n="btn_tap" data-i18n-title="btn_tap_title" title="播放音乐并随节拍按空格记录各行起点">打点同步</button>
+        <div class="row" style="align-items:center;flex-wrap:wrap;gap:6px;">
+          <label class="file" data-i18n-title="btn_load_audio_title" title="支持 MP3 / WAV / FLAC 或直接投递录屏 MP4 视频 (自动提取音频轨)"><span data-i18n="btn_load_audio">导入音频/MP4</span><input id="audioFile" type="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.flac,.mp4,.mov,.webm"></label>
+          <button id="btnTap" data-i18n="btn_tap" data-i18n-title="btn_tap_title" title="已有歌词时使用：随音乐播放按空格给每句歌词标记起点，自动前进到下一句">🎤 歌词逐句打点</button>
+          <button id="btnTapFreestyle" class="ghost" data-i18n="btn_tap_freestyle" data-i18n-title="btn_tap_freestyle_title" title="无歌词纯卡点：闭眼听歌按空格划分节奏分镜，打点完成后可【一键批量填入歌词】" style="color:var(--amber);font-weight:600;border:1px solid rgba(245,165,12,0.4);"><span data-i18n="btn_tap_freestyle">⚡ 空白节拍打点</span></button>
+          <button id="btnBatchLyricsOpen" class="ghost small" title="一键粘贴整首歌词并自动对齐打好的时间点" style="border:1px solid var(--line2);color:var(--cyan);font-weight:600;"><span data-i18n="btn_batch_lyrics">📝 批量填词</span></button>
+          <label class="row" style="gap:4px;font-size:11px;color:var(--text);cursor:pointer;user-select:none;margin-left:auto;" title="播放时伴随节拍发出滴答节拍音 (强拍高音/弱拍低音)"><input id="chkMetro" type="checkbox"> <span>🔔 节拍音</span></label>
         </div>
         <div class="fields pro-only">
           <label class="field"><span data-i18n="bpm_label">BPM</span><input id="bpm" type="number" min="0" max="300" step="0.1" placeholder="自动" data-i18n-ph="bpm_ph"></label>
@@ -89,27 +97,90 @@
         <div id="tapPanel" class="tapbox" hidden>
           <div class="tap-head">
             <span class="tap-badge mono" id="tapLineNum">01</span>
+            <div id="tapModeLabel" style="font-size:11px;font-weight:700;color:var(--amber);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">🎤 歌词逐句打点</div>
             <div class="tap-speeds">
               <button class="ghost small tap-spd active" data-spd="1.0">1.0x</button>
               <button class="ghost small tap-spd" data-spd="0.75">0.75x</button>
               <button class="ghost small tap-spd" data-spd="0.5">0.5x</button>
             </div>
-            <label class="tap-countin-mini" title="开始打点时先播放3秒预备节拍"><input id="tapCountIn" type="checkbox" checked> <span data-i18n="tap_countin">预备拍</span></label>
+            <label class="tap-countin-mini" title="开始打点时先播放3秒预备节拍"><input id="tapCountIn" type="checkbox"> <span data-i18n="tap_countin">预备拍</span></label>
+            <label class="tap-countin-mini" title="打点时同步听到节拍器滴答声"><input id="tapMetroInPanel" type="checkbox"> <span>🔔 节拍</span></label>
+            <div class="tap-buffer-wrap" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--muted);" title="撤回上一句时自动倒带的缓冲时间，方便预听乐句准备卡点">
+              <span>倒带缓冲:</span>
+              <select id="tapBuffer" style="background:#141419;border:1px solid #333;color:var(--amber);font-size:10px;padding:1px 2px;border-radius:3px;cursor:pointer;">
+                <option value="1.5">1.5s</option>
+                <option value="2.0" selected>2.0s</option>
+                <option value="3.0">3.0s</option>
+              </select>
+            </div>
             <button id="tapStop" class="ghost small icon-btn" title="退出打点 (Esc)">✕</button>
           </div>
           <div class="tap-body">
-            <div id="tapLine" class="tap-line-cur">—</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+              <div id="tapLine" class="tap-line-cur" style="flex:1;">—</div>
+              <span id="tapBeatPulse" style="width:10px;height:10px;border-radius:50%;background:var(--muted);display:inline-block;transition:all 0.08s;" title="当前节拍强弱脉冲"></span>
+            </div>
             <div id="tapNextLine" class="tap-line-next muted">—</div>
           </div>
           <div class="tap-actions">
             <button id="tapBtn" class="tap">TAP 敲击打点 (空格)</button>
-            <button id="tapUndo" class="ghost small" title="撤回上一句并倒带音乐 (Backspace)" data-i18n="tap_undo" data-i18n-title="tap_undo_title">↶ 撤回</button>
+            <button id="tapUndo" class="ghost small" title="撤回上一句并自动倒带缓冲音乐重来 (Backspace / Ctrl+Z)" data-i18n="tap_undo" data-i18n-title="tap_undo_title">↶ 撤回重来</button>
           </div>
         </div>
       </div>
 
       <div class="sec">
         <div class="sec-h"><h2 data-i18n="sec_lines">分句与镜头列表</h2><span id="linesInfo" class="muted mono"></span></div>
+        <!-- 时间微调、S/E目标控制台与向后平移工具栏 -->
+        <div id="timingToolsPanel" class="timing-tools-bar" style="background:var(--raised);border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:7px;">
+          <!-- 目标句核心控制器 HUD -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;background:rgba(22,244,212,0.06);border:1px solid rgba(22,244,212,0.25);border-radius:4px;padding:4px 8px;">
+            <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;">
+              <span style="font-size:11px;font-weight:700;color:var(--cyan);white-space:nowrap;" id="timingActiveLabel" title="当前 S / E 快捷键与微调的目标句">🎯 目标: 第 1 句</span>
+              <span id="timingActivePreview" style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">"..."</span>
+              <span id="timingActiveRange" class="mono" style="font-size:10px;color:var(--muted);white-space:nowrap;">[0.00s]</span>
+            </div>
+            <div style="display:flex;gap:3px;align-items:center;">
+              <button class="ghost small mono" id="btnTargetPrev" title="切换到上一句 (快捷键 Q 或 ↑)" style="padding:1px 5px;font-size:10px;">◀ Q</button>
+              <button class="ghost small mono" id="btnTargetNext" title="切换到下一句 (快捷键 W 或 ↓)" style="padding:1px 5px;font-size:10px;">W ▶</button>
+              <button class="ghost small mono" id="btnTargetSeek" title="跳转播放头到本句起点" style="padding:1px 4px;font-size:10px;color:var(--cyan);">🎯跳到本句</button>
+            </div>
+          </div>
+          <!-- S / E 快捷键与自动步进开关 -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:4px;">
+              <button class="ghost small mono" id="btnPanelStampS" title="将当前播放头设为目标句起点 (快捷键 S)" style="border-color:var(--cyan);color:var(--cyan);font-weight:700;padding:2px 6px;">S 起点</button>
+              <button class="ghost small mono" id="btnPanelStampE" title="将当前播放头设为目标句终点 (快捷键 E)" style="border-color:var(--amber);color:var(--amber);font-weight:700;padding:2px 6px;">E 终点</button>
+              <label style="display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--muted);cursor:pointer;user-select:none;margin-left:4px;" title="按 S 标记起点后自动跳到下一句，方便随音乐连贯连续打点">
+                <input id="chkAutoStep" type="checkbox" checked> <span>S后跳下句</span>
+              </label>
+            </div>
+            <div style="display:flex;gap:3px;align-items:center;">
+              <span style="font-size:10px;color:var(--muted);white-space:nowrap;">微调:</span>
+              <button class="ghost small mono" id="nudgeM05" title="目标句向前微调 0.5 秒">-0.5s</button>
+              <button class="ghost small mono" id="nudgeM01" title="目标句向前微调 0.1 秒">-0.1s</button>
+              <button class="ghost small mono" id="nudgeP01" title="目标句向后微调 0.1 秒">+0.1s</button>
+              <button class="ghost small mono" id="nudgeP05" title="目标句向后微调 0.5 秒">+0.5s</button>
+            </div>
+          </div>
+          <!-- 批量工具：同步LRC、批量配词、向后平移 -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;border-top:1px dashed var(--line2);padding-top:5px;flex-wrap:wrap;">
+            <div style="display:flex;gap:4px;align-items:center;">
+              <button class="ghost small mono" id="btnSyncLrc" title="将当前精准时间戳以标准 [mm:ss.xx] 格式同步写回左侧歌词文本框" style="padding:1px 5px;font-size:10px;color:var(--cyan);"><span data-i18n="btn_sync_lrc">🔄 同步LRC到歌词框</span></button>
+              <button class="ghost small mono" id="btnBatchLyricsModal" title="将完整歌词文本一键粘贴并自动对齐打好的时间点" style="padding:1px 5px;font-size:10px;color:var(--amber);"><span data-i18n="btn_batch_lyrics">📝 批量填词</span></button>
+            </div>
+            <div style="display:flex;gap:2px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+              <span style="font-size:10px;color:var(--muted);white-space:nowrap;" title="从此句开始，将后续所有镜头时间整体平移">平移:</span>
+              <button class="ghost small mono" id="rippleM10" title="从目标句起向后所有镜头 -1.0 秒" style="padding:1px 3px;font-size:10px;">-1s</button>
+              <button class="ghost small mono" id="rippleM05" title="从目标句起向后所有镜头 -0.5 秒" style="padding:1px 3px;font-size:10px;">-0.5s</button>
+              <button class="ghost small mono" id="rippleM01" title="从目标句起向后所有镜头 -0.1 秒" style="padding:1px 3px;font-size:10px;">-0.1s</button>
+              <button class="ghost small mono" id="rippleP01" title="从目标句起向后所有镜头 +0.1 秒" style="padding:1px 3px;font-size:10px;">+0.1s</button>
+              <button class="ghost small mono" id="rippleP05" title="从目标句起向后所有镜头 +0.5 秒" style="padding:1px 3px;font-size:10px;">+0.5s</button>
+              <button class="ghost small mono" id="rippleP10" title="从目标句起向后所有镜头 +1.0 秒" style="padding:1px 3px;font-size:10px;">+1s</button>
+              <button class="ghost small mono" id="rippleCustom" title="自定义平移秒数" style="padding:1px 4px;font-size:10px;color:var(--amber);">自定义…</button>
+            </div>
+          </div>
+        </div>
         <ol id="lineList"></ol>
       </div>
     </section>
@@ -120,27 +191,78 @@
       <div class="transport">
         <button id="btnPlay" class="play" aria-label="播放">▶</button>
         <span id="timeNow" class="tc">00:00.00</span><span class="tc muted">/</span><span id="timeDur" class="tc muted">00:00.00</span>
-        <button id="btnStampS" class="ghost small icon-txt mono" title="将当前播放头设为当前句起点 (快捷键 S)">S起点</button>
-        <button id="btnStampE" class="ghost small icon-txt mono" title="将当前播放头设为当前句终点 (快捷键 E)">E终点</button>
+        <!-- 音量与静音 -->
+        <div class="volume-box" style="display:inline-flex;align-items:center;gap:3px;background:var(--raised);padding:2px 6px;border-radius:var(--r);border:1px solid var(--line);">
+          <button id="btnMute" class="ghost small" title="静音切换 (M)" style="border:none;padding:1px 3px;font-size:12px;background:transparent;cursor:pointer;">🔊</button>
+          <input id="volumeSlider" type="range" min="0" max="100" value="100" style="width:52px;height:12px;accent-color:var(--amber);cursor:pointer;" title="音量调节">
+        </div>
+        <!-- 目标句指示徽标 -->
+        <span id="transportTargetBadge" style="display:inline-flex;align-items:center;gap:3px;background:rgba(22,244,212,0.12);border:1px solid rgba(22,244,212,0.35);color:var(--cyan);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" title="当前 S / E 操作目标句 (点击可定位)">🎯 01 目标</span>
+        <button id="btnStampS" class="ghost small icon-txt mono" title="将当前播放头设为目标句起点 (快捷键 S)" style="border-color:rgba(22,244,212,0.4);color:var(--cyan);font-weight:700;">S起点</button>
+        <button id="btnStampE" class="ghost small icon-txt mono" title="将当前播放头设为目标句终点 (快捷键 E)" style="border-color:rgba(245,165,12,0.4);color:var(--amber);font-weight:700;">E终点</button>
         <input id="scrub" type="range" min="0" max="10000" value="0" aria-label="播放进度">
         <button id="btnLoop" class="ghost small" aria-pressed="true" data-i18n="btn_loop">循环</button>
         <span class="hist-btns">
           <button id="btnPrev" class="ghost small icon-txt" title="上一方案" data-i18n-title="btn_prev_tip" aria-label="上一方案">◀</button>
           <button id="btnNext" class="ghost small icon-txt" title="下一方案" data-i18n-title="btn_next_tip" aria-label="下一方案">▶</button>
         </span>
-        <button id="btnShuffle" class="accent" title="保持当前风格，重新打乱排版与动画组合（锁定的行保持不变）" data-i18n-title="btn_shuffle_title" data-i18n="btn_shuffle">重组镜头</button>
-        <button id="btnOmakase" class="primary" title="全量随机：视觉风格、氛围、运镜与配色（快捷键 R）" data-i18n-title="btn_omakase_title" data-i18n="btn_omakase">一键生成</button>
+        <button id="btnShuffleCurrent" class="ghost small icon-txt mono" title="仅重组当前选中镜头/句的手法（快捷键 D）" data-i18n-title="btn_shuffle_current_tip" data-i18n="btn_shuffle_current">🎲 重组当前镜头</button>
+        <button id="btnShuffleAll" class="accent" title="保持当前全局风格，重新打乱所有未锁定的镜头" data-i18n-title="btn_shuffle_all_tip" data-i18n="btn_shuffle_all">🔀 重组全片</button>
+        <button id="btnOmakase" class="ghost small" title="全量重新生成：视觉风格、氛围、运镜与配色（快捷键 Shift+R）" data-i18n-title="btn_omakase_safeguard_title" data-i18n="btn_omakase">⚡ 一键生成 (Shift+R)</button>
+      </div>
+
+      <!-- 时间轴缩放、撤销与视区控制栏 -->
+      <div class="timeline-bar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;padding:2px 0;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="color:var(--muted);font-size:10px;">时间轴视区:</span>
+          <button id="tlZoom1x" class="ghost small mono tl-zoom-btn active" data-zoom="1" title="全局视图 (1x)" style="padding:1px 5px;font-size:10px;">1x全景</button>
+          <button id="tlZoom2x" class="ghost small mono tl-zoom-btn" data-zoom="2" title="2倍局部放大" style="padding:1px 5px;font-size:10px;">2x</button>
+          <button id="tlZoom4x" class="ghost small mono tl-zoom-btn" data-zoom="4" title="4倍精修放大" style="padding:1px 5px;font-size:10px;">4x</button>
+          <button id="tlZoom8x" class="ghost small mono tl-zoom-btn" data-zoom="8" title="8倍微观对齐" style="padding:1px 5px;font-size:10px;">8x精修</button>
+          <button id="btnFocusCut" class="ghost small" title="将时间轴视区直接聚焦居中在当前镜头 (F)" style="padding:1px 6px;font-size:10px;color:var(--cyan);">🎯 聚焦当前句</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <button id="btnUndoTiming" class="ghost small" title="撤销上一次时间微调 (Ctrl+Z)" disabled style="padding:1px 6px;font-size:10px;">↶ 撤销时间</button>
+          <button id="btnRedoTiming" class="ghost small" title="重做时间微调 (Ctrl+Y)" disabled style="padding:1px 6px;font-size:10px;">↷ 重做时间</button>
+        </div>
       </div>
       <canvas id="timeline" aria-label="时间轴（点击跳转）"></canvas>
       <div class="cutinfo" id="cutInfo"></div>
+
+      <!-- 单镜头全手法可视化点选检查器 (Cut Inspector Popover) -->
+      <div id="cutInspectorPopover" class="popover-picker" role="dialog" aria-labelledby="popoverTitle" hidden>
+        <div class="popover-header">
+          <div class="popover-title-row">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span id="popoverIcon" class="popover-icon">📐</span>
+              <span id="popoverTitle" class="popover-title">构图排版</span>
+              <span id="popoverCutBadge" class="popover-cut-badge mono">第 1 句 · 镜头 #01</span>
+            </div>
+            <button id="popoverClose" class="ghost small icon-btn" title="关闭 (Esc)">✕</button>
+          </div>
+          <div class="popover-search-wrap">
+            <span class="popover-search-icon">🔍</span>
+            <input id="popoverSearch" class="popover-search" type="text" placeholder="搜索手法关键字 (拼音/汉字/英文)…" autocomplete="off" spellcheck="false">
+            <button id="popoverSearchClear" class="ghost small icon-btn" title="清空搜索" hidden>✕</button>
+          </div>
+        </div>
+        <div id="popoverDimensions" class="popover-tabs" aria-label="手法维度"></div>
+        <div id="popoverTabs" class="popover-tabs"></div>
+        <div id="popoverGrid" class="popover-grid"></div>
+        <div class="popover-footer">
+          <span id="popoverCount" class="popover-count muted mono">72 个可用手法</span>
+          <button id="popoverNoneDecor" class="ghost small" hidden data-i18n="inspector_no_decor">清空装饰</button>
+          <button id="popoverAutoBtn" class="ghost small popover-auto-btn" data-i18n="inspector_auto" title="清除当前维度手动指定；锁定镜头会固定本次推荐">↺ 自动推荐 (跟随风格)</button>
+        </div>
+      </div>
     </section>
 
     <!-- ================= right: look & output ================= -->
     <section class="col col-right" aria-label="视觉与导出 / スタイルと書き出し">
       <div id="easyPanel" class="easy" hidden>
         <div class="easy-hero">
-          <button id="btnOmakaseBig" class="omakase" data-i18n="omakase_big">一键生成 (R)</button>
-          <p class="hint" data-i18n="omakase_desc">每次点击，全片风格、氛围、运镜、配色与构图全部重新组合。键盘按 <span class="kbd">R</span> 亦可触发。</p>
+          <button id="btnOmakaseBig" class="omakase" data-i18n="omakase_big">一键生成 (Shift+R)</button>
+          <p class="hint" data-i18n="omakase_desc">每次点击，全片风格、氛围、运镜、配色与构图全部重新组合。键盘按 <span class="kbd">Shift+R</span> 亦可触发。</p>
           <div class="hist-row">
             <button id="btnPrev2" class="ghost" data-i18n="btn_prev2">◀ 上一方案</button>
             <span id="histPos" class="muted mono"></span>
@@ -260,6 +382,81 @@
     <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
       <button id="btnCancelRelink" style="background:rgba(255,255,255,0.1);color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;">取消重选</button>
       <button id="btnConfirmRelink" style="background:#ffaa00;color:#111;font-weight:700;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:12px;">强制使用并持久化保存</button>
+    </div>
+  </dialog>
+
+  <!-- 新建工程弹窗 -->
+  <dialog id="newProjectDialog" style="background:#181822;color:#eee;border:1px solid #3F4259;border-radius:8px;padding:20px 24px;max-width:440px;box-shadow:0 16px 48px rgba(0,0,0,0.85);z-index:9999;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3 style="margin:0;font-size:15px;color:#4ade80;font-weight:700;display:flex;align-items:center;gap:6px;">
+        <span>➕</span> <span data-i18n="new_proj_title">新建文字PV工程</span>
+      </h3>
+      <button id="btnCancelNewProjTop" class="ghost small icon-btn" style="border:none;color:#888;cursor:pointer;">✕</button>
+    </div>
+    <div style="display:grid;gap:12px;font-size:12px;">
+      <label style="display:grid;gap:4px;">
+        <span style="color:#aaa;font-size:11px;" data-i18n="new_proj_id_label">工程标识 ID (仅限英文数字与下划线，作为文件夹名):</span>
+        <input id="newProjId" type="text" placeholder="例如: my_new_song" style="background:#101016;border:1px solid #333;color:#fff;padding:6px 8px;border-radius:4px;font-family:var(--mono);">
+      </label>
+      <label style="display:grid;gap:4px;">
+        <span style="color:#aaa;font-size:11px;" data-i18n="new_proj_name_label">歌曲名称:</span>
+        <input id="newProjTitle" type="text" placeholder="例如: 我的第一支文字PV" style="background:#101016;border:1px solid #333;color:#fff;padding:6px 8px;border-radius:4px;">
+      </label>
+      <label style="display:grid;gap:4px;">
+        <span style="color:#aaa;font-size:11px;" data-i18n="new_proj_artist_label">歌手 / 创作者:</span>
+        <input id="newProjArtist" type="text" placeholder="例如: 初音未来 / 创作者名" style="background:#101016;border:1px solid #333;color:#fff;padding:6px 8px;border-radius:4px;">
+      </label>
+      <div style="font-size:11px;color:#888;background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:4px;line-height:1.5;">
+        💡 创建后可直接把歌曲音频或录屏 MP4 拖拽到页面中，自动识别并生成波形与节拍点。
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
+        <button id="btnCancelNewProj" class="ghost small" style="padding:6px 14px;cursor:pointer;">取消</button>
+        <button id="btnConfirmNewProj" class="small" style="background:#4ade80;color:#08180c;font-weight:700;padding:6px 16px;border:none;border-radius:4px;cursor:pointer;">创建工程</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="saveAsDialog" class="project-dialog" aria-labelledby="saveAsHeading">
+    <form id="saveAsForm" method="dialog">
+      <h2 id="saveAsHeading">另存为独立工程</h2>
+      <label class="field"><span id="saveAsIdLabel">新工程 ID（字母、数字、下划线或横线）</span><input id="saveAsId" type="text" required pattern="[a-zA-Z0-9_\-]+" autocomplete="off"></label>
+      <label class="field"><span id="saveAsTitleLabel">工程名称</span><input id="saveAsTitle" type="text" required></label>
+      <div class="row"><button type="button" id="saveAsCancel">取消</button><button class="primary" type="submit" id="saveAsConfirm">创建副本</button></div>
+    </form>
+  </dialog>
+
+  <!-- 批量匹配与填入歌词弹窗 (Batch Lyrics Match Dialog) -->
+  <dialog id="batchLyricsDialog" style="background:#181824;color:#eee;border:1px solid #3F4259;border-radius:8px;padding:20px 24px;max-width:720px;width:92%;box-shadow:0 16px 48px rgba(0,0,0,0.85);z-index:9999;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid var(--line2);padding-bottom:10px;">
+      <h3 style="margin:0;font-size:16px;color:var(--cyan);font-weight:700;display:flex;align-items:center;gap:6px;">
+        <span>📝</span> <span data-i18n="batch_dialog_title">批量匹配与填入歌词</span>
+      </h3>
+      <button id="btnCancelBatchLyricsTop" class="ghost small icon-btn" style="border:none;color:#888;cursor:pointer;font-size:14px;">✕</button>
+    </div>
+    <p style="margin:0 0 12px 0;font-size:12px;color:var(--text);line-height:1.5;" data-i18n="batch_dialog_desc">
+      将整篇歌词文本一次性粘贴到下方，系统将自动把歌词按顺序匹配到打好的时间点上（无需一条条手动填词）：
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="display:flex;flex-direction:column;">
+        <label style="display:block;font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600;">输入/粘贴歌词文本 (支持每行一句或任意格式):</label>
+        <textarea id="batchLyricsInput" rows="12" style="flex:1;min-height:220px;width:100%;box-sizing:border-box;background:#101016;border:1px solid #333;border-radius:4px;color:#fff;padding:8px;font-size:12px;font-family:var(--font-mono, monospace);resize:none;" data-i18n-ph="batch_dialog_ph" placeholder="在此直接粘贴整篇歌词（每行一句，自动对齐刚刚打好的时间点）…"></textarea>
+      </div>
+      <div style="display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:11px;color:var(--cyan);font-weight:600;" data-i18n="batch_dialog_preview">对齐预览:</span>
+          <span id="batchMatchStat" style="font-size:10px;color:var(--amber);font-family:var(--mono);">打点: 0 | 歌词: 0</span>
+        </div>
+        <div id="batchLyricsPreviewList" style="flex:1;min-height:220px;max-height:260px;overflow-y:auto;background:#101016;border:1px solid #333;border-radius:4px;padding:6px;font-size:11px;font-family:var(--mono);color:var(--muted);">
+          <div style="padding:20px;text-align:center;color:var(--muted);">等待粘贴歌词…</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;border-top:1px solid var(--line2);padding-top:12px;">
+      <button id="btnBatchFillPlaceholders" class="ghost small" style="color:var(--amber);font-size:11px;" title="将打好的时间点填充为动效节奏分段 (♪ BEAT 01...)">💡 填充律动短语占位</button>
+      <div style="display:flex;gap:8px;">
+        <button id="btnCancelBatchLyrics" class="ghost small" style="padding:6px 14px;cursor:pointer;" data-i18n="batch_dialog_cancel">取消</button>
+        <button id="btnConfirmBatchLyrics" class="small" style="background:var(--cyan);color:#081814;font-weight:700;padding:6px 16px;border:none;border-radius:4px;cursor:pointer;" data-i18n="batch_dialog_apply">🚀 确认填入并生成</button>
+      </div>
     </div>
   </dialog>
 </div>

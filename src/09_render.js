@@ -56,6 +56,7 @@ class Renderer {
 
   /* main entry: draw frame at time t into ctx (canvas px = design * scale) */
   frame(ctx, plan, t, opt = {}) {
+    if (J.renderPlanAt) plan = J.renderPlanAt(plan,t);
     const W = plan.W, H = plan.H, scale = opt.scale || 1;
     const cw = ctx.canvas.width, ch = ctx.canvas.height;
     const fx = plan.fx, st = plan.style, fps = plan.fps;
@@ -154,6 +155,49 @@ class Renderer {
     if (plan.hud && !opt.noHud) {
       const env = this.makeEnv(ctx, plan, mainCut, sc, { pass: 'main', t: tq, lt: 0, ltb: 0, step, scale, allowFilter, energy, beat: beatInfo });
       J.drawHUD(env, plan);
+    }
+    // ---------- Opening HUD Card (for 0s-intro tracks like Unknown Mother-Goose) ----------
+    if (plan.openingHUD && tq >= plan.openingHUD.start && tq < plan.openingHUD.end && !opt.noHud) {
+      const oh = plan.openingHUD;
+      let alpha = 1;
+      if (tq - oh.start < 0.4) alpha = (tq - oh.start) / 0.4;
+      else if (oh.end - tq < 0.8) alpha = (oh.end - tq) / 0.8;
+      alpha = Math.max(0, Math.min(1, alpha));
+      if (alpha > 0.01) {
+        ctx.save();
+        const cardX = 36, cardY = H - 84;
+        const fontMono = J.FONTS.mono ? J.FONTS.mono.family : 'monospace';
+        const fontTitle = J.FONTS.gothic_bold ? J.FONTS.gothic_bold.family : 'sans-serif';
+        ctx.globalAlpha = alpha * 0.94;
+        const cardW = Math.min(W * 0.58, 480), cardH = 50;
+        ctx.fillStyle = 'rgba(10, 10, 14, 0.82)';
+        ctx.strokeStyle = 'rgba(245, 165, 12, 0.7)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.rect(cardX, cardY, cardW, cardH);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#f5a50c';
+        ctx.fillRect(cardX, cardY, 3, cardH);
+        const blink = Math.sin(tq * 7) > 0;
+        ctx.fillStyle = blink ? '#ff4444' : '#772222';
+        ctx.beginPath();
+        ctx.arc(cardX + 14, cardY + 16, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#16f4d4';
+        ctx.font = `600 10px ${fontMono}`;
+        ctx.fillText('NOW PLAYING' + (oh.bpm ? ` // BPM ${oh.bpm}` : ''), cardX + 24, cardY + 19);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `700 13px ${fontTitle}`;
+        const titleStr = oh.title + (oh.artist ? `  -  ${oh.artist}` : '');
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(cardX + 12, cardY + 24, cardW - 20, 22);
+        ctx.clip();
+        ctx.fillText(titleStr, cardX + 12, cardY + 40);
+        ctx.restore();
+        ctx.restore();
+      }
     }
     ctx.restore();
     // ---------- post ----------

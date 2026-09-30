@@ -4,6 +4,7 @@ scratch_screenshot*.png
 *.mp4
 *.wav
 *.log
+dev/www/
 
 # Personal projects & local data
 projects/

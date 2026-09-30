@@ -86,7 +86,13 @@ J.omakase = (project, rnd = Math.random) => {
   }
   // keep locked lines, drop other per-line picks
   const overrides = {};
-  for (const [i, o] of Object.entries(project.overrides || {})) if (o.lock) overrides[i] = o;
+  for (const [i, o] of Object.entries(project.overrides || {})) {
+    if (o.lock) overrides[i] = JSON.parse(JSON.stringify(o));
+    else {
+      const cuts = Object.fromEntries(Object.entries(o.cuts || {}).filter(([,c]) => c.lock));
+      if (Object.keys(cuts).length) overrides[i] = JSON.parse(JSON.stringify({_structure:o._structure,cuts}));
+    }
+  }
   return { mood, style, fx, enabled, fonts, colors, overrides, seed: Math.floor(rnd() * 1e9) };
 };
 })();

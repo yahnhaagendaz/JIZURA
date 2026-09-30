@@ -32,14 +32,14 @@ J.analyzeAudio = async (file) => {
     let m = 0, k = 0; for (let j = Math.max(0, f - 4); j < f; j++) { m += Math.log(1e-4 + flux[j]); k++; }
     onset[f] = Math.max(0, cur - m / Math.max(1, k));
   }
-  // tempo via autocorrelation (70..180 BPM)
-  const minLag = Math.round(rate * 60 / 180), maxLag = Math.round(rate * 60 / 70);
+  // tempo via autocorrelation (60..260 BPM, supporting ultra-fast tracks like wowaka 222 BPM)
+  const minLag = Math.round(rate * 60 / 260), maxLag = Math.round(rate * 60 / 60);
   let best = 0, bestLag = Math.round(rate * 0.5);
   const scores = [];
   for (let lag = minLag; lag <= maxLag; lag++) {
     let s = 0; for (let f = lag; f < n; f++) s += onset[f] * onset[f - lag];
     const bpm = 60 * rate / lag;
-    const w = Math.exp(-0.5 * Math.pow(Math.log2(bpm / 125) / 0.7, 2));
+    const w = Math.exp(-0.5 * Math.pow(Math.log2(bpm / 135) / 0.95, 2));
     s *= w; scores[lag] = s;
     if (s > best) { best = s; bestLag = lag; }
   }
@@ -62,11 +62,11 @@ J.analyzeAudio = async (file) => {
   const p95 = sorted[Math.floor(sorted.length * 0.95)] || 1;
   const energyN = new Float32Array(n);
   for (let f = 0; f < n; f++) energyN[f] = Math.min(1, energy[f] / p95);
-  // waveform peaks for the timeline
-  const bins = 1600, peaks = new Float32Array(bins), per = Math.max(1, Math.floor(len / bins));
+  // waveform peaks for the timeline (3200 bins for high-density zoomed waveform)
+  const bins = 3200, peaks = new Float32Array(bins), per = Math.max(1, Math.floor(len / bins));
   for (let b = 0; b < bins; b++) { let m = 0; for (let i = b * per, e = Math.min(len, (b + 1) * per); i < e; i += 4) { const v = Math.abs(mono[i]); if (v > m) m = v; } peaks[b] = m; }
   return {
-    name: file.name, duration: audioBuffer.duration, sampleRate: sr, buffer: audioBuffer,
+    file, name: file.name, duration: audioBuffer.duration, sampleRate: sr, buffer: audioBuffer,
     bpm: Math.round(60 / period * 10) / 10, beats, energy: energyN, energyRate: rate, peaks,
   };
 };
@@ -96,5 +96,45 @@ J.playTick = (pitch = 1000, dur = 0.035, vol = 0.35) => {
     osc.start();
     osc.stop(J._tickCtx.currentTime + dur);
   } catch (e) {}
+};
+
+/* generate smart rhythmic phrase template or map raw lyrics across beat downbeats */
+J.generateSmartBeatPhrases = (currentLyrics, audio, fallbackBpm = 120) => {
+  const bpm = (audio && audio.bpm > 0) ? audio.bpm : (fallbackBpm > 0 ? fallbackBpm : 120);
+  const dur = (audio && audio.duration > 0) ? audio.duration : 60;
+  const beats = (audio && audio.beats && audio.beats.length) ? audio.beats : J.beatGrid(bpm, 0, dur);
+  const beatsPerLine = bpm > 160 ? 8 : 4;
+
+  const rawLines = String(currentLyrics || '')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => l && !l.startsWith('#'));
+
+  const cleanTexts = rawLines.map(l => l.replace(/^\[\d+:\d+(?:\.\d+)?(?:-\d+:\d+(?:\.\d+)?)?\]\s*/, '').trim()).filter(Boolean);
+
+  const fmtLrc = sec => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `[${String(m).padStart(2, '0')}:${s.toFixed(2).padStart(5, '0')}]`;
+  };
+
+  const lines = [];
+  if (cleanTexts.length > 0) {
+    cleanTexts.forEach((txt, idx) => {
+      const bIdx = Math.min(beats.length - 1, idx * beatsPerLine);
+      const t = (beats[bIdx] != null) ? beats[bIdx] : idx * (60 / bpm * beatsPerLine);
+      lines.push(`${fmtLrc(t)}${txt}`);
+    });
+  } else {
+    lines.push(`# 智能节拍分句模版 (BPM ${Math.round(bpm)} · 每 ${beatsPerLine} 拍一句)`);
+    let lineIdx = 1;
+    for (let b = 0; b < beats.length; b += beatsPerLine) {
+      const t = beats[b];
+      if (t >= dur - 0.5) break;
+      lines.push(`${fmtLrc(t)}分句 ${String(lineIdx).padStart(2, '0')} /`);
+      lineIdx++;
+    }
+  }
+  return lines.join('\n');
 };
 })();

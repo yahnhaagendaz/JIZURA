@@ -28,7 +28,149 @@ J.CORE_ORDER = { layout: J.LAYOUT_ORDER.slice(), enter: J.ENTER_ORDER.slice(), e
 J.komaOf = fx => (fx.koma != null ? +fx.koma : (fx.onTwos === false ? 0 : 12));
 J.stepDur = (fx, fps) => { const k = J.komaOf(fx); return k > 0 ? 1 / k : 1 / (fps || 24); };
 
-/* ---------------- lyric parsing ---------------- */
+/* ---------------- lyric parsing & formatting ---------------- */
+J.fmtTimeTag = (sec) => {
+  const sTotal = Math.max(0, Number(sec) || 0);
+  const m = Math.floor(sTotal / 60);
+  const s = sTotal % 60;
+  return `${String(m).padStart(2, '0')}:${s.toFixed(2).padStart(5, '0')}`;
+};
+
+J.fmtLrc = (sec) => {
+  return `[${J.fmtTimeTag(sec)}]`;
+};
+
+J.parseTimeStr = (str, relativeBase = null) => {
+  if (str == null) return null;
+  const s = String(str).trim();
+  if (!s) return null;
+  const rel = s.match(/^([+-])\s*(\d+(?:\.\d+)?)$/);
+  if (rel && relativeBase != null) {
+    const delta = (rel[1] === '-' ? -1 : 1) * parseFloat(rel[2]);
+    return Math.max(0, +(relativeBase + delta).toFixed(2));
+  }
+  const col = s.match(/^(\d+):(\d+(?:[.:]\d+)?)$/);
+  if (col) {
+    const m = parseInt(col[1], 10);
+    const sec = parseFloat(col[2].replace(':', '.'));
+    return Math.max(0, +(m * 60 + sec).toFixed(2));
+  }
+  const v = parseFloat(s);
+  if (isFinite(v)) return Math.max(0, +v.toFixed(2));
+  return null;
+};
+
+J.parseTimeRange = (str, curStart = 0, curEnd = null) => {
+  if (!str) return null;
+  const s = String(str).trim();
+  const m = s.match(/^(.+?)\s*[-~至到,，]\s*(.+)$/);
+  if (m) {
+    const t0 = J.parseTimeStr(m[1], curStart);
+    const t1 = J.parseTimeStr(m[2], curEnd ?? ((t0 ?? curStart) + 2.0));
+    if (t0 != null && t1 != null) {
+      return { start: Math.max(0, t0), end: Math.max(t0 + 0.05, t1) };
+    }
+  }
+  const single = J.parseTimeStr(s, curStart);
+  if (single != null) {
+    return { start: single, end: null };
+  }
+  return null;
+};
+
+J.createCutLine = (sec, cutIndex, isZh = true) => {
+  const timeTag = J.fmtLrc(sec);
+  const label = isZh ? `镜头 ${cutIndex} /` : `カット ${cutIndex} /`;
+  return `${timeTag}${label}`;
+};
+
+J.extractCleanLyrics = (rawText) => {
+  if (!rawText) return [];
+  const lines = [];
+  for (let line of String(rawText).replace(/\r/g, '').split('\n')) {
+    let s = line.trim();
+    if (!s || s.startsWith('#')) continue;
+    if (/^\[(ti|ar|al|by|offset):/i.test(s)) continue;
+    s = s.replace(/\[\d+:\d+(?:[.:]\d+)?(?:\s*[-~至到]\s*\d+:\d+(?:[.:]\d+)?)?\]/g, '');
+    s = s.replace(/\s*(?:#|\/\/).*$/, '').trim();
+    if (!s) continue;
+    lines.push(s);
+  }
+  return lines;
+};
+
+J.batchMatchLyrics = (cueTimes, lyricsText, isZh = true) => {
+  const cues = Array.isArray(cueTimes) ? cueTimes.map(Number).filter(isFinite).sort((a, b) => a - b) : [];
+  const cleanLines = J.extractCleanLyrics(lyricsText);
+  const totalCues = cues.length;
+  const totalLyrics = cleanLines.length;
+  const maxN = Math.max(totalCues, totalLyrics);
+
+  if (maxN === 0) {
+    return { text: '', matchedCount: 0, totalCues: 0, totalLyrics: 0, pairs: [] };
+  }
+
+  const pairs = [];
+  const outLines = [];
+  let defaultStep = 2.8;
+  if (totalCues >= 2) {
+    const computed = (cues[totalCues - 1] - cues[0]) / (totalCues - 1);
+    if (computed >= 0.5 && isFinite(computed)) defaultStep = +computed.toFixed(2);
+  }
+
+  for (let i = 0; i < maxN; i++) {
+    let t;
+    if (i < totalCues) {
+      t = cues[i];
+    } else {
+      const lastT = pairs.length > 0 ? pairs[pairs.length - 1].time : 0;
+      t = +(lastT + defaultStep).toFixed(2);
+    }
+
+    let text;
+    let isPlaceholder = false;
+    if (i < totalLyrics) {
+      text = cleanLines[i];
+    } else {
+      isPlaceholder = true;
+      const num = i + 1;
+      text = isZh ? `♪ 间奏·镜头 ${num}` : `♪ インター・カット ${num}`;
+    }
+
+    pairs.push({ index: i, time: t, text, isPlaceholder });
+    outLines.push(`${J.fmtLrc(t)}${text}`);
+  }
+
+  const matchedCount = Math.min(totalCues, totalLyrics);
+  return {
+    text: outLines.join('\n'),
+    matchedCount,
+    totalCues,
+    totalLyrics,
+    pairs
+  };
+};
+
+J.syncPlanToLrc = (plan, project) => {
+  if (!plan || !plan.lines || !plan.lines.length) {
+    return (project && project.lyrics) || '';
+  }
+  const outLines = [];
+  plan.lines.forEach((ln, i) => {
+    const s = (project.timing && project.timing.lineTimes && project.timing.lineTimes[i] != null) ? project.timing.lineTimes[i] : ln.start;
+    const e = (project.timing && project.timing.lineEnds && project.timing.lineEnds[i] != null) ? project.timing.lineEnds[i] : null;
+    let tag = J.fmtLrc(s);
+    if (e != null && e > s) {
+      tag = `[${J.fmtTimeTag(s)}-${J.fmtTimeTag(e)}]`;
+    }
+    let body = ln.text;
+    if (ln.note) body += ` | ${ln.note}`;
+    if (ln.impact) body += '!';
+    outLines.push(`${tag}${body}`);
+  });
+  return outLines.join('\n');
+};
+
 J.parseLyrics = (raw) => {
   const lines = []; const meta = {};
   let pendingGap = false;
@@ -51,7 +193,7 @@ J.parseLyrics = (raw) => {
     const bar = s.indexOf('|');
     if (bar >= 0) { note = s.slice(bar + 1).trim() || null; s = s.slice(0, bar).trim(); }
     let impact = false;
-    if (/[!！]$/.test(s) && s.length > 1 && /!$/.test(s)) { impact = true; s = s.slice(0, -1).trim(); }
+    if (/[!！]$/.test(s) && s.length > 1) { impact = true; s = s.slice(0, -1).trim(); }
     const emph = [];
     s = s.replace(/\*([^*]+)\*/g, (_, w) => { emph.push(w); return w; });
     let manual = null;
@@ -171,13 +313,12 @@ J.computeTiming = (project, parsed, audio) => {
   const lines = parsed.lines;
   const beat = T.bpm > 0 ? 60 / T.bpm : 0;
   const starts = [];
-  const allLrc = lines.length && lines.every(l => l.lrc != null);
   let t = T.offset ?? 0.4;
   lines.forEach((l, i) => {
     const man = T.lineTimes && T.lineTimes[i] != null ? +T.lineTimes[i] : null;
     let s;
-    if (allLrc) s = l.lrc;
-    else if (man != null && isFinite(man)) s = man;
+    if (man != null && isFinite(man)) s = man;
+    else if (l.lrc != null) s = l.lrc;
     else {
       if (i > 0) {
         const n = [...lines[i - 1].text].length;
@@ -244,11 +385,21 @@ J.plan = (project, audio) => {
   if (title && firstStart >= 1.1) {
     const rng = J.rng(J.h(project.seed, 999));
     plan.cuts.push(makeCut({ text: title, note: artist, lineText: title, line: -1, start: 0.1, end: firstStart - 0.04, layout: 'title', enter: rng.pick(['blur', 'type', 'wipe', 'assemble']), exit: rng.pick(['blur', 'drift', 'wipe']), hold: 'still', params: J.LAYOUTS.title.plan(rng, {}, st), decor: [], scheme: 0, seed: J.h(project.seed, 999, 1) }));
+  } else if (title) {
+    plan.openingHUD = {
+      title,
+      artist,
+      bpm: (project.timing && project.timing.bpm) || (audio && audio.bpm) || null,
+      start: 0.0,
+      end: Math.min(5.5, tm.duration * 0.15)
+    };
   }
 
   parsed.lines.forEach((ln, li) => {
+    history.length = 0; bgHistory.length = 0; fxHistory.length = 0;
+    schemeIdx = J.h(project.seed, li, 71) % nSchemes;
     const s = tm.starts[li], e = tm.ends[li];
-    const ov = (project.overrides || {})[li] || {};
+    const ov = (project.overrides || project.custom || {})[li] || {};
     const lineSeed = ov.lock && ov.lockedSeed != null ? ov.lockedSeed : J.h(project.seed, li + 1, ov.seed | 0);
     const rng = J.rng(lineSeed);
     const n = [...ln.text].length;
@@ -269,12 +420,21 @@ J.plan = (project, audio) => {
     if (nG <= 1) groups = [ln.text];
     else groups = partition(chunks, nG).map(g => g.join(/[A-Za-z]/.test(g.join('')) ? ' ' : ''));
     const recap = nC > groups.length && groups.length >= 2;
-    const units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
+    let units = groups.map(g => ({ text: g, w: [...g].length + 1.6 }));
     if (recap) units.push({ text: ln.text, w: (units.reduce((a, u) => a + u.w, 0) / units.length) * 1.25, recap: true });
+    const fixed = ov._structure && ov._structure.text === ln.text ? ov._structure.cuts : null;
+    if (fixed && fixed.length) units = fixed.map(c => ({ text:c.text, w:1, recap:c.recap }));
     const tot = units.reduce((a, u) => a + u.w, 0);
     let acc = s; const bounds = [s];
-    units.forEach((u, k) => { acc += D * u.w / tot; bounds.push(k === units.length - 1 ? visEnd : acc); });
+    units.forEach((u, k) => {
+      const ov = Object.assign({}, (project.overrides || project.custom || {})[li] || {}, ((project.overrides || {})[li]?.cuts || {})[k] || {});
+      const rng = J.rng(J.h(lineSeed,k,ov.seed|0,909));
+      history.length = 0; fxHistory.length = 0; acc += D * u.w / tot; bounds.push(k === units.length - 1 ? visEnd : acc); });
     for (let k = 1; k < bounds.length - 1; k++) bounds[k] = J.clamp(snap(bounds[k]), bounds[k - 1] + 0.22, bounds[k + 1] - 0.22);
+    if (fixed && fixed.length) {
+      const oldD = fixed[fixed.length-1].end || D;
+      bounds.splice(0,bounds.length,s,...fixed.map(c => s+(Math.abs(D-oldD)<1e-8 ? c.end : c.end*D/oldD)));
+    }
     // scheme per line
     if (nSchemes > 1 && li > 0 && rng.chance(fx.bgSwitch * (ln.impact ? 1.8 : 1))) schemeIdx = (schemeIdx + 1 + rng.int(0, nSchemes - 2)) % nSchemes;
     const emphLine = ln.impact || ln.emph.length > 0;
@@ -283,6 +443,12 @@ J.plan = (project, audio) => {
     bgHistory.push(lineBg);
     let lineBgP = J.BG[lineBg] && J.BG[lineBg].plan ? J.BG[lineBg].plan(rng, st) : {};
     units.forEach((u, k) => {
+      const ov = Object.assign({}, (project.overrides || project.custom || {})[li] || {}, ((project.overrides || {})[li]?.cuts || {})[k] || {});
+      const rng = J.rng(J.h(lineSeed,k,ov.seed|0,909));
+      history.length = 0; fxHistory.length = 0;
+      const bgHistory = [];
+      let lineBg = ov.bg && J.BG[ov.bg] ? ov.bg : pickBg(rng, st, en, fx, bgHistory);
+      let lineBgP = J.BG[lineBg]?.plan ? J.BG[lineBg].plan(rng, st) : {};
       const cs = bounds[k], ce = bounds[k + 1], dur = ce - cs;
       const txt = u.text;
       const nn = [...txt.replace(/\s+/g, '')].length;
@@ -300,19 +466,19 @@ J.plan = (project, audio) => {
       if (['explode', 'fall', 'drift'].includes(exit)) outDur = J.clamp(dur * 0.38, 0.25, 0.7);
       if (J.EXIT[exit] && J.EXIT[exit].outDur) outDur = J.EXIT[exit].outDur(dur, nn);
       if (inDur + outDur > dur * 0.92) { const f = dur * 0.92 / (inDur + outDur); inDur *= f; outDur *= f; }
-      let sch = schemeIdx;
-      if (nSchemes > 1 && k > 0 && rng.chance(0.12 * fx.bgSwitch)) sch = (schemeIdx + 1) % nSchemes;
+      let sch = (ov.scheme !== undefined && ov.scheme !== null) ? (ov.scheme % nSchemes) : schemeIdx;
+      if (ov.scheme == null && nSchemes > 1 && k > 0 && rng.chance(0.12 * fx.bgSwitch)) sch = (schemeIdx + 1) % nSchemes;
       const LD = J.LAYOUTS[layout];
       const params = LD.plan(rng, { text: txt, n: nn, W, H, dur }, st);
       const decor = Array.isArray(ov.decor) ? ov.decor.filter(id => J.DECOR[id]).map(id => decorParams(rng, id)) : pickDecor(rng, st, en, fx, layout, history);
       const treat = ov.treat && J.TREAT[ov.treat] ? ov.treat : pickTreat(rng, st, en, fx, LD, emph, history);
       const treatP = J.TREAT[treat].plan ? J.TREAT[treat].plan(rng, st) : {};
       if (!ov.bg && k > 0 && rng.chance(0.18 * fx.bgSwitch + 0.04)) { lineBg = pickBg(rng, st, en, fx, bgHistory); lineBgP = J.BG[lineBg].plan ? J.BG[lineBg].plan(rng, st) : {}; }
-      const bg = LD.busy && !(J.BG[lineBg] && J.BG[lineBg].subtle) ? 'none' : lineBg;
+      const bg = ov.bg && J.BG[ov.bg] ? ov.bg : (LD.busy && !(J.BG[lineBg] && J.BG[lineBg].subtle) ? 'none' : lineBg);
       const cam = ov.cam && J.CAMERA[ov.cam] ? ov.cam : pickCam(rng, st, en, fx, LD, emph, history);
       const camP = J.CAMERA[cam].plan ? J.CAMERA[cam].plan(rng, st) : {};
-      const cut = makeCut({ text: txt, lineText: ln.text, note: ln.note, line: li, start: cs, end: ce, layout, enter, exit, hold, inDur, outDur, params, decor, scheme: sch, seed: J.h(lineSeed, k, 17), emph, recap: !!u.recap, words: J.chunkText(txt), stagger: rng.range(0.025, 0.06),
-        treat, treatP, bg, bgP: bg === lineBg ? lineBgP : {}, cam, camP });
+      const cut = makeCut({ subIndex:k, text: txt, lineText: ln.text, note: ln.note, line: li, start: cs, end: ce, layout, enter, exit, hold, inDur, outDur, params, decor, scheme: sch, seed: J.h(lineSeed, k, 17), emph, recap: !!u.recap, words: J.chunkText(txt), stagger: rng.range(0.025, 0.06),
+        treat, treatP, bg, bgP: bg === lineBg ? lineBgP : {}, cam, camP, locked: !!ov.lock });
       plan.cuts.push(cut);
       history.push({ layout, enter, exit, hold, treat, cam, decor: decor.map(d => d.id) });
       // events at cut start
@@ -349,6 +515,7 @@ J.plan = (project, audio) => {
   plan.events.sort((a, b) => a.t - b.t);
   plan.energy = audio && audio.energy ? audio.energy : null;
   plan.energyRate = audio && audio.energyRate ? audio.energyRate : 0;
+  if (J.restoreLockedCuts) J.restoreLockedCuts(project, plan);
   return plan;
 };
 
